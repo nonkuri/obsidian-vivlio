@@ -1,0 +1,192 @@
+/**
+ * Conversion smoke test.
+ *
+ * Runs the real VFM pipeline - notation rules, links, Obsidian block syntax -
+ * against a note that exercises every stage of SPEC 5.3, and checks the
+ * output. Runs outside Obsidian against the stub in obsidian-stub.ts.
+ */
+import { TFile } from "obsidian";
+import { convertChapter } from "../src/build/vfm";
+import { bookStylesheet } from "../src/build/css";
+import type { BuildContext, Chapter } from "../src/build/context";
+import { Workspace } from "../src/build/workspace";
+import { baseBookConfig, DEFAULT_SETTINGS } from "../src/config/defaults";
+import { setLanguage } from "../src/i18n";
+
+function makeFile(path: string): TFile {
+  const file = new TFile();
+  file.path = path;
+  file.name = path.split("/").pop() ?? path;
+  file.basename = file.name.replace(/\.md$/, "");
+  file.extension = path.split(".").pop() ?? "md";
+  return file;
+}
+
+const chapterOne = makeFile("book/01.md");
+const chapterTwo = makeFile("book/02.md");
+const picture = makeFile("book/fig.png");
+const outsider = makeFile("elsewhere/Other.md");
+
+const files: Record<string, TFile> = {
+  "01": chapterOne,
+  "02": chapterTwo,
+  "fig.png": picture,
+  Other: outsider,
+  "第二章": chapterTwo,
+};
+
+function makeContext(overrides: Partial<BuildContext> = {}): BuildContext {
+  const config = baseBookConfig();
+  const workspace = new Workspace("test");
+
+  const chapters: Chapter[] = [
+    {
+      docName: "ch01.html",
+      file: chapterOne,
+      title: "第一章",
+      role: null,
+      slot: null,
+      isBody: true,
+      isFrontMatter: false,
+    },
+    {
+      docName: "ch02.html",
+      file: chapterTwo,
+      title: "第二章",
+      role: null,
+      slot: null,
+      isBody: true,
+      isFrontMatter: false,
+    },
+  ];
+
+  const context: BuildContext = {
+    app: {
+      metadataCache: {
+        getFirstLinkpathDest: (linkpath: string) => files[linkpath] ?? null,
+        getFileCache: () => ({ frontmatter: undefined, headings: [] }),
+      },
+      vault: {
+        cachedRead: async () => "",
+        getFileByPath: (path: string) =>
+          Object.values(files).find((file) => file.path === path) ?? null,
+      },
+    } as unknown as BuildContext["app"],
+    settings: { ...DEFAULT_SETTINGS },
+    config,
+    workspace,
+    mode: "preview",
+    bookRoot: "book",
+    chapters,
+    chapterByPath: new Map(chapters.map((chapter) => [chapter.file!.path, chapter])),
+    headings: new Map([
+      ["book/02.md", [{ level: 1, text: "第二章", slug: "第二章" }]],
+    ]),
+    warnings: [],
+    component: {} as BuildContext["component"],
+    workspaceBase: "http://127.0.0.1:1/s/t/w/test/",
+    vaultBase: "http://127.0.0.1:1/s/t/vault/",
+    themeBase: "http://127.0.0.1:1/s/t/themes/",
+    ...overrides,
+  };
+  return context;
+}
+
+const SAMPLE = `---
+title: 第一章
+vivlio-theme: bunko
+---
+
+# 第一章
+
+《《ここは傍点》》になり、｜漢字《かんじ》にルビが付く。^^10^^ 年と 42 冊。
+
+==ハイライト== は傍点になる。%%この注記は消える%%
+
+> [!note] おぼえがき
+> ここは callout の本文。
+
+- [ ] まだ
+- [x] おわった
+
+#タグ は消える。 [[02]] は章間リンク、[[Other|よそのノート]] はただの文字列になる。
+
+![[fig.png|300]]
+
+\`\`\`js
+const x = 42; // 42 must stay a plain number inside code
+\`\`\`
+
+^block-id
+`;
+
+interface Check {
+  label: string;
+  ok: boolean;
+  detail?: string;
+}
+
+function check(label: string, ok: boolean, detail?: string): Check {
+  return { label, ok, detail };
+}
+
+async function main(): Promise<void> {
+  setLanguage("ja");
+  const context = makeContext();
+  const chapter = context.chapters[0];
+  const html = await convertChapter(context, chapter, chapterOne, SAMPLE);
+
+  const checks: Check[] = [
+    check("emphasis dots", html.includes('<span class="boten">ここは傍点</span>')),
+    check("ruby", /<ruby>漢字<rp>\(<\/rp><rt>かんじ<\/rt>/.test(html)),
+    check("explicit tate-chu-yoko", html.includes('<span class="tcy">10</span>')),
+    check("automatic tate-chu-yoko", html.includes('<span class="tcy">42</span>')),
+    check("highlight becomes emphasis dots", html.includes('<span class="boten">ハイライト</span>')),
+    check("comment stripped", !html.includes("この注記は消える")),
+    check("block id stripped", !html.includes("block-id")),
+    check("callout", html.includes('class="callout callout-note"')),
+    check("callout title", html.includes("おぼえがき")),
+    check("task list", html.includes('data-checked="false"') && html.includes('data-checked="true"')),
+    check("no checkbox input", !html.includes('type="checkbox"')),
+    check("tag stripped", !html.includes("タグ は")),
+    check("in-book wikilink", html.includes('href="ch02.html"')),
+    check("out-of-book wikilink flattened", html.includes("よそのノート") && !html.includes('href="Other')),
+    check("image resolved to the vault route", html.includes("/vault/book/fig.png")),
+    check("image width is logical", html.includes("inline-size: min(300px, 100%)")),
+    check("stylesheet linked", html.includes('href="vivlio.css"')),
+    check("plugin frontmatter is not a meta tag", !html.includes('name="vivlio-theme"')),
+  ];
+
+  // The point of running notations as a tree pass rather than on the source:
+  // a code block must come out untouched.
+  const code = html.slice(html.indexOf("<pre"), html.indexOf("</pre>"));
+  checks.push(check("code block untouched", !code.includes('class="tcy"'), code.trim().slice(0, 200)));
+
+  const css = bookStylesheet(context, "http://example.invalid/theme.css");
+  checks.push(
+    check("stylesheet imports the theme", css.startsWith('@import url("http://example.invalid/theme.css");')),
+    check("writing mode variable", css.includes("--vs-writing-mode: vertical-rl;")),
+    check("page size variable", css.includes("--vs-page--size: 105mm 148mm;")),
+    check("emphasis dot style", css.includes("text-emphasis: filled sesame")),
+  );
+
+  let failed = 0;
+  for (const result of checks) {
+    if (!result.ok) failed += 1;
+    console.log(`${result.ok ? "ok  " : "FAIL"} ${result.label}${result.detail && !result.ok ? `\n     ${result.detail}` : ""}`);
+  }
+
+  if (context.warnings.length > 0) {
+    console.log("\nwarnings:");
+    for (const warning of context.warnings) console.log(`  - ${warning.kind}: ${warning.message}`);
+  }
+
+  if (failed > 0 || process.env.VIVLIO_DUMP) {
+    console.log(`\n--- html ---\n${html}`);
+    console.error(`\n${failed} check(s) failed`);
+    process.exit(1);
+  }
+  console.log("\nall checks passed");
+}
+
+void main();

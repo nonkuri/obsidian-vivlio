@@ -1,0 +1,6 @@
+# Normalise line endings so the repository stays LF regardless of platform.
+* text=auto eol=lf
+
+*.png binary
+*.woff2 binary
+*.pdf binary

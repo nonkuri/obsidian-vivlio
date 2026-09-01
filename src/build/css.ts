@@ -1,0 +1,277 @@
+import type { BuildContext } from "./context";
+import { resolvePaperSize } from "../config/defaults";
+import { bundledThemePath } from "../vendor/assets";
+import { fontFaceRules } from "./fonts";
+
+/**
+ * The stylesheet the plugin generates for a book.
+ *
+ * Every setting lands as an override of a theme CSS variable rather than as a
+ * rule of its own (SPEC 5.10): theme-base drives page size, margins, fonts and
+ * margin boxes through variables, so overriding them keeps the theme's own
+ * design decisions intact.
+ */
+export function bookStylesheet(context: BuildContext, themeUrl: string): string {
+  const { config } = context;
+  const blocks: string[] = [];
+
+  blocks.push(`@import url("${themeUrl}");`);
+
+  const root: string[] = [];
+  root.push(`--vs-writing-mode: ${config.writingMode};`);
+
+  // Page size. `charsPerLine` / `linesPerPage` drive the size in bunko, so an
+  // explicit size wins and switches the theme's calculation off.
+  const size = resolvePaperSize(config.size);
+  if (size && size !== "auto") {
+    root.push(`--vs-page--size: ${size};`);
+    root.push("--vs-page--width: auto;");
+    root.push("--vs-page--height: auto;");
+  }
+  if (config.charsPerLine) root.push(`--vs-theme--num-of-character: ${config.charsPerLine};`);
+  if (config.linesPerPage) root.push(`--vs-theme--num-of-line: ${config.linesPerPage};`);
+
+  if (config.fontFamily) root.push(`--vs-font-family: ${config.fontFamily};`);
+  if (config.headingFontFamily) {
+    root.push(`--vs--heading-font-family: ${config.headingFontFamily};`);
+  }
+  if (config.monospaceFontFamily) {
+    root.push(`--vs--monospace-font-family: ${config.monospaceFontFamily};`);
+  }
+  if (config.mboxFontFamily) root.push(`--vs-page--mbox-font-family: ${config.mboxFontFamily};`);
+  if (config.fontFeatureSettings) {
+    root.push(`--vs-font-feature-settings: ${config.fontFeatureSettings};`);
+  }
+  if (config.baseFontSize) root.push(`--vs--html-font-size: ${config.baseFontSize};`);
+  if (config.rubyFontSize) root.push(`--vs--rt-font-size: ${config.rubyFontSize};`);
+  root.push(`--vs--tcy-font-family: ${config.tcyFontFamily || "inherit"};`);
+
+  if (config.cropMarks) root.push("--vs-page--marks: crop cross;");
+  if (config.bleed) root.push(`--vs-page--bleed: ${config.bleed};`);
+
+  blocks.push(`:root {\n  ${root.join("\n  ")}\n}`);
+
+  const faces = fontFaceRules(context);
+  if (faces) blocks.push(faces);
+
+  blocks.push(NOTATION_CSS);
+  blocks.push(coverCss(context));
+  blocks.push(sectionCss());
+  blocks.push(pageNumberingCss(context));
+
+  if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
+
+  return blocks.filter(Boolean).join("\n\n");
+}
+
+/** URL of the theme entry stylesheet, bundled or from the vault. */
+export function themeUrlFor(context: BuildContext): string {
+  const theme = context.config.theme || "bunko";
+  const bundled = bundledThemePath(theme);
+  if (bundled) return `${context.themeBase}${bundled}`;
+
+  const file = context.app.vault.getFileByPath(theme);
+  if (file) {
+    return `${context.vaultBase}${file.path.split("/").map(encodeURIComponent).join("/")}`;
+  }
+  return `${context.themeBase}${bundledThemePath("bunko")}`;
+}
+
+/**
+ * Styling for the notations the plugin introduces (SPEC 5.3).
+ *
+ * `.boten` is shared by the Kakuyomu emphasis-dot syntax and by
+ * `==highlight==` in its default mode, so there is one place to restyle.
+ */
+const NOTATION_CSS = `
+.boten {
+  font-style: normal;
+  text-emphasis: filled sesame;
+  text-emphasis-position: over right;
+}
+
+.tcy {
+  text-combine-upright: all;
+  font-family: var(--vs--tcy-font-family, inherit);
+}
+
+.callout {
+  display: block;
+  break-inside: avoid;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  padding: 0.6rem 0.8rem;
+  margin-block: 1rem;
+}
+
+.callout-title {
+  font-weight: bold;
+  margin-block: 0 0.4rem;
+}
+
+.callout > :last-child {
+  margin-block-end: 0;
+}
+
+ul.task-list,
+ol.task-list {
+  list-style: none;
+  padding-inline-start: 1.4em;
+}
+
+/* The box is drawn as content rather than as a form control, so the PDF gets
+   a glyph instead of a widget. */
+.task-list-item {
+  list-style: none;
+}
+
+.task-list-item::before {
+  content: "\\2610\\0020";
+}
+
+.task-list-item[data-checked="true"]::before {
+  content: "\\2611\\0020";
+}
+
+.vivlio-placeholder {
+  outline: 1px dashed currentColor;
+  padding: 0 0.2em;
+  opacity: 0.7;
+}
+
+.vivlio-rendered {
+  break-inside: avoid;
+  margin-block: 1rem;
+}
+
+/* Rendered dataview output arrives with Obsidian's class names; give it a
+   minimal print style rather than depending on the app's own theme. */
+.vivlio-rendered table {
+  border-collapse: collapse;
+  inline-size: 100%;
+}
+
+.vivlio-rendered th,
+.vivlio-rendered td {
+  border: 0.5px solid currentColor;
+  padding: 0.2em 0.4em;
+}
+
+.vivlio-rendered svg {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
+.vivlio-error {
+  color: #b00;
+  border: 1px solid currentColor;
+  padding: 0.5rem;
+}
+
+.tag {
+  font-size: 0.85em;
+}
+`.trim();
+
+/**
+ * Cover styling (SPEC 5.9).
+ *
+ * theme-base already understands `role="doc-cover"`: it hides the margin boxes
+ * and keeps the cover out of the page count, so only the image fit is left.
+ */
+function coverCss(context: BuildContext): string {
+  const fit = context.config.coverFit === "contain" ? "contain" : "cover";
+  return `
+@page cover {
+  margin: 0;
+}
+
+.cover {
+  block-size: 100%;
+  margin: 0;
+}
+
+.cover img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: ${fit};
+}
+`.trim();
+}
+
+/** Named pages for the two front-matter parts DPUB-ARIA has no role for. */
+function sectionCss(): string {
+  return `
+.titlepage {
+  page: titlepage;
+}
+
+.halftitle {
+  page: halftitle;
+}
+
+@page titlepage, halftitle {
+  --vs-page--mbox-visibility: hidden;
+}
+
+.titlepage,
+.halftitle {
+  text-align: center;
+  break-after: page;
+}
+
+.titlepage .title,
+.halftitle .title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-block: 6rem 2rem;
+}
+
+.titlepage .subtitle {
+  font-size: 1.1rem;
+  margin-block-end: 4rem;
+}
+
+.titlepage .author {
+  margin-block-start: 6rem;
+}
+
+[role="doc-colophon"] table {
+  border-collapse: collapse;
+}
+
+[role="doc-colophon"] th {
+  text-align: start;
+  padding-inline-end: 1em;
+  font-weight: normal;
+}
+`.trim();
+}
+
+/**
+ * Page numbering (SPEC 5.11).
+ *
+ * Front matter carries `vivlio-front-matter` on its root element, so the
+ * roman numerals are set through the same margin-box variables the theme
+ * uses; the page counter restarts on the first body chapter.
+ */
+function pageNumberingCss(context: BuildContext): string {
+  const mode = context.config.pageNumbering;
+
+  if (mode === "none") {
+    return `:root { --vs-page--mbox-visibility: hidden; }`;
+  }
+
+  const reset = `.vivlio-page-reset { counter-reset: page 0; }`;
+  if (mode === "continuous") return reset;
+
+  return `
+${reset}
+
+:root.vivlio-front-matter {
+  --vs-theme--page-top-left-content: counter(page, lower-roman);
+  --vs-theme--page-top-right-content: counter(page, lower-roman);
+  --vs-page--mbox-content-bottom-center: counter(page, lower-roman);
+}
+`.trim();
+}

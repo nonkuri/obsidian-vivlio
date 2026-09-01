@@ -1,0 +1,100 @@
+Vivlio for Obsidian
+Copyright (C) 2026 nonkuri
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version. See LICENSE for the full text.
+
+The plugin is distributed as a single bundled `main.js`, which contains the
+third-party components listed below. Their notices apply to the corresponding
+parts of that bundle.
+
+--------------------------------------------------------------------------------
+Vivliostyle.js — @vivliostyle/core, @vivliostyle/viewer
+    Copyright 2013 Google, Inc.
+    Copyright 2015 Daishinsha Inc.
+    Copyright 2018 Vivliostyle Foundation
+    License: GNU Affero General Public License v3.0 or later
+    https://github.com/vivliostyle/vivliostyle.js
+
+    These components are the reason this plugin as a whole is licensed under
+    the AGPL-3.0: they are bundled into main.js and distributed with it.
+
+--------------------------------------------------------------------------------
+Vivliostyle Flavored Markdown — @vivliostyle/vfm
+    Copyright Vivliostyle Foundation
+    License: Apache License 2.0
+    https://github.com/vivliostyle/vfm
+
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not
+    use these files except in compliance with the License. You may obtain a
+    copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+    License for the specific language governing permissions and limitations
+    under the License.
+
+    VFM bundles a derivative of remark-slug (MIT, Copyright (c) 2015 Titus
+    Wormer) in its heading-id plugin.
+
+--------------------------------------------------------------------------------
+Vivliostyle themes — @vivliostyle/theme-base, -bunko, -techbook, -academic
+    Copyright Vivliostyle Foundation
+    License: CC0 1.0 Universal (public domain dedication)
+    https://github.com/vivliostyle/themes
+
+    The theme stylesheets are embedded in main.js and served to the typesetter
+    unmodified.
+
+--------------------------------------------------------------------------------
+pdf-lib
+    Copyright (c) 2019 Andrew Dillon
+    License: MIT
+    https://github.com/Hopding/pdf-lib
+
+JSZip
+    Copyright (c) 2009-2016 Stuart Knightley and contributors
+    License: MIT (dual-licensed MIT / GPLv3; used here under MIT)
+    https://github.com/Stuk/jszip
+
+js-yaml
+    Copyright (c) 2011-2015 Vitaly Puzrin
+    License: MIT
+    https://github.com/nodeca/js-yaml
+
+valibot
+    Copyright (c) 2023 Fabian Hiller
+    License: MIT
+    https://github.com/fabian-hiller/valibot
+
+github-slugger
+    Copyright (c) 2015 Titus Wormer
+    License: ISC
+    https://github.com/Flet/github-slugger
+
+refractor / Prism
+    Copyright (c) 2016 Titus Wormer (refractor, MIT)
+    Copyright (c) 2012 Lea Verou (Prism, MIT)
+    https://github.com/wooorm/refractor
+
+unified, remark, rehype and the surrounding unist ecosystem
+    Copyright (c) 2015 Titus Wormer and contributors
+    License: MIT
+    https://github.com/unifiedjs/unified
+
+Temml
+    Copyright (c) 2021 Ron Kok
+    License: MIT
+    https://github.com/ronkok/Temml
+
+    Reached through VFM, which uses it to render math to MathML.
+
+--------------------------------------------------------------------------------
+Fonts are never bundled. Fonts named in a book's configuration are read from
+the machine or from the vault at typesetting time; checking that a font's
+licence permits embedding in a PDF or an EPUB is the user's responsibility.
