@@ -137,6 +137,19 @@ export class VivlioSettingTab extends PluginSettingTab {
       });
 
     new Setting(container)
+      .setName(t("settings.paragraphIndent"))
+      .setDesc(t("settings.paragraphIndent.desc"))
+      .addText((text) =>
+        text
+          .setPlaceholder(t("settings.paragraphIndent.placeholder"))
+          .setValue(this.plugin.settings.paragraphIndent)
+          .onChange(async (value) => {
+            this.plugin.settings.paragraphIndent = value.trim();
+            await this.save();
+          }),
+      );
+
+    new Setting(container)
       .setName(t("settings.extraCss"))
       .setDesc(t("settings.extraCss.desc"))
       .addText((text) =>

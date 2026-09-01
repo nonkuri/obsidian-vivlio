@@ -49,6 +49,7 @@ export const BookConfigInputSchema = v.object({
   charsPerLine: v.optional(v.union([v.number(), v.null()])),
   linesPerPage: v.optional(v.union([v.number(), v.null()])),
   baseFontSize: v.optional(v.string()),
+  paragraphIndent: v.optional(v.union([v.string(), v.number()])),
   footnote: v.optional(FootnoteSchema),
   highlight: v.optional(HighlightSchema),
   autoTcy: v.optional(v.boolean()),

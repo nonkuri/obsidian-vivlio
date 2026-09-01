@@ -117,6 +117,14 @@ export interface BookConfig {
   charsPerLine: number | null;
   linesPerPage: number | null;
   baseFontSize: string;
+  /**
+   * `--vs--p-text-indent`. Empty leaves the theme's own value alone.
+   *
+   * Manuscripts written for Kakuyomu or Aozora already start each paragraph
+   * with an ideographic space, and theme-bunko adds a 1em indent on top of
+   * it, so the first line ends up indented twice.
+   */
+  paragraphIndent: string;
   footnote: FootnoteMode;
   highlight: HighlightMode;
   autoTcy: boolean;
@@ -168,6 +176,8 @@ export interface VivlioSettings {
   size: string;
   writingMode: WritingMode;
   footnote: FootnoteMode;
+  /** Default `--vs--p-text-indent`; empty leaves it to the theme. */
+  paragraphIndent: string;
   /** Vault-relative path of an extra stylesheet. */
   extraCssPath: string;
 

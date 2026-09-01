@@ -3,7 +3,8 @@ import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
 import { t } from "../i18n";
 
-interface TocEntry {
+export interface TocEntry {
+  /** `chapter.html` or `chapter.html#heading-slug`. */
   href: string;
   label: string;
   level: number;
@@ -11,14 +12,13 @@ interface TocEntry {
 }
 
 /**
- * The table of contents (SPEC 5.11).
+ * The entries of a book's table of contents, nested by heading level.
  *
- * theme-base already implements the leader rules and the page number, via
- * `target-counter(attr(href), page)`, which Vivliostyle resolves against the
- * finished layout. So this only has to emit a plain nested list; the page
- * numbers appear on their own.
+ * Both the printed table of contents and the EPUB's `nav.xhtml` are built
+ * from this, so a reader's navigation shows the same structure - down to the
+ * same `tocDepth` - as the page the book prints (SPEC 5.11).
  */
-export function tocDocument(context: BuildContext, chapters: Chapter[]): string {
+export function buildTocEntries(context: BuildContext, chapters: Chapter[]): TocEntry[] {
   const depth = Math.max(1, Math.min(6, context.config.tocDepth || 2));
   const entries: TocEntry[] = [];
 
@@ -30,13 +30,9 @@ export function tocDocument(context: BuildContext, chapters: Chapter[]): string 
     const headings = chapter.file ? (context.headings.get(chapter.file.path) ?? []) : [];
     const wanted = headings.filter((heading) => heading.level <= depth);
 
+    // A generated part (the colophon) has no headings; it still deserves a line.
     if (wanted.length === 0) {
-      entries.push({
-        href: chapter.docName,
-        label: chapter.title,
-        level: 1,
-        children: [],
-      });
+      entries.push({ href: chapter.docName, label: chapter.title, level: 1, children: [] });
       continue;
     }
 
@@ -50,9 +46,21 @@ export function tocDocument(context: BuildContext, chapters: Chapter[]): string 
     }
   }
 
+  return nest(entries);
+}
+
+/**
+ * The table of contents page (SPEC 5.11).
+ *
+ * theme-base already implements the leader rules and the page number, via
+ * `target-counter(attr(href), page)`, which Vivliostyle resolves against the
+ * finished layout. So this only has to emit a plain nested list; the page
+ * numbers appear on their own.
+ */
+export function tocDocument(context: BuildContext, chapters: Chapter[]): string {
   const body = `<nav role="doc-toc" id="toc" class="vivlio-front">
 <h1>${escapeHtml(t("toc.heading"))}</h1>
-${renderList(nest(entries))}
+${renderList(buildTocEntries(context, chapters))}
 </nav>`;
 
   return htmlDocument({

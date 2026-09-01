@@ -45,6 +45,7 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
   size: "文庫",
   writingMode: "vertical-rl",
   footnote: "gcpm",
+  paragraphIndent: "",
   extraCssPath: "",
 
   fontFamily: DEFAULT_SERIF_STACK,
@@ -114,6 +115,7 @@ export function baseBookConfig(): BookConfig {
     charsPerLine: null,
     linesPerPage: null,
     baseFontSize: "",
+    paragraphIndent: "",
     footnote: "gcpm",
     highlight: "boten",
     autoTcy: true,

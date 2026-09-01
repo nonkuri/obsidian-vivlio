@@ -1,6 +1,7 @@
 import JSZip from "jszip";
 import type { BuildContext, Chapter } from "../build/context";
 import { BOOK_STYLESHEET } from "../build/vfm";
+import { buildTocEntries, type TocEntry } from "../build/toc";
 import { themeAssets } from "../vendor/assets";
 import { joinPosix, dirname, isFontPath, mimeType } from "../util/paths";
 import { throwIfAborted } from "../util/async";
@@ -82,7 +83,7 @@ export async function buildEpub(
     });
   }
 
-  oebps.file("nav.xhtml", navDocument(context, documents));
+  oebps.file("nav.xhtml", navDocument(context, chapters, documents));
   oebps.file("package.opf", packageDocument(context, documents, assets));
 
   return zip.generateAsync({
@@ -142,14 +143,38 @@ function epubStylesheet(context: BuildContext): string {
   const generated = context.workspace.getFile(BOOK_STYLESHEET)?.text ?? "";
   const withoutImport = generated.replace(/^@import[^;]+;\s*/m, "");
   const themePath = themePathFor(context);
+  const theme = themePath ? flattenTheme(themePath) : "";
 
-  return [
-    themePath ? flattenTheme(themePath) : "",
-    withoutImport,
-    EPUB_OVERRIDES,
-  ]
+  return [theme, withoutImport, EPUB_OVERRIDES, headingSpacingFallback(theme)]
     .filter(Boolean)
     .join("\n\n");
+}
+
+/**
+ * Give headings visible space when the theme left them none.
+ *
+ * theme-bunko sets `--vs-spacing-rlh: 0` and expresses headings through
+ * line-taking instead (`--vs--h3-line-height: 2rem`). That is a paged-media
+ * design: on paper the heading owns whole lines of the grid. Reflowed in a
+ * reader there is no grid, and an h3 whose line box equals the body's leading
+ * shows no break at all.
+ *
+ * The fallback is emitted only for themes that actually zero the spacing, so
+ * techbook's rhythm and academic's explicit per-heading margins are left
+ * alone.
+ */
+function headingSpacingFallback(themeCss: string): string {
+  if (!/--vs-spacing-rlh:\s*0\s*;/.test(themeCss)) return "";
+  return `
+/* The theme zeroes heading margins and relies on line-taking, which needs
+   paged output; a reflowable book needs real space instead. */
+:root {
+  --vs--h1-margin-block: 3rem 1.5rem;
+  --vs--h2-margin-block: 2.5rem 1.25rem;
+  --vs--h3-margin-block: 2rem 1rem;
+  --vs--h4-margin-block: 1.5rem 0.75rem;
+}
+`.trim();
 }
 
 function themePathFor(context: BuildContext): string | null {
@@ -191,18 +216,20 @@ img {
 }
 `.trim();
 
-/** `nav.xhtml`: the table of contents and the landmarks (SPEC 5.11). */
+/**
+ * `nav.xhtml`: the table of contents and the landmarks (SPEC 5.11).
+ *
+ * The contents come from the same entries as the printed table of contents,
+ * so a reader's navigation lists the book's headings down to `tocDepth`.
+ * Listing one line per document instead would leave a single-note book with
+ * no navigation at all.
+ */
 function navDocument(
   context: BuildContext,
+  chapters: Chapter[],
   documents: { id: string; href: string; chapter: Chapter }[],
 ): string {
-  const items = documents
-    .filter((entry) => entry.chapter.role !== "doc-cover")
-    .map(
-      (entry) =>
-        `      <li><a href="${entry.href}">${escapeXml(entry.chapter.title)}</a></li>`,
-    )
-    .join("\n");
+  const items = renderNavList(buildTocEntries(context, chapters), 2);
 
   const landmarks = documents
     .map((entry) => {
@@ -239,9 +266,7 @@ function navDocument(
 <body>
   <nav epub:type="toc" id="toc" role="doc-toc">
     <h1>${escapeXml(t("toc.heading"))}</h1>
-    <ol>
 ${items}
-    </ol>
   </nav>
   <nav epub:type="landmarks" hidden="hidden">
     <ol>
@@ -251,6 +276,23 @@ ${[landmarks, bodyLandmark].filter(Boolean).join("\n")}
 </body>
 </html>
 `;
+}
+
+/** Nested `<ol>` for the nav, pointing at the packaged `.xhtml` names. */
+function renderNavList(entries: TocEntry[], indent: number): string {
+  if (entries.length === 0) return "";
+  const pad = "  ".repeat(indent);
+  const items = entries
+    .map((entry) => {
+      const href = escapeXml(entry.href.replace(/\.html(?=$|#)/, ".xhtml"));
+      const label = escapeXml(entry.label);
+      const children = renderNavList(entry.children, indent + 2);
+      return children
+        ? `${pad}  <li><a href="${href}">${label}</a>\n${children}\n${pad}  </li>`
+        : `${pad}  <li><a href="${href}">${label}</a></li>`;
+    })
+    .join("\n");
+  return `${pad}<ol>\n${items}\n${pad}</ol>`;
 }
 
 function packageDocument(

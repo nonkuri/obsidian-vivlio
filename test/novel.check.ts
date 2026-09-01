@@ -94,6 +94,8 @@ async function main(): Promise<void> {
   console.log(`title      ${config.title}`);
   console.log(`theme      ${config.theme} / ${config.size} / ${config.writingMode}`);
   console.log(`chars×lines ${config.charsPerLine}×${config.linesPerPage}`);
+  console.log(`indent     ${config.paragraphIndent || "(theme default)"}`);
+  console.log(`tocDepth   ${config.tocDepth}`);
   console.log("");
   console.log(`<ruby>     ${count(html, /<ruby>/g)}`);
   console.log(`.boten     ${count(html, /class="boten"/g)}`);

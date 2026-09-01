@@ -64,6 +64,7 @@ export function configFromSettings(settings: VivlioSettings): BookConfig {
   config.size = settings.size;
   config.writingMode = settings.writingMode;
   config.footnote = settings.footnote;
+  config.paragraphIndent = settings.paragraphIndent;
   config.highlight = settings.highlight;
   config.autoTcy = settings.syntax.autoTcy;
   config.fontFamily = settings.fontFamily;
@@ -98,6 +99,7 @@ function coerce(key: string, value: unknown): unknown {
     if (value === "false") return false;
     return undefined;
   }
+  if (key === "paragraphIndent") return String(value);
   if (key === "date" && value instanceof Date) {
     return value.toISOString().slice(0, 10);
   }

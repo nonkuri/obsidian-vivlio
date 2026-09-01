@@ -47,6 +47,11 @@ const KEY_DOCS: Partial<Record<keyof BookConfig, KeyDoc>> = {
   charsPerLine: { group: "layout", ja: "1 行の字数", en: "Characters per line" },
   linesPerPage: { group: "layout", ja: "1 ページの行数", en: "Lines per page" },
   baseFontSize: { group: "layout", ja: "基準の文字サイズ", en: "Base font size" },
+  paragraphIndent: {
+    group: "layout",
+    ja: "段落の字下げ。原稿が全角スペースで字下げ済みなら 0（空ならテーマ任せ）",
+    en: "Paragraph indent; use 0 when the manuscript already indents with an ideographic space (empty leaves it to the theme)",
+  },
   footnote: {
     group: "layout",
     ja: "gcpm（ページ下）| pandoc（章末）| dpub",

@@ -43,6 +43,12 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
     root.push(`--vs-font-feature-settings: ${config.fontFeatureSettings};`);
   }
   if (config.baseFontSize) root.push(`--vs--html-font-size: ${config.baseFontSize};`);
+
+  // A manuscript that already starts its paragraphs with an ideographic space
+  // must not also get the theme's indent (SPEC 5.10).
+  if (config.paragraphIndent !== "") {
+    root.push(`--vs--p-text-indent: ${normalizeLength(config.paragraphIndent)};`);
+  }
   if (config.rubyFontSize) root.push(`--vs--rt-font-size: ${config.rubyFontSize};`);
   root.push(`--vs--tcy-font-family: ${config.tcyFontFamily || "inherit"};`);
 
@@ -62,6 +68,19 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
 
   return blocks.filter(Boolean).join("\n\n");
+}
+
+/**
+ * Accept a bare number as a CSS length.
+ *
+ * `vivlio-paragraph-indent: 0` comes back from YAML as the number 0, and `0`
+ * is valid CSS; anything else needs a unit, which the user supplies.
+ */
+function normalizeLength(value: string): string {
+  const trimmed = String(value).trim();
+  return /^-?\d+(\.\d+)?$/.test(trimmed) && Number(trimmed) !== 0
+    ? `${trimmed}em`
+    : trimmed;
 }
 
 /** URL of the theme entry stylesheet, bundled or from the vault. */

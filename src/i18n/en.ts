@@ -88,6 +88,10 @@ export const en = {
   "settings.writingMode": "Default writing mode",
   "settings.footnote": "Default footnote mode",
   "settings.footnote.desc": "gcpm places footnotes at the bottom of the page.",
+  "settings.paragraphIndent": "Paragraph indent",
+  "settings.paragraphIndent.desc":
+    "Use 0 when your manuscript already starts paragraphs with an ideographic space. Leave empty to keep the theme's own indent.",
+  "settings.paragraphIndent.placeholder": "theme default",
   "settings.extraCss": "Extra stylesheet",
   "settings.extraCss.desc": "Vault-relative path to a CSS file injected after the theme.",
   "settings.fontFamily": "Body font",

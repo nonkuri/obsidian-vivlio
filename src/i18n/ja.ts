@@ -88,6 +88,10 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.writingMode": "既定書字方向",
   "settings.footnote": "既定の脚注モード",
   "settings.footnote.desc": "gcpm はページ下に脚注を置きます。",
+  "settings.paragraphIndent": "段落の字下げ",
+  "settings.paragraphIndent.desc":
+    "原稿が全角スペースで字下げ済みなら 0 を指定してください。空欄ならテーマの既定に従います。",
+  "settings.paragraphIndent.placeholder": "テーマ任せ",
   "settings.extraCss": "追加 CSS",
   "settings.extraCss.desc": "テーマの後に注入する CSS ファイル（Vault 相対パス）。",
   "settings.fontFamily": "本文フォント",

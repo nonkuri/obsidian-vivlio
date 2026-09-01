@@ -8,6 +8,7 @@
 import { TFile } from "obsidian";
 import { convertChapter } from "../src/build/vfm";
 import { bookStylesheet } from "../src/build/css";
+import { buildTocEntries } from "../src/build/toc";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { baseBookConfig, DEFAULT_SETTINGS } from "../src/config/defaults";
@@ -168,6 +169,36 @@ async function main(): Promise<void> {
     check("writing mode variable", css.includes("--vs-writing-mode: vertical-rl;")),
     check("page size variable", css.includes("--vs-page--size: 105mm 148mm;")),
     check("emphasis dot style", css.includes("text-emphasis: filled sesame")),
+    // The theme's indent must stay untouched unless asked for: a manuscript
+    // that does not self-indent still wants theme-bunko's 1em.
+    check("no paragraph indent override by default", !css.includes("--vs--p-text-indent")),
+  );
+
+  const indented = makeContext();
+  indented.config.paragraphIndent = "0";
+  checks.push(
+    check(
+      "paragraph indent can be zeroed",
+      bookStylesheet(indented, "x.css").includes("--vs--p-text-indent: 0;"),
+    ),
+  );
+
+  // The table of contents feeds both the printed page and the EPUB nav, so
+  // the depth has to reach the headings, not just the documents.
+  const tocContext = makeContext();
+  tocContext.headings.set("book/01.md", [
+    { level: 1, text: "第一章", slug: "ch1" },
+    { level: 2, text: "一節", slug: "s1" },
+    { level: 3, text: "細目", slug: "d1" },
+  ]);
+  const shallow = buildTocEntries({ ...tocContext, config: { ...tocContext.config, tocDepth: 2 } }, tocContext.chapters);
+  const deep = buildTocEntries({ ...tocContext, config: { ...tocContext.config, tocDepth: 3 } }, tocContext.chapters);
+
+  checks.push(
+    check("toc nests headings", shallow[0]?.children.length === 1, JSON.stringify(shallow)),
+    check("tocDepth 2 stops at h2", shallow[0]?.children[0]?.children.length === 0),
+    check("tocDepth 3 reaches h3", deep[0]?.children[0]?.children.length === 1, JSON.stringify(deep)),
+    check("toc entries link to anchors", shallow[0]?.children[0]?.href === "ch01.html#s1"),
   );
 
   let failed = 0;
