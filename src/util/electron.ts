@@ -25,6 +25,8 @@ export interface RemoteWebContentsInstance {
     isAttached(): boolean;
     sendCommand(method: string, params?: Record<string, unknown>): Promise<unknown>;
   };
+  /** Chromium throttles timers in pages it considers hidden. */
+  setBackgroundThrottling?(allowed: boolean): void;
 }
 
 interface RemoteShell {

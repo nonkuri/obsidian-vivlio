@@ -50,15 +50,17 @@
   pointer-events: none;
 }
 
-/* The webview that prints the PDF must render, so it is moved out of sight
-   rather than hidden: `display: none` would stop it laying out. */
+/* The webview that prints the PDF has to keep running at full speed, so it is
+   parked outside the viewport rather than hidden. Neither `display: none` nor
+   `visibility: hidden` may be used: Chromium treats such a page as hidden and
+   clamps its timers to roughly one a second, and Vivliostyle composes pages
+   across `setTimeout` callbacks, so a throttled webview never finishes. */
 .vivlio-print-webview {
-  position: absolute;
+  position: fixed;
   left: -10000px;
   top: 0;
   width: 1024px;
   height: 768px;
-  visibility: hidden;
   pointer-events: none;
 }
 
