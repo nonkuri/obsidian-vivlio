@@ -5,6 +5,7 @@ import { resolveOutputPath, runExport, type ExportFormat } from "../export/run";
 import type { PreflightIssue } from "../export/preflight";
 import { showSaveDialog } from "../util/electron";
 import { isAbortError } from "../util/async";
+import { describe, writeDiagnostics } from "../util/diagnostics";
 import { t } from "../i18n";
 import { log } from "../util/log";
 
@@ -152,11 +153,30 @@ export class ExportModal extends Modal {
         return;
       }
       log.error("export failed", error);
-      new Notice(t("notice.printFailed", { message: String(error) }));
-      this.setStatus("");
+      await this.showFailure(error);
     } finally {
       if (holdsServer) await this.plugin.releaseServer();
     }
+  }
+
+  /**
+   * Keep a failure on screen.
+   *
+   * A notice is gone in a few seconds, which is not long enough to read a
+   * stack trace, so the message stays in the dialog and the run is written to
+   * a log file that can be attached to a bug report.
+   */
+  private async showFailure(error: unknown): Promise<void> {
+    const path = await writeDiagnostics(this.app, `export ${this.format}`, error);
+    this.setStatus("");
+
+    const box = this.contentEl.createDiv({ cls: "vivlio-failure" });
+    box.createEl("p", { text: t("notice.printFailed", { message: "" }) });
+    box.createEl("pre", { text: describe(error) });
+    if (path) box.createEl("p", { cls: "vivlio-failure-path", text: t("export.logWritten", { path }) });
+
+    // Zero keeps the notice up until it is clicked away.
+    new Notice(t("notice.printFailed", { message: shortMessage(error) }), 0);
   }
 
   private setStatus(message: string): void {
@@ -194,4 +214,10 @@ export class ExportModal extends Modal {
         );
     });
   }
+}
+
+/** First line of an error, for the notice. */
+function shortMessage(error: unknown): string {
+  const text = error instanceof Error ? error.message : String(error);
+  return text.split("\n")[0].slice(0, 200);
 }

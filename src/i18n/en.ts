@@ -11,6 +11,7 @@ export const en = {
   "command.createConfig": "Create book configuration",
   "command.insertFrontmatter": "Add configuration to this note",
   "command.writeReference": "Write configuration reference",
+  "command.writeLog": "Write diagnostic log",
   "command.settingsToYaml": "Write current settings to vivlio.yaml",
   "command.yamlToSettings": "Make this vivlio.yaml the vault default",
 
@@ -45,6 +46,7 @@ export const en = {
   "export.cancel": "Cancel",
   "export.preflight": "Pre-export checks",
   "export.noIssues": "No issues found.",
+  "export.logWritten": "Details written to {path}",
 
   "preflight.lowDpi": "{name}: {dpi} dpi on paper (below {threshold} dpi)",
   "preflight.missingFont": "Font not found: {family} (rendering with {actual})",

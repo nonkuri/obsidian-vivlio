@@ -29,6 +29,7 @@ import { setLanguage, t } from "./i18n";
 import { setLogLevel } from "./util/log";
 import { log } from "./util/log";
 import { joinPosix } from "./util/paths";
+import { writeDiagnostics } from "./util/diagnostics";
 
 const PORT_RETRIES = 3;
 
@@ -208,6 +209,12 @@ export default class VivlioPlugin extends Plugin {
     });
 
     this.addCommand({
+      id: "write-log",
+      name: t("command.writeLog"),
+      callback: () => void this.writeLog(),
+    });
+
+    this.addCommand({
       id: "yaml-to-settings",
       name: t("command.yamlToSettings"),
       callback: () => void this.importYaml(),
@@ -294,6 +301,19 @@ export default class VivlioPlugin extends Plugin {
     else await this.app.vault.create(path, contents);
 
     new Notice(t("notice.configWritten", { path }));
+  }
+
+  /**
+   * Write what the plugin has logged so far to a file.
+   *
+   * Notices vanish and the console needs the developer tools open, so this is
+   * the thing to attach to a bug report.
+   */
+  private async writeLog(): Promise<void> {
+    const path = await writeDiagnostics(this.app, "manual", null);
+    new Notice(
+      path ? t("notice.configWritten", { path }) : t("notice.buildFailed", { message: "log" }),
+    );
   }
 
   /** Take a book's `vivlio.yaml` back into the vault-wide defaults. */

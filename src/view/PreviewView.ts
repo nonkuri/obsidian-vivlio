@@ -14,6 +14,7 @@ import type { BuildWarning } from "../build/context";
 import { BUNDLED_THEMES } from "../vendor/assets";
 import { debounce, isAbortError, type Debounced } from "../util/async";
 import { t } from "../i18n";
+import { writeDiagnostics } from "../util/diagnostics";
 import { log } from "../util/log";
 
 export const VIEW_TYPE_PREVIEW = "vivlio-preview";
@@ -191,7 +192,9 @@ export class VivlioPreviewView extends ItemView {
       if (isAbortError(error)) return;
       log.error("preview build failed", error);
       this.setStatus("");
-      new Notice(t("notice.buildFailed", { message: String(error) }));
+      await writeDiagnostics(this.app, "preview", error);
+      // Zero keeps the notice up until it is clicked away.
+      new Notice(t("notice.buildFailed", { message: String(error) }), 0);
     } finally {
       if (this.controller === controller) this.controller = null;
     }

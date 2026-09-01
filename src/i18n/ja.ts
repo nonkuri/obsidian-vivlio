@@ -11,6 +11,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "command.createConfig": "本の設定を作成",
   "command.insertFrontmatter": "このノートに設定を追加",
   "command.writeReference": "設定リファレンスを書き出す",
+  "command.writeLog": "診断ログを書き出す",
   "command.settingsToYaml": "現在の設定を vivlio.yaml に書き出す",
   "command.yamlToSettings": "この vivlio.yaml を Vault の既定にする",
 
@@ -45,6 +46,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "export.cancel": "キャンセル",
   "export.preflight": "書き出し前チェック",
   "export.noIssues": "問題は見つかりませんでした。",
+  "export.logWritten": "詳細を {path} に書き出しました",
 
   "preflight.lowDpi": "{name}: 紙面上 {dpi} dpi（閾値 {threshold} dpi を下回ります）",
   "preflight.missingFont": "フォントが見つかりません: {family}（{actual} で代替表示しています）",
