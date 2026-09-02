@@ -37,6 +37,7 @@ export const DEFAULT_SYNTAX: SyntaxToggles = {
   stripComments: true,
   stripBlockIds: true,
   stripLeadingSpace: true,
+  pageBreak: true,
 };
 
 export const DEFAULT_SETTINGS: VivlioSettings = {

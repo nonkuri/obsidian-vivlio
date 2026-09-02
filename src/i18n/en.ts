@@ -86,6 +86,8 @@ export const en = {
   "settings.defaultPreset": "Default preset",
   "settings.defaultPreset.desc": "Starting point for new book configurations.",
   "settings.theme": "Default theme",
+  "settings.theme.desc":
+    "A bundled theme, or any .css in the vault. A theme of your own can start from a bundled one with @import url(\"vivlio:novel\");",
   "settings.size": "Default paper size",
   "settings.writingMode": "Default writing mode",
   "settings.footnote": "Default footnote mode",
@@ -157,6 +159,7 @@ export const en = {
   "syntax.stripBlockIds": "Strip ^block-ids",
   "syntax.stripLeadingSpace":
     "Remove the ideographic space that indents a paragraph (the stylesheet indents instead)",
+  "syntax.pageBreak": "Break the page at ［＃改ページ］",
 
   "section.halfTitle": "Half title",
   "section.titlePage": "Title page",

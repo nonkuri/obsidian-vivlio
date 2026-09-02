@@ -86,6 +86,8 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.defaultPreset": "既定のプリセット",
   "settings.defaultPreset.desc": "本の設定を新規に作るときの初期値。",
   "settings.theme": "既定テーマ",
+  "settings.theme.desc":
+    "同梱テーマのほか、Vault 内の .css も選べます。自作テーマは @import url(\"vivlio:novel\"); で同梱テーマを土台にできます。",
   "settings.size": "既定用紙サイズ",
   "settings.writingMode": "既定書字方向",
   "settings.footnote": "既定の脚注モード",
@@ -156,6 +158,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "syntax.stripComments": "%%コメント%% を削除する",
   "syntax.stripBlockIds": "ブロック ID を削除する",
   "syntax.stripLeadingSpace": "行頭の全角スペースを削除する（字下げは CSS で行う）",
+  "syntax.pageBreak": "［＃改ページ］で強制改ページ",
 
   "section.halfTitle": "半扉",
   "section.titlePage": "扉",

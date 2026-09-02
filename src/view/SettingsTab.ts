@@ -2,7 +2,7 @@ import { PluginSettingTab, Setting, type App } from "obsidian";
 import type VivlioPlugin from "../main";
 import { PRESETS } from "../config/presets";
 import { PAPER_SIZES } from "../config/defaults";
-import { BUNDLED_THEMES } from "../vendor/assets";
+import { themeChoices } from "../build/theme";
 import { localFontFamilies } from "../build/fonts";
 import {
   SECTION_SLOTS,
@@ -101,13 +101,18 @@ export class VivlioSettingTab extends PluginSettingTab {
   private typesetting(container: HTMLElement): void {
     container.createEl("h3", { text: t("settings.heading.typesetting") });
 
-    new Setting(container).setName(t("settings.theme")).addDropdown((dropdown) => {
-      for (const theme of Object.keys(BUNDLED_THEMES)) dropdown.addOption(theme, theme);
-      dropdown.setValue(this.plugin.settings.theme).onChange(async (value) => {
-        this.plugin.settings.theme = value;
-        await this.save();
+    new Setting(container)
+      .setName(t("settings.theme"))
+      .setDesc(t("settings.theme.desc"))
+      .addDropdown((dropdown) => {
+        for (const choice of themeChoices(this.app, this.plugin.settings.theme)) {
+          dropdown.addOption(choice.value, choice.label);
+        }
+        dropdown.setValue(this.plugin.settings.theme).onChange(async (value) => {
+          this.plugin.settings.theme = value;
+          await this.save();
+        });
       });
-    });
 
     new Setting(container).setName(t("settings.size")).addDropdown((dropdown) => {
       for (const size of Object.keys(PAPER_SIZES)) dropdown.addOption(size, size);

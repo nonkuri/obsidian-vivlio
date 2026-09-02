@@ -20,6 +20,7 @@ import {
   type BuildTarget,
 } from "./collect";
 import { bookStylesheet, themeUrlFor } from "./css";
+import { resolveVaultTheme, THEME_STYLESHEET } from "./theme";
 import { BOOK_STYLESHEET, convertChapter } from "./vfm";
 import { buildCover } from "./cover";
 import {
@@ -156,7 +157,13 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
     if (chapter.file) context.chapterByPath.set(chapter.file.path, chapter);
   }
 
-  // The stylesheet is written first: every document links to it by name.
+  // A theme of the writer's own is resolved into the workspace before the
+  // stylesheet that imports it, so `themeUrlFor` can point at the resolved
+  // copy rather than at the file in the vault (SPEC 5.10).
+  const vaultTheme = await resolveVaultTheme(context);
+  if (vaultTheme !== null) workspace.putText(THEME_STYLESHEET, vaultTheme);
+
+  // The stylesheet is written next: every document links to it by name.
   workspace.putText(BOOK_STYLESHEET, bookStylesheet(context, themeUrlFor(context)));
 
   for (const chapter of chapters) {

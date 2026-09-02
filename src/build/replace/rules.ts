@@ -88,6 +88,19 @@ export function notationRules(config: BookConfig): TextRule[] {
     });
   }
 
+  // #17 A forced page break, written the way Aozora Bunko writes one.
+  //
+  // A span, because a text rule can only put back what is valid where the text
+  // was, and the text is inside a paragraph. The mark stands on its own line,
+  // so liftPageBreaks turns that paragraph into the block a break can be taken
+  // on (see src/build/vfm.ts).
+  if (syntax.pageBreak) {
+    rules.push({
+      test: /［＃改ページ］/g,
+      replace: () => [element("span", { className: [PAGE_BREAK_CLASS] }, [])],
+    });
+  }
+
   // #14 ^block-ids are anchors for Obsidian, not content.
   if (syntax.stripBlockIds) {
     rules.push({
@@ -98,6 +111,9 @@ export function notationRules(config: BookConfig): TextRule[] {
 
   return rules;
 }
+
+/** The class a forced page break carries; the stylesheet does the breaking. */
+export const PAGE_BREAK_CLASS = "vivlio-page-break";
 
 function span(className: string, value: string): UElement {
   return element("span", { className: [className] }, [text(value)]);

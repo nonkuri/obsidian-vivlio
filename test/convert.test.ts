@@ -7,7 +7,9 @@
  */
 import { TFile } from "obsidian";
 import { convertChapter } from "../src/build/vfm";
-import { bookStylesheet } from "../src/build/css";
+import { bookStylesheet, themeUrlFor } from "../src/build/css";
+import { resolveVaultTheme, themeChoices, THEME_STYLESHEET } from "../src/build/theme";
+import { BOOK_STYLESHEET } from "../src/build/vfm";
 import { buildTocEntries, tocDocument } from "../src/build/toc";
 import { colophonDocument, titlePageDocument } from "../src/build/sections";
 import { kanjiDate } from "../src/util/kanji";
@@ -118,6 +120,8 @@ vivlio-theme: bunko
 - [ ] まだ
 - [x] おわった
 
+［＃改ページ］
+
 #タグ は消える。 [[02]] は章間リンク、[[Other|よそのノート]] はただの文字列になる。
 
 ![[fig.png|300]]
@@ -176,6 +180,14 @@ async function main(): Promise<void> {
       "an ordinary paragraph keeps the indent",
       !/<p class="vivlio-no-indent">[^「]/.test(html),
     ),
+    // The mark goes away and the block after it carries the break, because a
+    // box with no height in the flow never finishes composing (liftPageBreaks).
+    check(
+      "a forced page break lands on the next block",
+      /<(aside|p|h\d)[^>]*class="[^"]*vivlio-page-break/.test(html),
+      html.slice(html.indexOf("page-break") - 90, html.indexOf("page-break") + 60),
+    ),
+    check("and the mark itself is gone", !html.includes("改ページ")),
   ];
 
   // The writer can settle the question outright instead of leaving it to the
@@ -433,6 +445,56 @@ async function main(): Promise<void> {
       !packed.includes("font-size: var(--vs--html-font-size)"),
     ),
     check("and the colophon label does not touch its value", packed.includes("margin-inline-end: 1em")),
+  );
+
+  // A theme of the writer's own (SPEC 5.10): resolved into one stylesheet, so
+  // the preview and the EPUB are set in the same thing, and able to start from
+  // a bundled theme, which a relative path cannot reach.
+  const sources: Record<string, string> = {
+    "themes/mine.css": [
+      '@import url("vivlio:novel");',
+      '@import url("./tweaks.css");',
+      "p { color: rebeccapurple; }",
+    ].join("\n"),
+    "themes/tweaks.css": "h1 { letter-spacing: 0.2em; }",
+  };
+  const own = makeContext({
+    app: {
+      metadataCache: { getFirstLinkpathDest: () => null, getFileCache: () => ({}) },
+      vault: {
+        cachedRead: async (file: TFile) => sources[file.path] ?? "",
+        getFileByPath: (path: string) => (sources[path] ? makeFile(path) : null),
+        getFiles: () => Object.keys(sources).map(makeFile),
+      },
+    } as unknown as BuildContext["app"],
+  });
+  own.config.theme = "themes/mine.css";
+
+  const resolvedTheme = await resolveVaultTheme(own);
+  own.workspace.putText(THEME_STYLESHEET, resolvedTheme ?? "");
+  own.workspace.putText(BOOK_STYLESHEET, bookStylesheet(own, themeUrlFor(own)));
+
+  checks.push(
+    check(
+      "a vault theme can start from a bundled one",
+      (resolvedTheme ?? "").includes("--vs-novel--boten-font-size"),
+      (resolvedTheme ?? "").slice(0, 200),
+    ),
+    check(
+      "and pull in its own neighbours",
+      (resolvedTheme ?? "").includes("letter-spacing: 0.2em"),
+    ),
+    check("its own rules survive", (resolvedTheme ?? "").includes("rebeccapurple")),
+    check(
+      "the preview links the resolved copy",
+      themeUrlFor(own) === `${own.workspaceBase}${THEME_STYLESHEET}`,
+      themeUrlFor(own),
+    ),
+    check("and the epub packs it", epubStylesheet(own).includes("rebeccapurple")),
+    check(
+      "vault stylesheets are offered as themes",
+      themeChoices(own.app, "").some((choice) => choice.value === "themes/mine.css"),
+    ),
   );
 
   let failed = 0;

@@ -11,7 +11,7 @@ import type { BuildTarget } from "../build/collect";
 import { buildBook } from "../build/pipeline";
 import { Workspace } from "../build/workspace";
 import type { BuildWarning } from "../build/context";
-import { BUNDLED_THEMES } from "../vendor/assets";
+import { themeChoices } from "../build/theme";
 import { debounce, isAbortError, type Debounced } from "../util/async";
 import { t } from "../i18n";
 import { writeDiagnostics } from "../util/diagnostics";
@@ -119,8 +119,8 @@ export class VivlioPreviewView extends ItemView {
     rebuild.onclick = () => void this.rebuild();
 
     const themeSelect = toolbar.createEl("select", { cls: "dropdown" });
-    for (const name of Object.keys(BUNDLED_THEMES)) {
-      themeSelect.createEl("option", { value: name, text: name });
+    for (const choice of themeChoices(this.app, this.plugin.settings.theme)) {
+      themeSelect.createEl("option", { value: choice.value, text: choice.label });
     }
     themeSelect.value = this.plugin.settings.theme;
     themeSelect.onchange = async () => {

@@ -2,8 +2,9 @@ import JSZip from "jszip";
 import type { BuildContext, Chapter } from "../build/context";
 import { BOOK_STYLESHEET } from "../build/vfm";
 import { buildTocEntries, type TocEntry } from "../build/toc";
-import { bundledThemePath, themeAssets } from "../vendor/assets";
-import { joinPosix, dirname, isFontPath, mimeType } from "../util/paths";
+import { bundledThemePath } from "../vendor/assets";
+import { flattenBundledTheme, THEME_STYLESHEET } from "../build/theme";
+import { isFontPath, mimeType } from "../util/paths";
 import { throwIfAborted } from "../util/async";
 import type { AssetRef } from "../build/workspace";
 import { t } from "../i18n";
@@ -142,8 +143,7 @@ function toXhtml(context: BuildContext, html: string): string {
 export function epubStylesheet(context: BuildContext): string {
   const generated = context.workspace.getFile(BOOK_STYLESHEET)?.text ?? "";
   const withoutImport = generated.replace(/^@import[^;]+;\s*/m, "");
-  const themePath = themePathFor(context);
-  const theme = themePath ? unsizeRoot(flattenTheme(themePath)) : "";
+  const theme = unsizeRoot(bookTheme(context));
 
   return [theme, withoutImport, EPUB_OVERRIDES, headingSpacingFallback(theme)]
     .filter(Boolean)
@@ -195,40 +195,22 @@ function headingSpacingFallback(themeCss: string): string {
 }
 
 /**
- * Where the book's theme lives among the embedded files.
+ * The book's theme, as one stylesheet.
  *
- * The same lookup the preview uses (`themeUrlFor`), so an EPUB is set in the
- * theme the book was written against. Guessing the path from the theme name
- * instead only ever found the `@vivliostyle/theme-*` packages, so the plugin's
- * own `novel` fell through to bunko and every rule the theme adds - the
- * colophon among them - was missing from the EPUB.
- *
- * A theme kept in the vault is not embedded and cannot be flattened, so it
- * still falls back to a bundled one.
+ * The same theme the preview is set in, so the two agree: a theme of the
+ * writer's own has been resolved into the workspace by the build, and a
+ * bundled one is flattened over the embedded files, because those are not in
+ * the package. Guessing the path from the theme name instead - which is what
+ * this did - only ever found the `@vivliostyle/theme-*` packages, so the
+ * plugin's own `novel` fell through to bunko and every rule the theme adds,
+ * the colophon among them, was missing from the EPUB.
  */
-function themePathFor(context: BuildContext): string | null {
+function bookTheme(context: BuildContext): string {
+  const resolved = context.workspace.getFile(THEME_STYLESHEET)?.text;
+  if (resolved) return resolved;
+
   const path = bundledThemePath(context.config.theme || "novel");
-  if (path && themeAssets[path]) return path;
-
-  const fallback = bundledThemePath("novel");
-  return fallback && themeAssets[fallback] ? fallback : null;
-}
-
-/** Inline `@import url(...)` recursively over the embedded theme files. */
-function flattenTheme(path: string, seen = new Set<string>()): string {
-  if (seen.has(path)) return "";
-  seen.add(path);
-
-  const source = themeAssets[path]?.text;
-  if (source === undefined) return "";
-
-  return source.replace(
-    /@import\s+url\(\s*["']?([^"')]+)["']?\s*\)\s*;/g,
-    (_match, target: string) => {
-      if (/^[a-z]+:/i.test(target)) return "";
-      return flattenTheme(joinPosix(dirname(path), target), seen);
-    },
-  );
+  return flattenBundledTheme(path ?? bundledThemePath("novel") ?? "");
 }
 
 const EPUB_OVERRIDES = `

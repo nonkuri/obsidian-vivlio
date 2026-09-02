@@ -2,6 +2,7 @@ import type { BuildContext } from "./context";
 import type { BookConfig } from "../config/types";
 import { pageHeightMm, pageWidthMm, resolvePaperSize } from "../config/defaults";
 import { BUNDLED_THEME_GRIDS, bundledThemePath } from "../vendor/assets";
+import { THEME_STYLESHEET } from "./theme";
 import { fontFaceRules } from "./fonts";
 
 /**
@@ -185,17 +186,20 @@ function normalizeLength(value: string): string {
     : trimmed;
 }
 
-/** URL of the theme entry stylesheet, bundled or from the vault. */
+/**
+ * URL of the theme entry stylesheet.
+ *
+ * A theme kept in the vault has been resolved into the workspace by then (see
+ * resolveVaultTheme), imports and all, so both the preview and the EPUB read
+ * the same text. Anything else names a bundled theme, and a name that names
+ * nothing falls back to the default rather than leaving the book unstyled.
+ */
 export function themeUrlFor(context: BuildContext): string {
-  const theme = context.config.theme || "bunko";
-  const bundled = bundledThemePath(theme);
-  if (bundled) return `${context.themeBase}${bundled}`;
-
-  const file = context.app.vault.getFileByPath(theme);
-  if (file) {
-    return `${context.vaultBase}${file.path.split("/").map(encodeURIComponent).join("/")}`;
+  if (context.workspace.getFile(THEME_STYLESHEET)) {
+    return `${context.workspaceBase}${THEME_STYLESHEET}`;
   }
-  return `${context.themeBase}${bundledThemePath("bunko")}`;
+  const bundled = bundledThemePath(context.config.theme || "novel");
+  return `${context.themeBase}${bundled ?? bundledThemePath("novel")}`;
 }
 
 /**
@@ -221,6 +225,16 @@ ruby.boten > rt {
 .tcy {
   text-combine-upright: all;
   font-family: var(--vs--tcy-font-family, inherit);
+}
+
+/* A forced page break (see notationRules). The class lands on the block that
+   is to start the page, not on a marker of its own - a box with no height can
+   be placed again and again without filling the page, and the typesetter never
+   finishes. The legacy spelling is there because a good many EPUB readers
+   still only understand that one. */
+.vivlio-page-break {
+  break-before: page;
+  page-break-before: always;
 }
 
 /* A paragraph opening with 「 takes no indent: the bracket is drawn in the

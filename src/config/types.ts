@@ -113,6 +113,8 @@ export interface SyntaxToggles {
    * `paragraphIndent` do the work is both reliable and portable.
    */
   stripLeadingSpace: boolean;
+  /** #17 the Aozora page-break note, `［＃改ページ］` */
+  pageBreak: boolean;
 }
 
 /** One line of the colophon the book supplies itself. */

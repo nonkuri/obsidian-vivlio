@@ -9,7 +9,7 @@ import { warn, type BuildContext, type Chapter } from "./context";
 import { vivlioFrontmatterKeys } from "../config/resolve";
 import { embedPlugin } from "./mdast/embed";
 import { dynamicRenderPlugin } from "./mdast/render";
-import { notationRules } from "./replace/rules";
+import { notationRules, PAGE_BREAK_CLASS } from "./replace/rules";
 import { assetsPlugin } from "./hast/assets";
 import { applyIndentPlugin, readManuscriptIndentPlugin } from "./hast/indent";
 import { linksPlugin } from "./hast/links";
@@ -17,6 +17,7 @@ import { obsidianPlugin } from "./hast/obsidian";
 import {
   addClass,
   element,
+  hasClass,
   isElement,
   replaceTextNodes,
   textContent,
@@ -161,9 +162,51 @@ function notationPlugin(rules: ReturnType<typeof notationRules>) {
   return function attach() {
     return (tree: UNode): void => {
       for (const rule of rules) replaceTextNodes(tree, rule);
+      liftPageBreaks(tree);
       dropEmptyParagraphs(tree);
     };
   };
+}
+
+/**
+ * Move a page-break mark onto the block that follows it.
+ *
+ * A break has to be taken on something that occupies the flow. An element of
+ * its own does not: a zero-height block that forces a break can be placed over
+ * and over without consuming any of the page, and Vivliostyle never finishes
+ * composing (seen: the layout stops on the page holding the mark). So the mark
+ * is dropped and the next block carries the break instead.
+ *
+ * A mark with nothing after it needs no break: the next document begins on a
+ * new page anyway.
+ */
+function liftPageBreaks(tree: UNode): void {
+  visit(tree, (node) => {
+    const children = (node as UElement).children;
+    if (!Array.isArray(children)) return;
+
+    for (let index = children.length - 1; index >= 0; index -= 1) {
+      if (!isPageBreakMark(children[index])) continue;
+      children.splice(index, 1);
+      const next = children.slice(index).find((child) => isElement(child));
+      if (next) addClass(next as UElement, PAGE_BREAK_CLASS);
+    }
+  });
+}
+
+/** A paragraph holding a page-break mark and nothing else. */
+function isPageBreakMark(node: UNode): boolean {
+  if (!isElement(node, "p")) return false;
+  const children = (node as UElement).children ?? [];
+  let marks = 0;
+  for (const child of children) {
+    if (isElement(child) && hasClass(child as UElement, PAGE_BREAK_CLASS)) {
+      marks += 1;
+      continue;
+    }
+    if (textContent(child).trim() !== "") return false;
+  }
+  return marks === 1;
 }
 
 /**
