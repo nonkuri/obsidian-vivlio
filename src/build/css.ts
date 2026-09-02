@@ -1,5 +1,6 @@
 import type { BuildContext } from "./context";
-import { resolvePaperSize } from "../config/defaults";
+import type { BookConfig } from "../config/types";
+import { pageHeightMm, pageWidthMm, resolvePaperSize } from "../config/defaults";
 import { bundledThemePath } from "../vendor/assets";
 import { fontFaceRules } from "./fonts";
 
@@ -20,14 +21,15 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   const root: string[] = [];
   root.push(`--vs-writing-mode: ${config.writingMode};`);
 
-  // Page size. `charsPerLine` / `linesPerPage` drive the size in bunko, so an
-  // explicit size wins and switches the theme's calculation off.
+  // Sheet size only.
+  //
+  // `--vs-page--width` / `--vs-page--height` are not the sheet: they are the
+  // text block, which theme-bunko computes from `charsPerLine` /
+  // `linesPerPage` and centres with `margin: auto`. Forcing them to `auto`
+  // makes the block fill the sheet, which collapses every margin to zero and
+  // leaves the running head printing on top of the text.
   const size = resolvePaperSize(config.size);
-  if (size && size !== "auto") {
-    root.push(`--vs-page--size: ${size};`);
-    root.push("--vs-page--width: auto;");
-    root.push("--vs-page--height: auto;");
-  }
+  if (size && size !== "auto") root.push(`--vs-page--size: ${size};`);
   if (config.charsPerLine) root.push(`--vs-theme--num-of-character: ${config.charsPerLine};`);
   if (config.linesPerPage) root.push(`--vs-theme--num-of-line: ${config.linesPerPage};`);
 
@@ -42,7 +44,8 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.fontFeatureSettings) {
     root.push(`--vs-font-feature-settings: ${config.fontFeatureSettings};`);
   }
-  if (config.baseFontSize) root.push(`--vs--html-font-size: ${config.baseFontSize};`);
+  const bodySize = config.baseFontSize || gridFontSize(config);
+  if (bodySize) root.push(`--vs--html-font-size: ${bodySize};`);
 
   // A manuscript that already starts its paragraphs with an ideographic space
   // must not also get the theme's indent (SPEC 5.10).
@@ -68,6 +71,47 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
 
   return blocks.filter(Boolean).join("\n\n");
+}
+
+/** Proportion of the sheet the text block takes; the rest becomes margin. */
+const TEXT_BLOCK_FILL = 0.85;
+
+/** theme-bunko's `--vs-line-height`, the grid the character count sits on. */
+const GRID_LINE_HEIGHT = 2;
+
+/**
+ * Body size derived from the paper and the character grid.
+ *
+ * A grid theme sizes the text block from the type: theme-bunko makes it
+ * `chars × 1em` by `lines × line-height em` and centres it with `margin:
+ * auto`. Ask for 39 characters and 15 lines at the theme's own 16px and the
+ * block comes out larger than a bunko sheet, so the margins collapse to zero
+ * and the running head prints over the text. The theme papers over this under
+ * print media by shrinking the type to 83.33%, which is both not enough and
+ * different from what the preview shows.
+ *
+ * Deriving the size from the paper instead makes the grid fit by
+ * construction, and makes the preview and the PDF agree, because the value no
+ * longer depends on the media type.
+ */
+function gridFontSize(config: BookConfig): string | null {
+  const chars = config.charsPerLine;
+  const lines = config.linesPerPage;
+  if (!chars || !lines) return null;
+
+  const width = pageWidthMm(config.size);
+  const height = pageHeightMm(config.size);
+  if (!width || !height) return null;
+
+  // In vertical writing the characters of a line run down the page and the
+  // lines march across it; horizontally it is the other way round.
+  const vertical = config.writingMode === "vertical-rl";
+  const alongChars = vertical ? height : width;
+  const alongLines = vertical ? width : height;
+
+  const byChars = (alongChars * TEXT_BLOCK_FILL) / chars;
+  const byLines = (alongLines * TEXT_BLOCK_FILL) / (lines * GRID_LINE_HEIGHT);
+  return `${Math.min(byChars, byLines).toFixed(3)}mm`;
 }
 
 /**

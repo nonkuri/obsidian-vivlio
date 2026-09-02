@@ -2,8 +2,10 @@ import type { BuildContext } from "../build/context";
 import { checkFonts } from "../build/fonts";
 import { effectiveDpi, pxToMm } from "../util/imageSize";
 import { isImagePath } from "../util/paths";
-import { resolvePaperSize } from "../config/defaults";
+import { pageHeightMm, pageWidthMm } from "../config/defaults";
 import { t } from "../i18n";
+
+export { pageWidthMm, pageHeightMm };
 
 export interface PreflightIssue {
   level: "warning" | "error";
@@ -38,51 +40,6 @@ export async function preflight(
   issues.push(...checkCover(context, options.forEpub));
 
   return issues;
-}
-
-/** Page width in mm, for turning a placement into a physical size. */
-export function pageWidthMm(size: string): number | null {
-  const resolved = resolvePaperSize(size);
-  const named: Record<string, number> = {
-    A3: 297,
-    A4: 210,
-    A5: 148,
-    A6: 105,
-    B4: 250,
-    B5: 176,
-    "JIS-B4": 257,
-    "JIS-B5": 182,
-    letter: 215.9,
-    legal: 215.9,
-    ledger: 279.4,
-  };
-  if (named[resolved]) return named[resolved];
-
-  const explicit = resolved.match(/^([\d.]+)mm\s+([\d.]+)mm$/);
-  if (explicit) return Number(explicit[1]);
-  return null;
-}
-
-export function pageHeightMm(size: string): number | null {
-  const resolved = resolvePaperSize(size);
-  const named: Record<string, number> = {
-    A3: 420,
-    A4: 297,
-    A5: 210,
-    A6: 148,
-    B4: 353,
-    B5: 250,
-    "JIS-B4": 364,
-    "JIS-B5": 257,
-    letter: 279.4,
-    legal: 355.6,
-    ledger: 431.8,
-  };
-  if (named[resolved]) return named[resolved];
-
-  const explicit = resolved.match(/^([\d.]+)mm\s+([\d.]+)mm$/);
-  if (explicit) return Number(explicit[2]);
-  return null;
 }
 
 function checkResolution(context: BuildContext): PreflightIssue[] {

@@ -174,6 +174,30 @@ async function main(): Promise<void> {
     check("no paragraph indent override by default", !css.includes("--vs--p-text-indent")),
   );
 
+  // The text block is sized from the type, so a grid that does not fit the
+  // sheet collapses every margin to zero: the size has to come from the paper.
+  const grid = makeContext();
+  grid.config.charsPerLine = 39;
+  grid.config.linesPerPage = 15;
+  const gridCss = bookStylesheet(grid, "x.css");
+  const derived = Number(gridCss.match(/--vs--html-font-size: ([\d.]+)mm;/)?.[1] ?? 0);
+  checks.push(
+    check("body size derived from the paper", derived > 2 && derived < 4, String(derived)),
+    check(
+      "text block fits the sheet height",
+      derived * 39 < 148,
+      `${(derived * 39).toFixed(1)}mm of 148mm`,
+    ),
+    check(
+      "text block fits the sheet width",
+      derived * 15 * 2 < 105,
+      `${(derived * 30).toFixed(1)}mm of 105mm`,
+    ),
+    // The theme computes these from the grid; overriding them makes the block
+    // fill the sheet and the running head print over the text.
+    check("page width is left to the theme", !gridCss.includes("--vs-page--width")),
+  );
+
   const indented = makeContext();
   indented.config.paragraphIndent = "0";
   checks.push(
