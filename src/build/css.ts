@@ -1,7 +1,7 @@
 import type { BuildContext } from "./context";
 import type { BookConfig } from "../config/types";
 import { pageHeightMm, pageWidthMm, resolvePaperSize } from "../config/defaults";
-import { bundledThemePath } from "../vendor/assets";
+import { BUNDLED_THEME_GRIDS, bundledThemePath } from "../vendor/assets";
 import { fontFaceRules } from "./fonts";
 
 /**
@@ -21,6 +21,11 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   const root: string[] = [];
   root.push(`--vs-writing-mode: ${config.writingMode};`);
 
+  // The running head of a right-hand page names the book. A `string-set` can
+  // only carry what some element in the flow says, and no body chapter says
+  // the title, so it travels as a variable instead (see novel.css).
+  if (config.title) root.push(`--vivlio-book-title: ${cssString(config.title)};`);
+
   // Sheet size only.
   //
   // `--vs-page--width` / `--vs-page--height` are not the sheet: they are the
@@ -30,8 +35,14 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   // leaves the running head printing on top of the text.
   const size = resolvePaperSize(config.size);
   if (size && size !== "auto") root.push(`--vs-page--size: ${size};`);
-  if (config.charsPerLine) root.push(`--vs-theme--num-of-character: ${config.charsPerLine};`);
-  if (config.linesPerPage) root.push(`--vs-theme--num-of-line: ${config.linesPerPage};`);
+
+  // Both numbers are written, or neither: the theme composes its block from
+  // the pair, and the body size below is derived from the same pair.
+  const grid = resolveGrid(config);
+  if (grid) {
+    root.push(`--vs-theme--num-of-character: ${grid.chars};`);
+    root.push(`--vs-theme--num-of-line: ${grid.lines};`);
+  }
 
   if (config.fontFamily) root.push(`--vs-font-family: ${config.fontFamily};`);
   if (config.headingFontFamily) {
@@ -44,7 +55,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.fontFeatureSettings) {
     root.push(`--vs-font-feature-settings: ${config.fontFeatureSettings};`);
   }
-  const derivedSize = gridFontSize(config);
+  const derivedSize = gridFontSize(config, grid);
   const bodySize = config.baseFontSize || derivedSize;
   if (bodySize) root.push(`--vs--html-font-size: ${bodySize};`);
   // theme-bunko pins the running head and folio at 8.5pt. Once the body is
@@ -83,6 +94,18 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
 /** Running heads and folios sit below the body size, as in a printed book. */
 const MBOX_FONT_RATIO = 0.75;
 
+/**
+ * A CSS string literal.
+ *
+ * A book title is arbitrary text; a quote or a backslash in it would otherwise
+ * end the literal early and take the rest of the stylesheet with it. Newlines
+ * are not allowed inside a CSS string at all, so they become spaces.
+ */
+function cssString(value: string): string {
+  const escaped = value.replace(/[\\"]/g, "\\$&").replace(/\s+/g, " ");
+  return `"${escaped}"`;
+}
+
 /** Scale a `<number>mm` length. */
 function scaleLength(length: string, factor: number): string {
   const value = Number(length.replace("mm", ""));
@@ -110,10 +133,9 @@ const GRID_LINE_HEIGHT = 2;
  * construction, and makes the preview and the PDF agree, because the value no
  * longer depends on the media type.
  */
-function gridFontSize(config: BookConfig): string | null {
-  const chars = config.charsPerLine;
-  const lines = config.linesPerPage;
-  if (!chars || !lines) return null;
+function gridFontSize(config: BookConfig, grid: Grid | null): string | null {
+  if (!grid) return null;
+  const { chars, lines } = grid;
 
   const width = pageWidthMm(config.size);
   const height = pageHeightMm(config.size);
@@ -128,6 +150,26 @@ function gridFontSize(config: BookConfig): string | null {
   const byChars = (alongChars * TEXT_BLOCK_FILL) / chars;
   const byLines = (alongLines * TEXT_BLOCK_FILL) / (lines * GRID_LINE_HEIGHT);
   return `${Math.min(byChars, byLines).toFixed(3)}mm`;
+}
+
+interface Grid {
+  chars: number;
+  lines: number;
+}
+
+/**
+ * The character grid the book will actually be composed on.
+ *
+ * A grid theme has its own numbers and falls back to them when the book gives
+ * none; the plugin has to use the same ones, or the block it sizes the type
+ * for is not the block the theme draws. A theme that lays out from margins
+ * instead keeps its own body size unless the book asks for a grid outright.
+ */
+function resolveGrid(config: BookConfig): Grid | null {
+  const themeGrid = BUNDLED_THEME_GRIDS[config.theme] ?? null;
+  const chars = config.charsPerLine || themeGrid?.chars || 0;
+  const lines = config.linesPerPage || themeGrid?.lines || 0;
+  return chars > 0 && lines > 0 ? { chars, lines } : null;
 }
 
 /**
@@ -179,6 +221,13 @@ ruby.boten > rt {
 .tcy {
   text-combine-upright: all;
   font-family: var(--vs--tcy-font-family, inherit);
+}
+
+/* A paragraph opening with 「 takes no indent: the bracket is drawn in the
+   right half of its em box, so the empty half already reads as one (see
+   indentPlugin). */
+p.vivlio-no-indent {
+  text-indent: 0;
 }
 
 .callout {
@@ -312,15 +361,6 @@ function sectionCss(context: BuildContext): string {
   break-after: page;
 }
 
-[role="doc-colophon"] table {
-  border-collapse: collapse;
-}
-
-[role="doc-colophon"] th {
-  text-align: start;
-  padding-inline-end: 1em;
-  font-weight: normal;
-}
 `.trim();
 }
 
@@ -345,11 +385,21 @@ function pageNumberingCss(context: BuildContext): string {
 
   // Only the foot: setting a running-head variable as well printed the number
   // twice on every front-matter page.
+  //
+  // Where the foot is, though, is the theme's business. A theme that places
+  // the folio itself - the novel theme puts it in the outer bottom corner,
+  // which is a different margin box on each side - reads `--vivlio-folio` and
+  // declares `--vivlio-folio-own-box`, which turns the centred fallback off so
+  // the number is not also printed a second time in the middle.
   return `
 ${reset}
 
 :root.vivlio-front-matter {
-  --vs-page--mbox-content-bottom-center: counter(page, lower-roman);
+  --vivlio-folio: counter(page, lower-roman);
+  --vs-page--mbox-content-bottom-center: var(
+    --vivlio-folio-own-box,
+    counter(page, lower-roman)
+  );
 }
 `.trim();
 }

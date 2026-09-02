@@ -45,6 +45,9 @@
 
   /* Ruby ---------------------------------------------------------------- */
   --vs--rt-font-size: 0.5rem;
+  /* An emphasis dot is a mark, not a reading: it wants to be smaller than the
+     ruby a word takes, or it reads as a second line of type. */
+  --vs-novel--boten-font-size: 0.35rem;
 
   /* Page ----------------------------------------------------------------
    *
@@ -67,6 +70,12 @@
     1rem * var(--vs-line-height) *
       var(--vs-theme--num-of-line, var(--vs-novel--lines-per-page)) + 1px
   );
+  /* The block extent of the text block, for the parts that fill a page.
+     `block-size: 100%` cannot: Vivliostyle sizes the html and body boxes to
+     their content, so the percentage has nothing definite to resolve
+     against. In vertical writing the block axis runs across the page, which
+     is the width above. */
+  --vs-novel--block-extent: var(--vs-page--width);
   --vs-page--margin-top: auto;
   --vs-page--margin-bottom: auto;
   --vs-page--margin-inner: auto;
@@ -87,9 +96,18 @@
   --vs--h4-font-size: 1rem;
   --vs--h4-margin-block: 2rem 2rem;
 
-  /* Table of contents --------------------------------------------------- */
-  --vs-toc--ol-indent-size: 2.5rem;
-  --vs-toc--page-leader-content: leader('.') ' ';
+  /* Table of contents ---------------------------------------------------
+   *
+   * One character of indent per level, so a section sits just inside its
+   * chapter and both still start on the character grid.
+   *
+   * The leader is a katakana middle dot rather than a period: a period is
+   * Latin, so vertical writing lays it on its side and the dots run down one
+   * edge of the line instead of its centre. The middle dot is centred in its
+   * em box in either writing mode.
+   */
+  --vs-toc--ol-indent-size: 1rem;
+  --vs-toc--page-leader-content: leader('・');
 }
 
 :root:lang(ja) {
@@ -99,41 +117,82 @@
 
 /* Running heads and folios ------------------------------------------------
  *
- * The folio sits at the foot, centred. The running head carries the chapter
- * title, not the book title: on an opened book the reader already knows which
- * book it is, and wants to know where in it they are.
+ * The folio sits in the outer bottom corner - the right page's outer edge is
+ * its right, the left page's its left - and the running head at the head of
+ * the same outer edge.
+ *
+ * The two heads carry different things: the right page names the book, the
+ * left page the chapter. An opened book then answers both questions at once,
+ * which is the arrangement a Japanese novel usually takes.
  */
-h2 {
+/* The chapter title, from two sources so neither shape of manuscript is left
+   without one: a heading, or - when the document has none for the plugin to
+   find - the document naming itself through the attribute. */
+[data-vivlio-chapter] {
+  string-set: vivlio-chapter attr(data-vivlio-chapter);
+}
+
+h1 {
   string-set: vivlio-chapter content();
 }
 
 @page {
-  @bottom-center {
-    margin-block-start: 6mm;
-  }
   @top-left {
     margin-block-end: 6mm;
   }
   @top-right {
     margin-block-end: 6mm;
   }
+  @bottom-left {
+    margin-block-start: 6mm;
+    text-align: start;
+  }
+  @bottom-right {
+    margin-block-start: 6mm;
+    text-align: end;
+  }
 }
 
 :root {
-  --vs-page--mbox-content-bottom-center: counter(page);
+  /* The plugin rewrites this for the roman numerals of the front matter, and
+     reads `--vivlio-folio-own-box` as this theme saying it has placed the
+     folio itself - without it the front matter would also get one centred at
+     the foot, which is where the themes that do not place it put theirs. */
+  --vivlio-folio: counter(page);
+  --vivlio-folio-own-box: none;
+
+  /* A running head belongs to the body. Front matter, the colophon and the
+     cover would otherwise print a head carrying whichever chapter title was
+     set last, which is a title they have nothing to do with. */
+  --vivlio-running-title: none;
+  --vivlio-running-chapter: none;
 }
 
-/* The running head goes on the outer edge, which swaps with the page side.
- *
- * `first-except` yields nothing on the page where the chapter title is set,
- * which is how a book leaves the running head off a chapter's opening page.
- */
+/* `--vivlio-book-title` is written by the plugin (see bookStylesheet); on its
+   own the theme has only the chapter title to fall back on. */
+:root.vivlio-body {
+  --vivlio-running-title: var(--vivlio-book-title, string(vivlio-chapter));
+  --vivlio-running-chapter: string(vivlio-chapter);
+}
+
 @page :left {
-  --vs-page--mbox-content-top-left: string(vivlio-chapter, first-except);
+  --vs-page--mbox-content-top-left: var(--vivlio-running-chapter);
+  --vs-page--mbox-content-bottom-left: var(--vivlio-folio);
 }
 
 @page :right {
-  --vs-page--mbox-content-top-right: string(vivlio-chapter, first-except);
+  --vs-page--mbox-content-top-right: var(--vivlio-running-title);
+  --vs-page--mbox-content-bottom-right: var(--vivlio-folio);
+}
+
+/* The table of contents prints page numbers; one of its own on the same
+   spread only invites the reader to look up the wrong one.
+ *
+ * By the root class rather than by theme-base's `toc-document` named page: a
+ * declaration inside `@page` loses to the custom property the document root
+ * hands down, which is where the plugin writes the folio format. */
+:root.vivlio-toc {
+  --vs-page--mbox-visibility: hidden;
 }
 
 h2 {
@@ -155,6 +214,20 @@ figure {
   max-inline-size: 100%;
 }
 
+/* Ruby ---------------------------------------------------------------------
+ *
+ * An annotation only stays out of the way if it fits in the half-leading the
+ * line already has. `line-height: 2` leaves half a line above the characters,
+ * and an `rt` is half their size - but it *inherits* that line height, so the
+ * annotation box comes out a whole line tall, overflows the half-leading and
+ * pushes the line apart. Pinning both to 1 makes the annotation exactly as
+ * tall as its own type, which the leading absorbs.
+ */
+ruby,
+rt {
+  line-height: 1;
+}
+
 /* Emphasis dots ------------------------------------------------------------
  *
  * The plugin writes these as ruby carrying a sesame dot over each character,
@@ -163,7 +236,7 @@ figure {
  * lines that carry emphasis.
  */
 ruby.boten > rt {
-  font-size: var(--vs--rt-font-size);
+  font-size: var(--vs-novel--boten-font-size);
   font-weight: normal;
   letter-spacing: 0;
 }
@@ -179,13 +252,30 @@ ruby.boten > rt {
 
 /* Front and back matter ----------------------------------------------------
  *
- * The block-size makes the page the containing block, so the author can sit
- * at the foot rather than directly under the title.
+ * The block-size makes the page the containing block, and the column turns it
+ * into a run of lines with the free space between them to give away: the title
+ * keeps the head of the page, the imprint takes the foot. Spacing the author
+ * off the title by a fixed margin instead left them wherever the length of the
+ * title happened to put them.
  */
 .titlepage,
 .halftitle {
-  block-size: 100%;
   text-align: start;
+}
+
+/* A line of front matter is a label, not a paragraph of prose: it takes
+   neither the body's first-line indent nor its justification, and it follows
+   whichever alignment the box it sits in asks for. */
+.titlepage p,
+.halftitle p {
+  text-indent: 0;
+  text-align: inherit;
+}
+
+.titlepage {
+  display: flex;
+  flex-direction: column;
+  block-size: var(--vs-novel--block-extent);
 }
 
 /* Sized so a title of ordinary length fits the block in one line: the block
@@ -204,22 +294,99 @@ ruby.boten > rt {
   margin-block: 2rem 0;
 }
 
-.titlepage .author,
-.titlepage .publisher {
-  font-size: 1rem;
-  margin-block-start: 8rem;
+/* `margin-block-start: auto` eats the free space of the column, so the imprint
+   sits against the far edge of the page whatever comes above it; `text-align:
+   end` puts it at the foot of that edge - bottom left in vertical writing,
+   which is where a Japanese title page names its author. */
+.titlepage .imprint {
+  margin-block-start: auto;
+  text-align: end;
 }
 
+.titlepage .author {
+  font-size: 1rem;
+}
+
+.titlepage .publisher {
+  font-size: 0.9rem;
+  margin-block-start: 2rem;
+}
+
+/* The colophon ------------------------------------------------------------
+ *
+ * A Japanese colophon sits at the far corner of the last page - the foot of
+ * the left edge in vertical writing - with the book named at the head of the
+ * block and everyone behind it listed below in labelled lines.
+ *
+ * The auto margin does the placing, the same way the title page's imprint is
+ * placed, and for the same reason: it eats whatever free space there is, and
+ * when there is none it is simply ignored, so a long colophon starts at the
+ * top of the page rather than running off it.
+ */
 [role='doc-colophon'] {
+  display: flex;
+  flex-direction: column;
+  block-size: var(--vs-novel--block-extent);
   font-size: 0.85rem;
-  line-height: 1.6rem;
   break-inside: avoid;
+}
+
+[role='doc-colophon'] .colophon {
+  margin-block-start: auto;
+}
+
+[role='doc-colophon'] p {
+  text-indent: 0;
+  text-align: start;
+}
+
+[role='doc-colophon'] .colophon-series {
+  font-size: 0.85rem;
+  margin-block: 0 1rem;
+}
+
+[role='doc-colophon'] .colophon-title {
+  font-size: 1.1rem;
+  font-weight: var(--vs-font-weight-bold);
+  margin-block: 0 2rem;
+}
+
+[role='doc-colophon'] .colophon-rows {
+  margin-block: 0;
+  margin-inline: 0;
+}
+
+[role='doc-colophon'] .colophon-row {
+  margin-block-start: 0;
+}
+
+/* The label is set to a fixed measure and its characters spread across it, the
+   way a colophon writes 発　行　所, so the values all start at the same point
+   whether the label is two characters or four.
+ *
+ * The measure is the label alone; justifying the characters across it puts the
+ * last one hard against its end, so the gap before the value has to be a
+ * margin. Without it 発　行　所 and 架空書房 run together. */
+[role='doc-colophon'] dt {
+  display: inline-block;
+  inline-size: 5em;
+  margin-inline-end: 1em;
+  font-weight: normal;
+  text-align: justify;
+  text-align-last: justify;
+}
+
+[role='doc-colophon'] dd {
+  display: inline;
+  margin-inline-start: 0;
 }
 
 /* Table of contents -------------------------------------------------------
  *
- * theme-base hides the numbering and draws the leaders; what it does not do is
- * make the depth legible, so each level is set a step smaller and indented.
+ * theme-base hides the numbering and draws the leaders. Three things it has no
+ * opinion about, and a vertically set book needs all three: the depth has to
+ * read, the page numbers have to be legible across the line, and a long
+ * chapter must not drag its whole group of sections onto the next page.
  */
 :is(#toc, [role='doc-toc']) > ol {
   --vs--ol-padding-inline-start: 0;
@@ -227,20 +394,49 @@ ruby.boten > rt {
 
 :is(#toc, [role='doc-toc']) ol ol {
   --vs--ol-padding-inline-start: var(--vs-toc--ol-indent-size);
-  font-size: 0.9em;
 }
 
+/* Entries keep the body's line height and nothing else, so the list lands on
+   the same grid the text does; the depth is carried by the indent and the
+   weight rather than by a smaller size, which would leave it off that grid. */
 :is(#toc, [role='doc-toc']) li {
-  margin-block-start: 0.5rem;
+  margin-block-start: 0;
 }
 
+/* One blank line before each chapter, none before the first: the gap belongs
+   between chapters, not at the top of the list.
+ *
+ * theme-base also makes every item unbreakable, which for a chapter means the
+ * chapter *and all its sections*: one that does not fit moves whole to the
+ * next page and leaves the rest of this one blank. Only the leaf entries need
+ * to hold together; a chapter has to keep no more than its first section. */
 :is(#toc, [role='doc-toc']) > ol > li {
   margin-block-start: 2rem;
   font-weight: var(--vs-font-weight-bold);
+  break-inside: auto;
+}
+
+:is(#toc, [role='doc-toc']) > ol > li:first-child {
+  margin-block-start: 0;
 }
 
 :is(#toc, [role='doc-toc']) > ol > li > a {
   font-weight: inherit;
+  break-after: avoid;
+}
+
+/* Tate-chu-yoko for the page number, and only the page number.
+ *
+ * The leader and the number have to stay in the one `a::after` theme-base
+ * emits them from: Vivliostyle sizes a leader by measuring what follows it
+ * *inside the same pseudo-element*, so pulling the number out into a box of
+ * its own left the leader filling the whole line and the number wrapping to
+ * the next one. `text-combine-upright` is inherited, which would take the run
+ * of dots with it - except that Vivliostyle's own UA stylesheet sets
+ * `text-combine-upright: none` on the span it wraps a leader in. */
+:is(#toc, [role='doc-toc']) li > a::after {
+  text-combine-upright: all;
+  font-weight: normal;
 }
 
 @media screen {

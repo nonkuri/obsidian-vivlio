@@ -13,6 +13,17 @@ export type FootnoteMode = "gcpm" | "pandoc" | "dpub";
 export type HighlightMode = "boten" | "strong" | "mark" | "off";
 export type ImageWidthUnit = "px" | "percent" | "mm";
 export type PageNumbering = "roman-then-arabic" | "continuous" | "none";
+
+/**
+ * Which paragraphs take the first-line indent (SPEC 5.3 #16).
+ *
+ * `auto` follows the manuscript when it indents itself with an ideographic
+ * space and falls back to the bracket rule when it does not; the other three
+ * pick one of those answers outright.
+ */
+export const INDENT_MODES = ["auto", "manuscript", "brackets", "all"] as const;
+
+export type IndentMode = (typeof INDENT_MODES)[number];
 export type CoverFit = "cover" | "contain";
 export type Language = "ja" | "en" | "auto";
 
@@ -104,6 +115,12 @@ export interface SyntaxToggles {
   stripLeadingSpace: boolean;
 }
 
+/** One line of the colophon the book supplies itself. */
+export interface ColophonEntry {
+  label: string;
+  value: string;
+}
+
 /**
  * A fully resolved book configuration. Every field is required here; the
  * layers above hand in `Partial<BookConfig>` and `resolveConfig` fills the
@@ -113,11 +130,28 @@ export interface BookConfig {
   // bibliographic
   title: string;
   subtitle: string;
+  /** Name of the series the book belongs to, printed above the title. */
+  series: string;
   author: string;
+  /** Translator, for a book that has one. */
+  translator: string;
   publisher: string;
+  /** Printer, which a Japanese colophon names separately from the publisher. */
+  printer: string;
+  /** Where to write to the publisher: an address, an email. */
+  contact: string;
+  website: string;
   date: string;
   lang: string;
   version: string;
+  /**
+   * Lines the book adds to its own colophon (SPEC 5.11).
+   *
+   * A colophon names whoever the book wants to name - the designer, the
+   * proofreader, the printer's plate maker - and no fixed set of keys covers
+   * that, so the book supplies its own labels.
+   */
+  colophonExtra: ColophonEntry[];
 
   // typesetting
   theme: string;
@@ -134,6 +168,8 @@ export interface BookConfig {
    * it, so the first line ends up indented twice.
    */
   paragraphIndent: string;
+  /** Which paragraphs the indent applies to (SPEC 5.3 #16). */
+  paragraphIndentMode: IndentMode;
   footnote: FootnoteMode;
   highlight: HighlightMode;
   autoTcy: boolean;
@@ -187,6 +223,8 @@ export interface VivlioSettings {
   footnote: FootnoteMode;
   /** Default `--vs--p-text-indent`; empty leaves it to the theme. */
   paragraphIndent: string;
+  /** Default answer to which paragraphs take that indent. */
+  paragraphIndentMode: IndentMode;
   /** Vault-relative path of an extra stylesheet. */
   extraCssPath: string;
 

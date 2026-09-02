@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { AUTO_CAPABLE_SLOTS, SECTION_SLOTS } from "./types";
+import { AUTO_CAPABLE_SLOTS, INDENT_MODES, SECTION_SLOTS } from "./types";
 import type { SectionSlot } from "./types";
 
 /**
@@ -17,6 +17,22 @@ const HighlightSchema = v.picklist(["boten", "strong", "mark", "off"]);
 const ImageWidthUnitSchema = v.picklist(["px", "percent", "mm"]);
 const PageNumberingSchema = v.picklist(["roman-then-arabic", "continuous", "none"]);
 const CoverFitSchema = v.picklist(["cover", "contain"]);
+const IndentModeSchema = v.picklist([...INDENT_MODES]);
+
+/**
+ * Extra colophon lines, in either of the two shapes YAML makes natural: a list
+ * of `{ label, value }`, which keeps duplicates and order explicit, or a plain
+ * mapping of label to value, which is shorter to write.
+ */
+const ColophonExtraSchema = v.union([
+  v.array(
+    v.object({
+      label: v.string(),
+      value: v.union([v.string(), v.number()]),
+    }),
+  ),
+  v.record(v.string(), v.union([v.string(), v.number()])),
+]);
 
 const EmbedFontSchema = v.object({
   family: v.string(),
@@ -37,11 +53,17 @@ const SectionsSchema = v.partial(
 export const BookConfigInputSchema = v.object({
   title: v.optional(v.string()),
   subtitle: v.optional(v.string()),
+  series: v.optional(v.string()),
   author: v.optional(v.string()),
+  translator: v.optional(v.string()),
   publisher: v.optional(v.string()),
+  printer: v.optional(v.string()),
+  contact: v.optional(v.string()),
+  website: v.optional(v.string()),
   date: v.optional(v.union([v.string(), v.date()])),
   lang: v.optional(v.string()),
   version: v.optional(v.union([v.string(), v.number()])),
+  colophonExtra: v.optional(ColophonExtraSchema),
 
   theme: v.optional(v.string()),
   writingMode: v.optional(WritingModeSchema),
@@ -50,6 +72,7 @@ export const BookConfigInputSchema = v.object({
   linesPerPage: v.optional(v.union([v.number(), v.null()])),
   baseFontSize: v.optional(v.string()),
   paragraphIndent: v.optional(v.union([v.string(), v.number()])),
+  paragraphIndentMode: v.optional(IndentModeSchema),
   footnote: v.optional(FootnoteSchema),
   highlight: v.optional(HighlightSchema),
   autoTcy: v.optional(v.boolean()),

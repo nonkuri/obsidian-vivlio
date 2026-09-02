@@ -93,7 +93,7 @@ ${renderList(buildTocEntries(context, chapters))}
   return htmlDocument({
     lang: context.config.lang,
     title: t("toc.heading"),
-    rootClass: "vivlio-front-matter",
+    rootClass: "vivlio-front-matter vivlio-toc",
     body,
   });
 }

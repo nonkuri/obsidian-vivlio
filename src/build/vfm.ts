@@ -11,6 +11,7 @@ import { embedPlugin } from "./mdast/embed";
 import { dynamicRenderPlugin } from "./mdast/render";
 import { notationRules } from "./replace/rules";
 import { assetsPlugin } from "./hast/assets";
+import { applyIndentPlugin, readManuscriptIndentPlugin } from "./hast/indent";
 import { linksPlugin } from "./hast/links";
 import { obsidianPlugin } from "./hast/obsidian";
 import {
@@ -81,9 +82,15 @@ export async function convertChapter(
           assetsPlugin(context, file.path),
           linksPlugin(context, file.path),
           obsidianPlugin(context),
+          // Before the notations, which strip the ideographic space that says
+          // the manuscript indented this paragraph itself (SPEC 5.3 #15, #16).
+          readManuscriptIndentPlugin(),
           notationPlugin(rules),
+          // And after them, so a paragraph opening `《《傍点》》` is not mistaken
+          // for one opening with a bracket.
+          applyIndentPlugin(context.config.paragraphIndentMode),
           dropBookTitleHeadingPlugin(context),
-          documentShapePlugin(chapter),
+          documentShapePlugin(chapter, namesItself(context, chapter, file)),
         ],
       }) as unknown as ReturnType<NonNullable<StringifyMarkdownOptions["editPlugins"]>>,
     },
@@ -104,6 +111,23 @@ export async function convertChapter(
   }
 }
 
+/**
+ * True when nothing in the document will name the chapter for the running head.
+ *
+ * A theme takes the head from a heading, which a manuscript need not have: a
+ * folder book whose notes open straight into prose, or one whose only heading
+ * repeats the book title and is dropped, leaves the string empty and the head
+ * blank. Such a document is made to name itself instead - but only such a
+ * document, so a manuscript with headings keeps taking the head from them.
+ */
+function namesItself(context: BuildContext, chapter: Chapter, file: TFile): boolean {
+  if (!chapter.isBody || !chapter.title) return false;
+  const headings = context.headings.get(file.path) ?? [];
+  return !headings.some(
+    (heading) => heading.level === 1 && !isBookTitleHeading(context, heading),
+  );
+}
+
 function buildMetadata(
   context: BuildContext,
   chapter: Chapter,
@@ -115,7 +139,17 @@ function buildMetadata(
   metadata.title = chapter.title || metadata.title;
   metadata.lang = context.config.lang || metadata.lang;
 
-  const classes = [chapter.isFrontMatter ? "vivlio-front-matter" : "", "vivlio-doc"]
+  // `vivlio-body` marks the chapters proper. The running head names the book
+  // and the chapter, which front matter, the colophon and the cover have no
+  // business carrying - they would print whichever title was set last.
+  const classes = [
+    chapter.isFrontMatter ? "vivlio-front-matter" : "",
+    chapter.isBody ? "vivlio-body" : "",
+    // The table of contents prints page numbers; the theme reads this to keep
+    // it from printing one of its own.
+    chapter.slot === "toc" ? "vivlio-toc" : "",
+    "vivlio-doc",
+  ]
     .filter(Boolean)
     .join(" ");
   metadata.class = [metadata.class, classes].filter(Boolean).join(" ");
@@ -181,7 +215,7 @@ function dropBookTitleHeadingPlugin(context: BuildContext) {
  * get the right named page; the two parts with no DPUB role (title page and
  * half title) get a class instead.
  */
-function documentShapePlugin(chapter: Chapter) {
+function documentShapePlugin(chapter: Chapter, namesItself: boolean) {
   return function attach() {
     return (tree: UNode): void => {
       const body = findBody(tree);
@@ -202,6 +236,9 @@ function documentShapePlugin(chapter: Chapter) {
       if (chapter.role) host.properties.role = chapter.role;
       if (chapter.slot === "titlePage") addClass(host, "titlepage");
       if (chapter.slot === "halfTitle") addClass(host, "halftitle");
+      // What the running head calls a chapter that has no heading of its own.
+      if (namesItself) host.properties["data-vivlio-chapter"] = chapter.title;
+
       // Marks the pages that get roman numerals; read back after layout to
       // write /PageLabels (SPEC 5.11).
       if (chapter.isFrontMatter) addClass(host, "vivlio-front");

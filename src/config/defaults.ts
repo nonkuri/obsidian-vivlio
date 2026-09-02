@@ -47,6 +47,7 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
   writingMode: "vertical-rl",
   footnote: "gcpm",
   paragraphIndent: "",
+  paragraphIndentMode: "auto",
   extraCssPath: "",
 
   fontFamily: DEFAULT_SERIF_STACK,
@@ -104,11 +105,17 @@ export function baseBookConfig(): BookConfig {
   return {
     title: "",
     subtitle: "",
+    series: "",
     author: "",
+    translator: "",
     publisher: "",
+    printer: "",
+    contact: "",
+    website: "",
     date: "",
     lang: "ja",
     version: "",
+    colophonExtra: [],
 
     theme: "novel",
     writingMode: "vertical-rl",
@@ -117,6 +124,7 @@ export function baseBookConfig(): BookConfig {
     linesPerPage: null,
     baseFontSize: "",
     paragraphIndent: "",
+    paragraphIndentMode: "auto",
     footnote: "gcpm",
     highlight: "boten",
     autoTcy: true,

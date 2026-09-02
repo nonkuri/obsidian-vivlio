@@ -2,6 +2,7 @@ import { baseBookConfig } from "./defaults";
 import { validateConfig, KNOWN_KEYS, type ConfigIssue } from "./schema";
 import type {
   BookConfig,
+  ColophonEntry,
   SectionSlot,
   SectionValue,
   SyntaxToggles,
@@ -65,6 +66,7 @@ export function configFromSettings(settings: VivlioSettings): BookConfig {
   config.writingMode = settings.writingMode;
   config.footnote = settings.footnote;
   config.paragraphIndent = settings.paragraphIndent;
+  config.paragraphIndentMode = settings.paragraphIndentMode;
   config.highlight = settings.highlight;
   config.autoTcy = settings.syntax.autoTcy;
   config.fontFamily = settings.fontFamily;
@@ -136,6 +138,10 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
       }
       continue;
     }
+    if (key === "colophonExtra") {
+      config.colophonExtra = colophonEntries(value);
+      continue;
+    }
     if (key === "embedFonts") {
       if (Array.isArray(value)) config.embedFonts = value as BookConfig["embedFonts"];
       continue;
@@ -148,6 +154,37 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
   // `autoTcy` lives both on its own and inside the syntax toggles; keep them
   // in step so the settings tab and the YAML key mean the same thing.
   if (raw["autoTcy"] !== undefined) config.syntax.autoTcy = config.autoTcy;
+}
+
+/**
+ * Extra colophon lines, from either shape the schema accepts.
+ *
+ * A list of `{ label, value }` keeps the order and allows the same label
+ * twice; a plain mapping is shorter to write and keeps its order too, because
+ * YAML mappings arrive as objects with string keys. An entry with no value is
+ * dropped: the colophon prints only what the book actually says.
+ */
+function colophonEntries(value: unknown): ColophonEntry[] {
+  const rows: ColophonEntry[] = [];
+  const add = (label: unknown, text: unknown) => {
+    const entry = { label: String(label ?? "").trim(), value: String(text ?? "").trim() };
+    if (entry.value) rows.push(entry);
+  };
+
+  if (Array.isArray(value)) {
+    for (const row of value) {
+      if (!row || typeof row !== "object") continue;
+      const record = row as Record<string, unknown>;
+      add(record.label, record.value);
+    }
+    return rows;
+  }
+  if (value && typeof value === "object") {
+    for (const [label, text] of Object.entries(value as Record<string, unknown>)) {
+      add(label, text);
+    }
+  }
+  return rows;
 }
 
 export interface ResolveLayers {

@@ -4,7 +4,13 @@ import { PRESETS } from "../config/presets";
 import { PAPER_SIZES } from "../config/defaults";
 import { BUNDLED_THEMES } from "../vendor/assets";
 import { localFontFamilies } from "../build/fonts";
-import { SECTION_SLOTS, AUTO_CAPABLE_SLOTS, type SyntaxToggles } from "../config/types";
+import {
+  SECTION_SLOTS,
+  AUTO_CAPABLE_SLOTS,
+  INDENT_MODES,
+  type IndentMode,
+  type SyntaxToggles,
+} from "../config/types";
 import { t, type StringKey } from "../i18n";
 
 const SYNTAX_KEYS: (keyof SyntaxToggles)[] = [
@@ -149,6 +155,21 @@ export class VivlioSettingTab extends PluginSettingTab {
             await this.save();
           }),
       );
+
+    new Setting(container)
+      .setName(t("settings.paragraphIndentMode"))
+      .setDesc(t("settings.paragraphIndentMode.desc"))
+      .addDropdown((dropdown) => {
+        for (const mode of INDENT_MODES) {
+          dropdown.addOption(mode, t(`settings.paragraphIndentMode.${mode}` as StringKey));
+        }
+        dropdown
+          .setValue(this.plugin.settings.paragraphIndentMode)
+          .onChange(async (value) => {
+            this.plugin.settings.paragraphIndentMode = value as IndentMode;
+            await this.save();
+          });
+      });
 
     new Setting(container)
       .setName(t("settings.extraCss"))

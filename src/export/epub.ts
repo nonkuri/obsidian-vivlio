@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import type { BuildContext, Chapter } from "../build/context";
 import { BOOK_STYLESHEET } from "../build/vfm";
 import { buildTocEntries, type TocEntry } from "../build/toc";
-import { themeAssets } from "../vendor/assets";
+import { bundledThemePath, themeAssets } from "../vendor/assets";
 import { joinPosix, dirname, isFontPath, mimeType } from "../util/paths";
 import { throwIfAborted } from "../util/async";
 import type { AssetRef } from "../build/workspace";
@@ -139,15 +139,32 @@ function toXhtml(context: BuildContext, html: string): string {
  * has no page numbers for the table of contents to point at, and fixed pixel
  * widths break on a phone (SPEC 5.8(7)).
  */
-function epubStylesheet(context: BuildContext): string {
+export function epubStylesheet(context: BuildContext): string {
   const generated = context.workspace.getFile(BOOK_STYLESHEET)?.text ?? "";
   const withoutImport = generated.replace(/^@import[^;]+;\s*/m, "");
   const themePath = themePathFor(context);
-  const theme = themePath ? flattenTheme(themePath) : "";
+  const theme = themePath ? unsizeRoot(flattenTheme(themePath)) : "";
 
   return [theme, withoutImport, EPUB_OVERRIDES, headingSpacingFallback(theme)]
     .filter(Boolean)
     .join("\n\n");
+}
+
+/**
+ * Take the root font size out of the theme.
+ *
+ * Every reader offers a font size, and a reflowable book has to follow it.
+ * Overriding the *value* is not enough: an author declaration outranks the
+ * reader's own stylesheet under the cascade, so `html { font-size: … }` wins
+ * over the size the reader was asked for and nothing moves. The declaration
+ * has to be gone, so the root keeps whatever size the reader gives it and
+ * every `rem` in the theme scales with it.
+ */
+function unsizeRoot(css: string): string {
+  return css.replace(
+    /font-size:\s*var\(--vs--html-font-size\)\s*;/g,
+    "/* font-size: the reader's to choose */",
+  );
 }
 
 /**
@@ -177,14 +194,24 @@ function headingSpacingFallback(themeCss: string): string {
 `.trim();
 }
 
+/**
+ * Where the book's theme lives among the embedded files.
+ *
+ * The same lookup the preview uses (`themeUrlFor`), so an EPUB is set in the
+ * theme the book was written against. Guessing the path from the theme name
+ * instead only ever found the `@vivliostyle/theme-*` packages, so the plugin's
+ * own `novel` fell through to bunko and every rule the theme adds - the
+ * colophon among them - was missing from the EPUB.
+ *
+ * A theme kept in the vault is not embedded and cannot be flattened, so it
+ * still falls back to a bundled one.
+ */
 function themePathFor(context: BuildContext): string | null {
-  const theme = context.config.theme || "bunko";
-  const path = `@vivliostyle/theme-${theme}/theme.css`;
-  if (themeAssets[path]) return path;
-  if (themeAssets["@vivliostyle/theme-bunko/theme.css"]) {
-    return "@vivliostyle/theme-bunko/theme.css";
-  }
-  return null;
+  const path = bundledThemePath(context.config.theme || "novel");
+  if (path && themeAssets[path]) return path;
+
+  const fallback = bundledThemePath("novel");
+  return fallback && themeAssets[fallback] ? fallback : null;
 }
 
 /** Inline `@import url(...)` recursively over the embedded theme files. */
@@ -213,6 +240,34 @@ img {
 
 :is(#toc, [role='doc-toc']) li > a::after {
   content: none;
+}
+
+/* Should the theme ever declare the root size some other way than the one
+   unsizeRoot takes out, this at least keeps it off the millimetre value the
+   grid derives for paper (see gridFontSize) and back on the reader's own. */
+:root {
+  --vs--html-font-size: 100%;
+}
+
+/* Front and back matter are composed to fill a page: a fixed block extent and
+   an auto margin that pushes the imprint to the far edge of it. Neither means
+   anything where the reader decides the page, and a fixed extent in a
+   reflowed column just makes a small box in the corner. */
+.titlepage,
+[role='doc-colophon'] {
+  display: block;
+  block-size: auto;
+}
+
+.titlepage .imprint,
+[role='doc-colophon'] .colophon {
+  margin-block-start: 4rem;
+}
+
+/* Belt and braces: a paragraph opening with a bracket carries its own indent
+   in the glyph, and readers are quick to add one of their own. */
+p.vivlio-no-indent {
+  text-indent: 0;
 }
 `.trim();
 

@@ -100,6 +100,28 @@ async function main(): Promise<void> {
   });
   check("string numbers are coerced", coerced.config.charsPerLine === 38);
 
+  // --- extra colophon lines (SPEC 5.11) ----------------------------------
+  // Both shapes YAML makes natural, and an empty value never becomes a line.
+  const mapped = resolveConfig({
+    settings: DEFAULT_SETTINGS,
+    yaml: { colophonExtra: { 装丁: "佐藤 次郎", 校正: "" } },
+  }).config.colophonExtra;
+  const listed = resolveConfig({
+    settings: DEFAULT_SETTINGS,
+    yaml: { colophonExtra: [{ label: "装丁", value: "佐藤 次郎" }] },
+  }).config.colophonExtra;
+  check(
+    "a colophon mapping becomes lines",
+    mapped.length === 1 && mapped[0].label === "装丁" && mapped[0].value === "佐藤 次郎",
+    JSON.stringify(mapped),
+  );
+  check("an empty colophon value is dropped", mapped.every((row) => row.value !== ""));
+  check(
+    "a colophon list becomes the same lines",
+    listed.length === 1 && listed[0].value === "佐藤 次郎",
+    JSON.stringify(listed),
+  );
+
   // --- validation --------------------------------------------------------
   const issues = validateConfig(
     { theme: "bunko", nonsense: 1, sections: { preface: "auto" } },

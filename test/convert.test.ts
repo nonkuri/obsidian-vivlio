@@ -8,7 +8,10 @@
 import { TFile } from "obsidian";
 import { convertChapter } from "../src/build/vfm";
 import { bookStylesheet } from "../src/build/css";
-import { buildTocEntries } from "../src/build/toc";
+import { buildTocEntries, tocDocument } from "../src/build/toc";
+import { colophonDocument, titlePageDocument } from "../src/build/sections";
+import { kanjiDate } from "../src/util/kanji";
+import { epubStylesheet } from "../src/export/epub";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { baseBookConfig, DEFAULT_SETTINGS } from "../src/config/defaults";
@@ -80,7 +83,10 @@ function makeContext(overrides: Partial<BuildContext> = {}): BuildContext {
     bookRoot: "book",
     chapters,
     chapterByPath: new Map(chapters.map((chapter) => [chapter.file!.path, chapter])),
+    // Obsidian supplies these from its metadata cache; the pipeline reads them
+    // to decide whether a document has a heading to name itself by.
     headings: new Map([
+      ["book/01.md", [{ level: 1, text: "第一章", slug: "第一章" }]],
       ["book/02.md", [{ level: 1, text: "第二章", slug: "第二章" }]],
     ]),
     warnings: [],
@@ -103,6 +109,8 @@ vivlio-theme: bunko
 《《ここは傍点》》になり、｜漢字《かんじ》にルビが付く。^^10^^ 年と 42 冊。
 
 ==ハイライト== は傍点になる。%%この注記は消える%%
+
+「この行は字下げされない」と彼は言った。
 
 > [!note] おぼえがき
 > ここは callout の本文。
@@ -158,7 +166,68 @@ async function main(): Promise<void> {
     check("image width is logical", html.includes("inline-size: min(300px, 100%)")),
     check("stylesheet linked", html.includes('href="vivlio.css"')),
     check("plugin frontmatter is not a meta tag", !html.includes('name="vivlio-theme"')),
+    check("a body chapter is marked as body", /<html[^>]*class="[^"]*vivlio-body/.test(html)),
+    check(
+      "a paragraph opening with a bracket takes no indent",
+      html.includes('<p class="vivlio-no-indent">「この行は字下げされない」'),
+      html.slice(html.indexOf("この行は") - 60, html.indexOf("この行は") + 40),
+    ),
+    check(
+      "an ordinary paragraph keeps the indent",
+      !/<p class="vivlio-no-indent">[^「]/.test(html),
+    ),
   ];
+
+  // The writer can settle the question outright instead of leaving it to the
+  // manuscript (SPEC 5.3 #16).
+  const dialogue = ["　地の文です。", "「会話です」"].join("\n\n");
+  const modes = await Promise.all(
+    (["auto", "manuscript", "brackets", "all"] as const).map(async (mode) => {
+      const withMode = makeContext();
+      withMode.config.paragraphIndentMode = mode;
+      const out = await convertChapter(withMode, withMode.chapters[0], chapterOne, dialogue);
+      return [mode, (out.match(/vivlio-no-indent/g) ?? []).length] as const;
+    }),
+  );
+  const flushCount = new Map(modes);
+  checks.push(
+    check("auto follows the manuscript", flushCount.get("auto") === 1, JSON.stringify(modes)),
+    check("manuscript does too", flushCount.get("manuscript") === 1),
+    check("brackets picks the bracket rule", flushCount.get("brackets") === 1),
+    check("all indents everything", flushCount.get("all") === 0),
+  );
+
+  // A manuscript that indents itself has already said which paragraphs are
+  // which, and its answer wins over any rule of ours: here the dialogue is
+  // flush *and* the narration that opens with a bracketed aside is indented,
+  // which the bracket rule alone would get backwards.
+  const selfIndented = await convertChapter(
+    makeContext(),
+    context.chapters[0],
+    chapterOne,
+    [
+      "　地の文です。",
+      "「会話です」",
+      "　「引用から始まる地の文です」と彼は言った。",
+    ].join("\n\n"),
+  );
+  checks.push(
+    check(
+      "the manuscript's own indent is kept",
+      selfIndented.includes("<p>地の文です。</p>"),
+      selfIndented,
+    ),
+    check(
+      "and a paragraph it left flush stays flush",
+      selfIndented.includes('<p class="vivlio-no-indent">「会話です」</p>'),
+      selfIndented,
+    ),
+    check(
+      "even where it opens with a bracket",
+      selfIndented.includes("<p>「引用から始まる地の文です」と彼は言った。</p>"),
+      selfIndented,
+    ),
+  );
 
   // The point of running notations as a tree pass rather than on the source:
   // a code block must come out untouched.
@@ -225,6 +294,145 @@ async function main(): Promise<void> {
     check("tocDepth 2 stops at h2", shallow[0]?.children[0]?.children.length === 0),
     check("tocDepth 3 reaches h3", deep[0]?.children[0]?.children.length === 1, JSON.stringify(deep)),
     check("toc entries link to anchors", shallow[0]?.children[0]?.href === "ch01.html#s1"),
+  );
+
+  // Vivliostyle sizes a leader by measuring what follows it inside the same
+  // pseudo-element, so the label must stay bare: the leader and the page
+  // number both come from theme-base's own `a::after`.
+  const tocHtml = tocDocument(tocContext, tocContext.chapters);
+  checks.push(
+    check(
+      "toc entries are a plain nested list",
+      tocHtml.includes('<li><a href="ch01.html#ch1">第一章</a>'),
+      tocHtml,
+    ),
+  );
+
+  // The title page groups author and publisher, so the stylesheet has one box
+  // to push to the foot of the page.
+  const titled = makeContext();
+  titled.config.title = "テスト本";
+  titled.config.author = "著者名";
+  titled.config.publisher = "版元";
+  const titlePage = titlePageDocument(titled);
+  checks.push(
+    check(
+      "title page groups the imprint",
+      /<div class="imprint">\s*<p class="author">著者名<\/p>\s*<p class="publisher">/.test(
+        titlePage,
+      ),
+      titlePage,
+    ),
+    check(
+      "the running head has the book title to print",
+      bookStylesheet(titled, "x.css").includes('--vivlio-book-title: "テスト本";'),
+    ),
+  );
+
+  // The colophon: a head naming the book, then only the lines the book has.
+  const colophon = makeContext();
+  colophon.config.title = "テスト本";
+  colophon.config.series = "テスト叢書";
+  colophon.config.author = "著者名";
+  colophon.config.date = "2026-09-02";
+  colophon.config.website = "https://example.invalid/";
+  colophon.config.colophonExtra = [{ label: "装丁", value: "佐藤 次郎" }];
+  const colophonHtml = colophonDocument(colophon);
+  checks.push(
+    check("colophon names the series and the book", colophonHtml.includes(
+      '<p class="colophon-series">テスト叢書</p>',
+    ), colophonHtml),
+    check(
+      "a vertical colophon writes the date in kanji",
+      colophonHtml.includes("二〇二六年九月二日"),
+      colophonHtml,
+    ),
+    check("the book adds its own colophon lines", colophonHtml.includes("装丁")),
+    check("an absent part gets no line", !colophonHtml.includes("訳者")),
+  );
+
+  const horizontal = makeContext();
+  horizontal.config.writingMode = "horizontal-tb";
+  horizontal.config.date = "2026-09-02";
+  checks.push(
+    check(
+      "a horizontal colophon leaves the date alone",
+      colophonDocument(horizontal).includes("2026-09-02"),
+    ),
+  );
+
+  checks.push(
+    check("a year alone", kanjiDate("2026") === "二〇二六年", kanjiDate("2026")),
+    check("slashes too", kanjiDate("2026/9/2") === "二〇二六年九月二日"),
+    check("the tens are counted", kanjiDate("2026-10-21") === "二〇二六年十月二十一日", kanjiDate("2026-10-21")),
+    // `date` is free text; a book that writes something else there means it.
+    check("anything else is left alone", kanjiDate("令和八年 第三刷") === "令和八年 第三刷"),
+  );
+
+  // The running head needs a chapter title even when the manuscript has no
+  // heading to take one from (see documentShapePlugin) - and must keep taking
+  // it from the heading when there is one.
+  const headless = makeContext();
+  headless.headings.set("book/01.md", []);
+  const headlessHtml = await convertChapter(
+    headless,
+    headless.chapters[0],
+    chapterOne,
+    "　見出しのない本文。\n",
+  );
+  checks.push(
+    check(
+      "a chapter with no heading names itself for the running head",
+      headlessHtml.includes('data-vivlio-chapter="第一章"'),
+      headlessHtml.slice(headlessHtml.indexOf("<section"), headlessHtml.indexOf("<section") + 160),
+    ),
+    check(
+      "a chapter with a heading leaves the head to it",
+      !html.includes("data-vivlio-chapter"),
+      html.slice(html.indexOf("<section"), html.indexOf("<section") + 160),
+    ),
+  );
+
+  // The character grid is the theme's when the book gives none: the theme
+  // composes its text block from those numbers either way, so the body size
+  // has to be derived from the same pair or the block outgrows the sheet.
+  const bare = makeContext();
+  bare.config.charsPerLine = null;
+  bare.config.linesPerPage = null;
+  const bareCss = bookStylesheet(bare, "x.css");
+  const bareSize = Number(bareCss.match(/--vs--html-font-size: ([\d.]+)mm;/)?.[1] ?? 0);
+  checks.push(
+    check("the theme's own grid fills in", bareCss.includes("--vs-theme--num-of-character: 40;"), bareCss),
+    check(
+      "and the text block still fits the sheet",
+      bareSize > 0 && bareSize * 40 < 148 && bareSize * 16 * 2 < 105,
+      `${bareSize}mm x 40 = ${(bareSize * 40).toFixed(1)}mm of 148mm`,
+    ),
+  );
+
+  // A theme that lays out from margins keeps its own body size.
+  const margins = makeContext();
+  margins.config.theme = "techbook";
+  margins.config.charsPerLine = null;
+  margins.config.linesPerPage = null;
+  checks.push(
+    check(
+      "a theme without a grid is left alone",
+      !bookStylesheet(margins, "x.css").includes("--vs--html-font-size"),
+    ),
+  );
+
+  // The EPUB has to ship the theme the book was written against.
+  const packed = epubStylesheet(context);
+  checks.push(
+    check("the epub ships the book's own theme", packed.includes("--vs-novel--boten-font-size"), packed.slice(0, 200)),
+    // The root must carry no font size at all: an author declaration outranks
+    // the reader's own stylesheet, so overriding the value would still pin it.
+    check(
+      "the epub leaves the body size to the reader",
+      !packed.includes("font-size: var(--vs--html-font-size)"),
+    ),
+    check("and the colophon label does not touch its value", packed.includes("margin-inline-end: 1em")),
   );
 
   let failed = 0;

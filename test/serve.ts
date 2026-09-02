@@ -2,7 +2,10 @@
  * Build one note into a workspace and serve it, so the bundled viewer can be
  * pointed at it from an ordinary browser.
  *
- *   node test/run.mjs test/serve.ts "<file.md>"
+ *   node test/run.mjs test/serve.ts test/sample.md
+ *
+ * `test/sample.md` carries every notation and every colophon field, so the
+ * whole design can be looked at; any other note works as well.
  *
  * Prints the viewer URL and stays up. This is the only way to exercise the
  * viewer, the local server and publication.json together without Obsidian.
@@ -12,10 +15,11 @@ import * as os from "os";
 import * as path from "path";
 import { TFile } from "obsidian";
 import { convertChapter, BOOK_STYLESHEET } from "../src/build/vfm";
+import { epubStylesheet } from "../src/export/epub";
 import { bookStylesheet, themeUrlFor } from "../src/build/css";
 import { publicationManifest } from "../src/build/manifest";
 import { tocDocument } from "../src/build/toc";
-import { titlePageDocument } from "../src/build/sections";
+import { colophonDocument, titlePageDocument } from "../src/build/sections";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { DEFAULT_SETTINGS } from "../src/config/defaults";
@@ -26,6 +30,9 @@ import { setLogLevel } from "../src/util/log";
 import { load as loadYaml } from "js-yaml";
 import GithubSlugger from "github-slugger";
 import type { HeadingEntry } from "../src/build/context";
+
+/** Name of the packed stylesheet in the EPUB twins below. */
+const EPUB_STYLESHEET = "epub.css";
 
 const target = process.argv[3];
 if (!target) {
@@ -104,6 +111,15 @@ async function main(): Promise<void> {
       isFrontMatter: false,
       startPage: 1,
     },
+    {
+      docName: "colophon.html",
+      file: null,
+      title: "奥付",
+      role: "doc-colophon",
+      slot: "colophon",
+      isBody: false,
+      isFrontMatter: false,
+    },
   ];
 
   const context: BuildContext = {
@@ -135,8 +151,22 @@ async function main(): Promise<void> {
   workspace.putText("ch01.html", await convertChapter(context, chapters[2], file, markdown));
   workspace.putText("titlepage.html", titlePageDocument(context));
   workspace.putText("toc.html", tocDocument(context, chapters));
+  workspace.putText("colophon.html", colophonDocument(context));
   workspace.putText("publication.json", publicationManifest(context, chapters));
   server.addWorkspace(workspace);
+
+  // EPUB output has no viewer of its own, so each document gets a twin that
+  // links the packed stylesheet instead. Opening one in a browser is what a
+  // reflowable reader does with the same two files.
+  workspace.putText(EPUB_STYLESHEET, epubStylesheet(context));
+  for (const chapter of chapters) {
+    const html = workspace.getFile(chapter.docName)?.text;
+    if (!html) continue;
+    workspace.putText(
+      `epub-${chapter.docName}`,
+      html.replace(`href="${BOOK_STYLESHEET}"`, `href="${EPUB_STYLESHEET}"`),
+    );
+  }
 
   const publicationUrl = `${context.workspaceBase}publication.json`;
   const viewerUrl = server.bookViewerUrl(publicationUrl, { renderAllPages: true });
@@ -146,6 +176,9 @@ async function main(): Promise<void> {
     `publication: ${publicationUrl}`,
     `chapter: ${context.workspaceBase}ch01.html`,
     `stylesheet: ${context.workspaceBase}${BOOK_STYLESHEET}`,
+    "",
+    "as an EPUB reader sees it (reflowable, no viewer):",
+    ...chapters.map((chapter) => `  ${context.workspaceBase}epub-${chapter.docName}`),
   ].join("\n");
 
   const out = path.join(os.tmpdir(), "vivlio-serve.txt");

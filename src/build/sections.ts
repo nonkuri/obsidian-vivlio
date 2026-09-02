@@ -4,6 +4,7 @@ import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
 import { DOCUMENT_ANCHOR } from "./toc";
 import { t } from "../i18n";
+import { kanjiDate } from "../util/kanji";
 import {
   AUTO_CAPABLE_SLOTS,
   FRONT_MATTER_SLOTS,
@@ -99,8 +100,16 @@ export function titlePageDocument(context: BuildContext): string {
   const { config } = context;
   const parts = [`<p class="title">${escapeHtml(config.title || t("book.untitled"))}</p>`];
   if (config.subtitle) parts.push(`<p class="subtitle">${escapeHtml(config.subtitle)}</p>`);
-  if (config.author) parts.push(`<p class="author">${escapeHtml(config.author)}</p>`);
-  if (config.publisher) parts.push(`<p class="publisher">${escapeHtml(config.publisher)}</p>`);
+
+  // Author and publisher travel together, in one box the stylesheet can push
+  // to the foot of the page. Spaced off the title by a margin instead, they
+  // landed wherever the length of the title left them.
+  const imprint: string[] = [];
+  if (config.author) imprint.push(`<p class="author">${escapeHtml(config.author)}</p>`);
+  if (config.publisher) {
+    imprint.push(`<p class="publisher">${escapeHtml(config.publisher)}</p>`);
+  }
+  if (imprint.length > 0) parts.push(`<div class="imprint">\n${imprint.join("\n")}\n</div>`);
 
   return htmlDocument({
     lang: config.lang,
@@ -110,26 +119,61 @@ export function titlePageDocument(context: BuildContext): string {
   });
 }
 
-/** The colophon: who made the book, when (SPEC 5.11). */
+/**
+ * The colophon: who made the book, and when (SPEC 5.11).
+ *
+ * Two parts, as a Japanese colophon has: a head naming the series and the
+ * book, then labelled lines for everyone and everything behind it. The head
+ * carries no labels - nothing has to say that the title is the title - and the
+ * lines are a description list, which is what they are.
+ *
+ * Only what the book actually says is printed: a novel with no translator and
+ * no printer gets neither line, rather than an empty one.
+ */
 export function colophonDocument(context: BuildContext): string {
   const { config } = context;
+
   const rows: string[] = [];
   const add = (label: string, value: string) => {
-    if (value) rows.push(`<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`);
+    if (!value.trim()) return;
+    rows.push(
+      `<div class="colophon-row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`,
+    );
   };
-  add(t("colophon.title"), config.title);
+
   add(t("colophon.author"), config.author);
-  add(t("colophon.publisher"), config.publisher);
-  add(t("colophon.date"), config.date);
+  add(t("colophon.translator"), config.translator);
+  // A vertical page writes its dates in kanji; digits would be laid on their
+  // side, and a colophon does not set them as tate-chu-yoko either.
+  add(
+    t("colophon.date"),
+    config.writingMode === "vertical-rl" ? kanjiDate(config.date) : config.date,
+  );
   add(t("colophon.version"), config.version);
+  add(t("colophon.publisher"), config.publisher);
+  add(t("colophon.printer"), config.printer);
+  add(t("colophon.contact"), config.contact);
+  add(t("colophon.website"), config.website);
+  for (const entry of config.colophonExtra) add(entry.label, entry.value);
+
+  const head: string[] = [];
+  if (config.series) {
+    head.push(`<p class="colophon-series">${escapeHtml(config.series)}</p>`);
+  }
+  head.push(
+    `<p class="colophon-title">${escapeHtml(config.title || t("book.untitled"))}</p>`,
+  );
 
   return htmlDocument({
     lang: config.lang,
     title: t("section.colophon"),
     body: `<section role="doc-colophon" id="${DOCUMENT_ANCHOR}">
-<table>
+<div class="colophon">
+${head.join("\n")}
+<dl class="colophon-rows">
 ${rows.join("\n")}
-</table>
+</dl>
+</div>
 </section>`,
   });
 }

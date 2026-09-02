@@ -23,11 +23,22 @@ interface KeyDoc {
 const KEY_DOCS: Partial<Record<keyof BookConfig, KeyDoc>> = {
   title: { group: "book", ja: "書名", en: "Book title" },
   subtitle: { group: "book", ja: "副題", en: "Subtitle" },
+  series: { group: "book", ja: "シリーズ名（奥付・扉に出る）", en: "Series name" },
   author: { group: "book", ja: "著者", en: "Author" },
-  publisher: { group: "book", ja: "発行者", en: "Publisher" },
-  date: { group: "book", ja: "発行日", en: "Publication date" },
+  translator: { group: "book", ja: "訳者", en: "Translator" },
+  publisher: { group: "book", ja: "発行所", en: "Publisher" },
+  printer: { group: "book", ja: "印刷所", en: "Printer" },
+  contact: { group: "book", ja: "連絡先（住所・メール）", en: "Contact (address, email)" },
+  website: { group: "book", ja: "WEB サイト", en: "Website" },
+  date: { group: "book", ja: "発行日（縦組みでは漢数字で組まれる）", en: "Publication date" },
   lang: { group: "book", ja: "言語", en: "Language" },
   version: { group: "book", ja: "版", en: "Edition" },
+  colophonExtra: {
+    group: "book",
+    yamlOnly: true,
+    ja: "奥付に足す任意の項目: [{ label: 装丁, value: 山田花子 }] または { 装丁: 山田花子 }",
+    en: "Extra colophon lines: [{ label: Design, value: … }] or { Design: … }",
+  },
 
   theme: {
     group: "layout",
@@ -51,6 +62,11 @@ const KEY_DOCS: Partial<Record<keyof BookConfig, KeyDoc>> = {
     group: "layout",
     ja: "段落の字下げ。原稿が全角スペースで字下げ済みなら 0（空ならテーマ任せ）",
     en: "Paragraph indent; use 0 when the manuscript already indents with an ideographic space (empty leaves it to the theme)",
+  },
+  paragraphIndentMode: {
+    group: "layout",
+    ja: "字下げする段落: auto（原稿に従う）| manuscript（全角スペースのある段落だけ）| brackets（始め括弧の段落以外）| all（すべて）",
+    en: "Which paragraphs take the indent: auto | manuscript | brackets | all",
   },
   footnote: {
     group: "layout",
