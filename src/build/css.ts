@@ -72,7 +72,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
 
   blocks.push(NOTATION_CSS);
   blocks.push(coverCss(context));
-  blocks.push(sectionCss());
+  blocks.push(sectionCss(context));
   blocks.push(pageNumberingCss(context));
 
   if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
@@ -278,8 +278,15 @@ function coverCss(context: BuildContext): string {
 `.trim();
 }
 
-/** Named pages for the two front-matter parts DPUB-ARIA has no role for. */
-function sectionCss(): string {
+/**
+ * Named pages for the two front-matter parts DPUB-ARIA has no role for.
+ *
+ * Only the page assignment lives here. How those parts *look* is the theme's
+ * decision, and this stylesheet is imported after the theme, so anything set
+ * here would silently outrank it.
+ */
+function sectionCss(context: BuildContext): string {
+  void context;
   return `
 .titlepage {
   page: titlepage;
@@ -295,24 +302,7 @@ function sectionCss(): string {
 
 .titlepage,
 .halftitle {
-  text-align: center;
   break-after: page;
-}
-
-.titlepage .title,
-.halftitle .title {
-  font-size: 1.6rem;
-  font-weight: bold;
-  margin-block: 6rem 2rem;
-}
-
-.titlepage .subtitle {
-  font-size: 1.1rem;
-  margin-block-end: 4rem;
-}
-
-.titlepage .author {
-  margin-block-start: 6rem;
 }
 
 [role="doc-colophon"] table {

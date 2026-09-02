@@ -46,8 +46,27 @@
   /* Ruby ---------------------------------------------------------------- */
   --vs--rt-font-size: 0.5rem;
 
-  /* Page ---------------------------------------------------------------- */
-  /* The block is centred on the sheet; the plugin sizes the type so it fits. */
+  /* Page ----------------------------------------------------------------
+   *
+   * `--vs-page--width` and `--vs-page--height` are the *text block*, not the
+   * sheet: the character grid decides its size, and `margin: auto` centres it
+   * on the paper. Leaving them at theme-base's `auto` makes the block fill the
+   * sheet, every margin collapse to zero, and the running head print on top of
+   * the text. The plugin sizes the type so this block fits the paper.
+   *
+   * Vertical writing: a line's characters run down the page, so the height is
+   * the character count and the width is the line count times the leading.
+   */
+  --vs-novel--chars-per-line: 40;
+  --vs-novel--lines-per-page: 16;
+  --vs-page--height: calc(
+    1rem * var(--vs-theme--num-of-character, var(--vs-novel--chars-per-line))
+  );
+  /* One extra pixel, so rounding cannot force a spurious page break. */
+  --vs-page--width: calc(
+    1rem * var(--vs-line-height) *
+      var(--vs-theme--num-of-line, var(--vs-novel--lines-per-page)) + 1px
+  );
   --vs-page--margin-top: auto;
   --vs-page--margin-bottom: auto;
   --vs-page--margin-inner: auto;
@@ -161,11 +180,34 @@ p {
   text-orientation: upright;
 }
 
-/* Front and back matter ---------------------------------------------------- */
-
+/* Front and back matter ----------------------------------------------------
+ *
+ * The block-size makes the page the containing block, so the author can sit
+ * at the foot rather than directly under the title.
+ */
 .titlepage,
 .halftitle {
-  text-align: center;
+  block-size: 100%;
+  text-align: start;
+}
+
+.titlepage .title,
+.halftitle .title {
+  font-size: 1.6rem;
+  font-weight: var(--vs-font-weight-bold);
+  letter-spacing: 0.1em;
+  margin-block: 2rem 0;
+}
+
+.titlepage .subtitle {
+  font-size: 1.1rem;
+  margin-block: 2rem 0;
+}
+
+.titlepage .author,
+.titlepage .publisher {
+  font-size: 1rem;
+  margin-block-start: 8rem;
 }
 
 [role='doc-colophon'] {
