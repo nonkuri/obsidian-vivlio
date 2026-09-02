@@ -950,7 +950,10 @@ pageNumbering: roman-then-arabic   # roman-then-arabic（既定）| continuous |
 
 - 表紙は `@page cover-document` が既にカウンタを増やさない（5.9）
 - 前付けのローマ数字は `@page` の名前付きページに `counter(page, lower-roman)` を当て、
-  本文先頭の章に `counter-reset: page 0` を置く
+  本文先頭の章に **`counter-reset: page 1`** を置く。
+  **【実装時の修正】** vivliostyle-cli の `startPage` は「`counter-reset: page [値 - 1]`」と等価だと
+  説明されるが、要素に直接書く場合は挙動が違う。Vivliostyle はページのカウンタを増やした**後**に
+  要素の `counter-reset` を適用するため、`0` と書くと本文 1 ページ目のノンブルが 0 になる（実測）
 - **PDF のページラベルも合わせる。** ビューアのページ番号表示が `i, ii, iii, 1, 2…` になるよう、
   `pdf-lib` で `/PageLabels` を書き込む（vivliostyle-cli の `pdf-postprocess.ts` と同じ処理）
 
@@ -1088,6 +1091,7 @@ Phase 1 にフォルダ本を含めた判断により、Phase 1 の時点で以�
 | 32 | ワークスペース | **ディスクではなくメモリに持つ。** 生成物はサーバから直接返し、画像は Vault からストリーム配信する。書き出し時もコピーしない | 5.8(2), 5.12 |
 | 33 | print メディア | **CDP アタッチ（`Emulation.setEmulatedMedia`）で行う。** 失敗しても書き出しは続行し、「画面用スタイルが混じる可能性がある」と警告する | 3.5 |
 | 34 | 字下げ | **`paragraphIndent` を設定キーとして持つ**（3 層すべてから指定可）。見出しの余白のような好みの調整は設定タブの「追加 CSS」に寄せ、キーを際限なく増やさない | 5.4, 5.10 |
+| 35 | ビューアの URL | **`#src=` に渡す URL をパーセントエンコードしない。** ビューアは `src` をデコードせず相対パスとして解決するため、エンコードすると `viewer/` 配下を探して 404 になり、`readyState` が `loading` のまま止まる。URL の組み立ては `PreviewServer.bookViewerUrl()` の 1 箇所に集約する | 5.2 |
 
 ## 9. 残っている穴
 

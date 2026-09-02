@@ -114,8 +114,7 @@ async function exportPdf(
   const { settings } = request;
   const rendered = await renderPdf(
     build.context,
-    build.publicationUrl,
-    request.server.viewerUrl(),
+    request.server.bookViewerUrl(build.publicationUrl, { renderAllPages: true }),
     { onProgress: request.onProgress },
   );
 

@@ -180,11 +180,10 @@ export class VivlioPreviewView extends ItemView {
       if (controller.signal.aborted) return;
       this.showWarnings(result.warnings);
 
-      const url =
-        `${this.plugin.server.viewerUrl()}#src=${encodeURIComponent(result.publicationUrl)}` +
-        `&bookMode=true&renderAllPages=${this.plugin.settings.renderAllPages}` +
-        `&t=${Date.now()}`;
-      this.frame.src = url;
+      this.frame.src = this.plugin.server.bookViewerUrl(result.publicationUrl, {
+        renderAllPages: this.plugin.settings.renderAllPages,
+        cacheBust: true,
+      });
       this.setStatus(
         this.plugin.settings.autoRefresh ? "" : t("view.autoRefreshOff"),
       );

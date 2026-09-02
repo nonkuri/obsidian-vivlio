@@ -8,6 +8,7 @@ import esbuild from "esbuild";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
+import { refractorPlugin, vivlioAssetsPlugin } from "../esbuild/assets.mjs";
 import fs from "fs";
 import os from "os";
 
@@ -34,31 +35,6 @@ const obsidianStub = {
   },
 };
 
-const refractorPlugin = {
-  name: "refractor-lite",
-  setup(build) {
-    build.onResolve({ filter: /^refractor$/ }, () => ({
-      path: path.join(root, "src", "vendor", "refractor-lite.ts"),
-    }));
-  },
-};
-
-const assetsStub = {
-  name: "vivlio-assets-stub",
-  setup(build) {
-    build.onResolve({ filter: /^virtual:vivlio-assets$/ }, (args) => ({
-      path: args.path,
-      namespace: "vivlio-assets",
-    }));
-    build.onLoad({ filter: /.*/, namespace: "vivlio-assets" }, () => ({
-      contents:
-        "export const viewerAssets = {};\n" +
-        "export const themeAssets = { '@vivliostyle/theme-bunko/theme.css': { text: '' } };\n",
-      loader: "js",
-    }));
-  },
-};
-
 await esbuild.build({
   entryPoints: [entry],
   bundle: true,
@@ -68,7 +44,7 @@ await esbuild.build({
   platform: "node",
   target: "node22",
   outfile,
-  plugins: [obsidianStub, refractorPlugin, assetsStub],
+  plugins: [obsidianStub, refractorPlugin(root), vivlioAssetsPlugin(root)],
   logLevel: "warning",
 });
 

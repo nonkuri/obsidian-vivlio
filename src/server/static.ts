@@ -111,6 +111,30 @@ export class PreviewServer {
     return `${this.base}/viewer/index.html`;
   }
 
+  /**
+   * The viewer, pointed at a book.
+   *
+   * `src` must be the plain URL: the viewer does not percent-decode the
+   * fragment, so an encoded URL is taken as a relative path and looked up
+   * under the viewer's own directory, where it 404s and the viewer waits for
+   * a document that never arrives. The URLs handed in here are built from
+   * hex tokens and fixed file names, so they carry nothing that would need
+   * escaping in a fragment.
+   */
+  bookViewerUrl(
+    publicationUrl: string,
+    options: { renderAllPages: boolean; cacheBust?: boolean } = { renderAllPages: true },
+  ): string {
+    const params = [
+      `src=${publicationUrl}`,
+      "bookMode=true",
+      `renderAllPages=${options.renderAllPages}`,
+      "spread=false",
+    ];
+    if (options.cacheBust) params.push(`t=${Date.now()}`);
+    return `${this.viewerUrl()}#${params.join("&")}`;
+  }
+
   themeUrl(path: string): string {
     return `${this.base}/themes/${path}`;
   }

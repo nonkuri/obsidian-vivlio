@@ -46,7 +46,7 @@ interface WebviewTag extends HTMLElement {
  */
 export async function renderPdf(
   context: BuildContext,
-  publicationUrl: string,
+  /** The viewer URL, already pointed at the book (see `bookViewerUrl`). */
   viewerUrl: string,
   options: { onProgress?: (message: string) => void } = {},
 ): Promise<RenderResult> {
@@ -87,11 +87,8 @@ export async function renderPdf(
     const debuggerHandle = await emulatePrintMedia(context, webview);
 
     options.onProgress?.("loading");
-    const target = `${viewerUrl}#src=${encodeURIComponent(
-      publicationUrl,
-    )}&bookMode=true&renderAllPages=true&spread=false`;
     const ready = once(webview, "dom-ready", context.settings.printTimeoutMs, signal);
-    await webview.loadURL(target);
+    await webview.loadURL(viewerUrl);
     await ready;
     log.debug("viewer loaded");
 

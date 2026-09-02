@@ -123,6 +123,19 @@ async function main(): Promise<void> {
     `${allowed.status} ${allowed.body}`,
   );
 
+  // The viewer resolves `src` as written: a percent-encoded URL becomes a
+  // relative path under the viewer's own directory, 404s, and leaves the
+  // viewer waiting for a document that never arrives.
+  const bookUrl = server.bookViewerUrl(`${base}/w/book/publication.json`, {
+    renderAllPages: true,
+  });
+  check(
+    "viewer url keeps src unencoded",
+    bookUrl.includes(`#src=${base}/w/book/publication.json&`),
+    bookUrl,
+  );
+  check("viewer url asks for a book", bookUrl.includes("bookMode=true"), bookUrl);
+
   await server.stop();
   const afterStop = await get(`${base}/w/book/index.html`).catch(() => null);
   check("nothing is listening after stop", afterStop === null);

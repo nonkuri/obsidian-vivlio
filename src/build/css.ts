@@ -281,7 +281,9 @@ function pageNumberingCss(context: BuildContext): string {
     return `:root { --vs-page--mbox-visibility: hidden; }`;
   }
 
-  const reset = `.vivlio-page-reset { counter-reset: page 0; }`;
+  // The page counter is incremented before an element's `counter-reset` is
+  // applied, so the value written here is the one the page shows: 1, not 0.
+  const reset = `.vivlio-page-reset { counter-reset: page 1; }`;
   if (mode === "continuous") return reset;
 
   return `
