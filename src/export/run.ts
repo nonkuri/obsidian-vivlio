@@ -8,6 +8,7 @@ import { preflight, type PreflightIssue } from "./preflight";
 import { renderPdf } from "./pdf";
 import { postprocessPdf } from "./pdfPostprocess";
 import { buildEpub } from "./epub";
+import { buildTocEntries, type TocEntry } from "../build/toc";
 import { openPath } from "../util/electron";
 import { joinPosix, sanitizeFileName } from "../util/paths";
 import { AbortError } from "../util/async";
@@ -120,13 +121,32 @@ async function exportPdf(
 
   return postprocessPdf(rendered.pdf, {
     config: build.context.config,
-    toc: rendered.toc,
+    toc: outlineEntries(buildTocEntries(build.context, build.chapters)),
     anchorPages: rendered.anchorPages,
     pageClasses: rendered.pageClasses,
     metadata: settings.pdfMetadata,
     outline: settings.pdfOutline,
     pageLabels: build.context.config.pageNumbering !== "none",
   });
+}
+
+/**
+ * The book's own table of contents, shaped for the PDF outline.
+ *
+ * `coreViewer.getTOC()` only returns anything once the viewer's TOC box has
+ * been opened, so asking it during a headless print yields nothing; the
+ * entries the book itself prints are both available and authoritative.
+ */
+function outlineEntries(entries: TocEntry[]): {
+  title: string;
+  href: string;
+  children: ReturnType<typeof outlineEntries>;
+}[] {
+  return entries.map((entry) => ({
+    title: entry.label,
+    href: entry.href,
+    children: outlineEntries(entry.children),
+  }));
 }
 
 interface Destination {
