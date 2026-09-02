@@ -138,11 +138,13 @@ async function main(): Promise<void> {
   const html = await convertChapter(context, chapter, chapterOne, SAMPLE);
 
   const checks: Check[] = [
-    check("emphasis dots", html.includes('<span class="boten">ここは傍点</span>')),
+    // Emphasis dots are ruby: one sesame dot per character, so every line
+    // keeps the same measure (see notationRules).
+    check("emphasis dots", /<ruby class="boten">こ<rp>\(<\/rp><rt>﹅<\/rt>/.test(html), html.slice(html.indexOf("boten") - 20, html.indexOf("boten") + 120)),
     check("ruby", /<ruby>漢字<rp>\(<\/rp><rt>かんじ<\/rt>/.test(html)),
     check("explicit tate-chu-yoko", html.includes('<span class="tcy">10</span>')),
     check("automatic tate-chu-yoko", html.includes('<span class="tcy">42</span>')),
-    check("highlight becomes emphasis dots", html.includes('<span class="boten">ハイライト</span>')),
+    check("highlight becomes emphasis dots", (html.match(/<ruby class="boten">/g) ?? []).length === 2),
     check("comment stripped", !html.includes("この注記は消える")),
     check("block id stripped", !html.includes("block-id")),
     check("callout", html.includes('class="callout callout-note"')),
@@ -168,7 +170,7 @@ async function main(): Promise<void> {
     check("stylesheet imports the theme", css.startsWith('@import url("http://example.invalid/theme.css");')),
     check("writing mode variable", css.includes("--vs-writing-mode: vertical-rl;")),
     check("page size variable", css.includes("--vs-page--size: 105mm 148mm;")),
-    check("emphasis dot style", css.includes("text-emphasis: filled sesame")),
+    check("emphasis dot style", css.includes("ruby.boten > rt")),
     // The theme's indent must stay untouched unless asked for: a manuscript
     // that does not self-indent still wants theme-bunko's 1em.
     check("no paragraph indent override by default", !css.includes("--vs--p-text-indent")),

@@ -163,10 +163,17 @@ export function themeUrlFor(context: BuildContext): string {
  * `==highlight==` in its default mode, so there is one place to restyle.
  */
 const NOTATION_CSS = `
-.boten {
+/* Emphasis dots are written as ruby carrying a sesame dot over each character
+   (see notationRules). Ruby reserves the same band on every line, so a line
+   with emphasis keeps the measure of its neighbours; text-emphasis draws
+   outside the character and widens only the lines that carry it. */
+ruby.boten {
   font-style: normal;
-  text-emphasis: filled sesame;
-  text-emphasis-position: over right;
+}
+
+ruby.boten > rt {
+  font-weight: normal;
+  letter-spacing: 0;
 }
 
 .tcy {

@@ -18,11 +18,12 @@ import {
   element,
   isElement,
   replaceTextNodes,
+  textContent,
   visit,
   type UElement,
   type UNode,
 } from "../util/tree";
-import { DOCUMENT_ANCHOR } from "./toc";
+import { DOCUMENT_ANCHOR, isBookTitleHeading } from "./toc";
 import { t } from "../i18n";
 import { log } from "../util/log";
 
@@ -81,6 +82,7 @@ export async function convertChapter(
           linksPlugin(context, file.path),
           obsidianPlugin(context),
           notationPlugin(rules),
+          dropBookTitleHeadingPlugin(context),
           documentShapePlugin(chapter),
         ],
       }) as unknown as ReturnType<NonNullable<StringifyMarkdownOptions["editPlugins"]>>,
@@ -148,6 +150,27 @@ function dropEmptyParagraphs(tree: UNode): void {
     );
     if (!hasContent) parent.children.splice(index, 1);
   });
+}
+
+/**
+ * Drop a heading that merely repeats the book's title.
+ *
+ * A manuscript usually opens with the title as an H1. With a title page
+ * generated in front of it, printing it again puts a page carrying one line
+ * before the first chapter.
+ */
+function dropBookTitleHeadingPlugin(context: BuildContext) {
+  return function attach() {
+    return (tree: UNode): void => {
+      visit(tree, (node, index, parent) => {
+        if (!parent || !Array.isArray(parent.children)) return;
+        if (!isElement(node, "h1")) return;
+        const heading = { level: 1, text: textContent(node) };
+        if (!isBookTitleHeading(context, heading)) return;
+        parent.children.splice(index, 1);
+      });
+    };
+  };
 }
 
 /**

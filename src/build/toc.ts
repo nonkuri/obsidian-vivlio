@@ -3,6 +3,19 @@ import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
 import { t } from "../i18n";
 
+/**
+ * True when a heading is the book's own title, already printed on the title
+ * page. Repeating it opens the body with a page carrying nothing else.
+ */
+export function isBookTitleHeading(
+  context: BuildContext,
+  heading: { level: number; text: string },
+): boolean {
+  if (heading.level !== 1) return false;
+  if (context.config.sections.titlePage === "off") return false;
+  return heading.text.trim() === context.config.title.trim();
+}
+
 /** Id on the outermost section of every document, for the table of contents. */
 export const DOCUMENT_ANCHOR = "vivlio-start";
 
@@ -31,7 +44,9 @@ export function buildTocEntries(context: BuildContext, chapters: Chapter[]): Toc
     if (chapter.slot === "halfTitle" || chapter.slot === "titlePage") continue;
 
     const headings = chapter.file ? (context.headings.get(chapter.file.path) ?? []) : [];
-    const wanted = headings.filter((heading) => heading.level <= depth);
+    const wanted = headings.filter(
+      (heading) => heading.level <= depth && !isBookTitleHeading(context, heading),
+    );
 
     // A generated part (the colophon) has no headings; it still deserves a
     // line. It must point at an element, not just at the document: the page

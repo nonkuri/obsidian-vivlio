@@ -88,7 +88,7 @@
   --vs--h4-margin-block: 2rem 2rem;
 
   /* Table of contents --------------------------------------------------- */
-  --vs-toc--ol-indent-size: 1.5rem;
+  --vs-toc--ol-indent-size: 2.5rem;
   --vs-toc--page-leader-content: leader('.') ' ';
 }
 
@@ -123,17 +123,19 @@ h2 {
   --vs-page--mbox-content-bottom-center: counter(page);
 }
 
-/* The running head goes on the outer edge, which swaps with the page side. */
+/* The running head goes on the outer edge, which swaps with the page side.
+ *
+ * `first-except` yields nothing on the page where the chapter title is set,
+ * which is how a book leaves the running head off a chapter's opening page.
+ */
 @page :left {
-  --vs-page--mbox-content-top-left: string(vivlio-chapter);
+  --vs-page--mbox-content-top-left: string(vivlio-chapter, first-except);
 }
 
 @page :right {
-  --vs-page--mbox-content-top-right: string(vivlio-chapter);
+  --vs-page--mbox-content-top-right: string(vivlio-chapter, first-except);
 }
 
-/* A chapter opens a new page, and the first page of a chapter carries no
-   running head - the title is right there. */
 h2 {
   break-before: page;
 }
@@ -155,20 +157,15 @@ figure {
 
 /* Emphasis dots ------------------------------------------------------------
  *
- * `text-emphasis` draws outside the character, which grows the line box and
- * breaks the vertical grid: a line carrying emphasis is set wider than its
- * neighbours. Reserving the space on every line instead keeps the rhythm even,
- * at the cost of a slightly wider measure - which is what a typesetter does by
- * hand as well.
+ * The plugin writes these as ruby carrying a sesame dot over each character,
+ * so they sit in the same band as any other ruby and every line keeps the same
+ * measure. `text-emphasis` would draw outside the character and widen only the
+ * lines that carry emphasis.
  */
-.boten {
-  font-style: normal;
-  text-emphasis: filled sesame;
-  text-emphasis-position: over right;
-}
-
-p {
-  text-emphasis-position: over right;
+ruby.boten > rt {
+  font-size: var(--vs--rt-font-size);
+  font-weight: normal;
+  letter-spacing: 0;
 }
 
 /* Tate-chu-yoko ----------------------------------------------------------- */
@@ -191,9 +188,12 @@ p {
   text-align: start;
 }
 
+/* Sized so a title of ordinary length fits the block in one line: the block
+   is `charsPerLine` ems tall, and 1.3rem leaves room for about 28 characters
+   before it wraps. */
 .titlepage .title,
 .halftitle .title {
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   font-weight: var(--vs-font-weight-bold);
   letter-spacing: 0.1em;
   margin-block: 2rem 0;

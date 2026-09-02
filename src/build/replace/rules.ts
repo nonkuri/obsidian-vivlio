@@ -26,7 +26,7 @@ export function notationRules(config: BookConfig): TextRule[] {
   if (syntax.boten) {
     rules.push({
       test: /《《([^》]+)》》/g,
-      replace: (match) => [span("boten", match[1])],
+      replace: (match) => [boten(match[1])],
     });
   }
 
@@ -103,6 +103,29 @@ function span(className: string, value: string): UElement {
   return element("span", { className: [className] }, [text(value)]);
 }
 
+/** SESAME DOT, the mark Japanese typesetting uses for emphasis. */
+const SESAME = "﹅";
+
+/**
+ * Emphasis dots, drawn as ruby.
+ *
+ * `text-emphasis` is the modern spelling, but it draws outside the character
+ * and grows the line box, so a line carrying emphasis is set wider than its
+ * neighbours and the vertical grid buckles. Ruby reserves the same band on
+ * every line, so the rhythm holds - which is why manuscripts have written
+ * emphasis as ruby full of sesame dots for as long as they have.
+ */
+function boten(value: string): UElement {
+  const children: UNode[] = [];
+  for (const character of [...value]) {
+    children.push(text(character));
+    children.push(element("rp", {}, [text("(")]));
+    children.push(element("rt", {}, [text(SESAME)]));
+    children.push(element("rp", {}, [text(")")]));
+  }
+  return element("ruby", { className: ["boten"] }, children);
+}
+
 function ruby(base: string, reading: string): UElement {
   return element("ruby", {}, [
     text(base),
@@ -127,6 +150,6 @@ function highlight(mode: BookConfig["highlight"], value: string): UNode {
       return element("mark", {}, [text(value)]);
     case "boten":
     default:
-      return span("boten", value);
+      return boten(value);
   }
 }
