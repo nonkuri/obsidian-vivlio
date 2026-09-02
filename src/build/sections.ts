@@ -2,6 +2,7 @@ import type { TFile } from "obsidian";
 import { warn, type BuildContext } from "./context";
 import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
+import { DOCUMENT_ANCHOR } from "./toc";
 import { t } from "../i18n";
 import {
   AUTO_CAPABLE_SLOTS,
@@ -125,7 +126,7 @@ export function colophonDocument(context: BuildContext): string {
   return htmlDocument({
     lang: config.lang,
     title: t("section.colophon"),
-    body: `<section role="doc-colophon">
+    body: `<section role="doc-colophon" id="${DOCUMENT_ANCHOR}">
 <table>
 ${rows.join("\n")}
 </table>

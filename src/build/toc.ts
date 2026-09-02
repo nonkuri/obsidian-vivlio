@@ -3,6 +3,9 @@ import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
 import { t } from "../i18n";
 
+/** Id on the outermost section of every document, for the table of contents. */
+export const DOCUMENT_ANCHOR = "vivlio-start";
+
 export interface TocEntry {
   /** `chapter.html` or `chapter.html#heading-slug`. */
   href: string;
@@ -30,9 +33,18 @@ export function buildTocEntries(context: BuildContext, chapters: Chapter[]): Toc
     const headings = chapter.file ? (context.headings.get(chapter.file.path) ?? []) : [];
     const wanted = headings.filter((heading) => heading.level <= depth);
 
-    // A generated part (the colophon) has no headings; it still deserves a line.
+    // A generated part (the colophon) has no headings; it still deserves a
+    // line. It must point at an element, not just at the document: the page
+    // number comes from `target-counter(attr(href), page)`, which resolves
+    // nothing for a bare file name and falls back to the page the table of
+    // contents is itself on.
     if (wanted.length === 0) {
-      entries.push({ href: chapter.docName, label: chapter.title, level: 1, children: [] });
+      entries.push({
+        href: `${chapter.docName}#${DOCUMENT_ANCHOR}`,
+        label: chapter.title,
+        level: 1,
+        children: [],
+      });
       continue;
     }
 

@@ -44,8 +44,15 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.fontFeatureSettings) {
     root.push(`--vs-font-feature-settings: ${config.fontFeatureSettings};`);
   }
-  const bodySize = config.baseFontSize || gridFontSize(config);
+  const derivedSize = gridFontSize(config);
+  const bodySize = config.baseFontSize || derivedSize;
   if (bodySize) root.push(`--vs--html-font-size: ${bodySize};`);
+  // theme-bunko pins the running head and folio at 8.5pt. Once the body is
+  // sized from the paper that is as large as the text itself, so the margin
+  // boxes follow the body instead of a fixed value.
+  if (derivedSize && !config.baseFontSize) {
+    root.push(`--vs-page--mbox-font-size: ${scaleLength(derivedSize, MBOX_FONT_RATIO)};`);
+  }
 
   // A manuscript that already starts its paragraphs with an ideographic space
   // must not also get the theme's indent (SPEC 5.10).
@@ -71,6 +78,15 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
 
   return blocks.filter(Boolean).join("\n\n");
+}
+
+/** Running heads and folios sit below the body size, as in a printed book. */
+const MBOX_FONT_RATIO = 0.75;
+
+/** Scale a `<number>mm` length. */
+function scaleLength(length: string, factor: number): string {
+  const value = Number(length.replace("mm", ""));
+  return Number.isFinite(value) ? `${(value * factor).toFixed(3)}mm` : length;
 }
 
 /** Proportion of the sheet the text block takes; the rest becomes margin. */

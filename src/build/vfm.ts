@@ -22,6 +22,7 @@ import {
   type UElement,
   type UNode,
 } from "../util/tree";
+import { DOCUMENT_ANCHOR } from "./toc";
 import { t } from "../i18n";
 import { log } from "../util/log";
 
@@ -172,6 +173,9 @@ function documentShapePlugin(chapter: Chapter) {
         body.children = [host];
       }
 
+      // Something for a table-of-contents entry to point at, so a part with
+      // no headings still resolves to a page number.
+      if (!host.properties.id) host.properties.id = DOCUMENT_ANCHOR;
       if (chapter.role) host.properties.role = chapter.role;
       if (chapter.slot === "titlePage") addClass(host, "titlepage");
       if (chapter.slot === "halfTitle") addClass(host, "halftitle");
