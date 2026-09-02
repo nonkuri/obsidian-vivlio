@@ -115,6 +115,8 @@ export interface SyntaxToggles {
   stripLeadingSpace: boolean;
   /** #17 the Aozora page-break note, `［＃改ページ］` */
   pageBreak: boolean;
+  /** #18 a run of blank lines in the manuscript becomes space on the page */
+  blankLines: boolean;
 }
 
 /** One line of the colophon the book supplies itself. */

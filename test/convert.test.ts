@@ -190,6 +190,76 @@ async function main(): Promise<void> {
     check("and the mark itself is gone", !html.includes("改ページ")),
   ];
 
+  // Blank lines the manuscript left (SPEC 5.3 #18). Markdown throws them away;
+  // the count comes back off the source positions.
+  const spaced = await convertChapter(
+    makeContext(),
+    context.chapters[0],
+    chapterOne,
+    // One blank line between the first two, three between the last two.
+    ["　ひとつめ。", "", "　ふたつめ。", "", "", "", "　みっつめ。"].join("\n"),
+  );
+  checks.push(
+    check(
+      "three blank lines open one",
+      /<p class="vivlio-blank-lines" style="--vivlio-blank-lines: 1">みっつめ。/.test(spaced),
+      spaced.slice(spaced.indexOf("<p>"), spaced.indexOf("</section>")),
+    ),
+    check(
+      "and a single blank line opens none",
+      (spaced.match(/vivlio-blank-lines/g) ?? []).length === 2,
+      spaced,
+    ),
+  );
+
+  // The running head takes the chapter from whichever level the note uses.
+  const asOneNote = makeContext();
+  asOneNote.config.title = "第一章";
+  asOneNote.headings.set("book/01.md", [
+    { level: 1, text: "第一章", slug: "h1" },
+    { level: 2, text: "節のみだし", slug: "h2" },
+  ]);
+  const oneNote = await convertChapter(
+    asOneNote,
+    asOneNote.chapters[0],
+    chapterOne,
+    ["# 第一章", "## 節のみだし", "　本文。"].join("\n\n"),
+  );
+  checks.push(
+    check(
+      "an h1 that repeats the title leaves the head to h2",
+      /<h2[^>]*class="[^"]*vivlio-chapter-title/.test(oneNote),
+      oneNote.slice(oneNote.indexOf("<h2"), oneNote.indexOf("<h2") + 120),
+    ),
+    check(
+      "and the document does not name itself as well",
+      !oneNote.includes("data-vivlio-chapter"),
+    ),
+    check(
+      "an h1 of its own still names the chapter",
+      /<h1[^>]*class="[^"]*vivlio-chapter-title/.test(html),
+      html.slice(html.indexOf("<h1"), html.indexOf("<h1") + 120),
+    ),
+  );
+
+  // The title page names the work and then the people (SPEC 5.11).
+  const titled2 = makeContext();
+  titled2.config.title = "書名";
+  titled2.config.series = "叢書";
+  titled2.config.subtitle = "副題";
+  titled2.config.author = "著者";
+  titled2.config.translator = "訳者";
+  const titlePage2 = titlePageDocument(titled2);
+  checks.push(
+    check(
+      "the title page carries the series and the subtitle",
+      titlePage2.includes('<p class="series">叢書</p>') &&
+        titlePage2.includes('<p class="subtitle">副題</p>'),
+      titlePage2,
+    ),
+    check("and the translator", titlePage2.includes('<p class="translator">訳者</p>')),
+  );
+
   // The writer can settle the question outright instead of leaving it to the
   // manuscript (SPEC 5.3 #16).
   const dialogue = ["　地の文です。", "「会話です」"].join("\n\n");

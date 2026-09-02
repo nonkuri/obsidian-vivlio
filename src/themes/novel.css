@@ -126,14 +126,15 @@
  * which is the arrangement a Japanese novel usually takes.
  */
 /* The chapter title, from two sources so neither shape of manuscript is left
-   without one: a heading, or - when the document has none for the plugin to
-   find - the document naming itself through the attribute. */
-[data-vivlio-chapter] {
-  string-set: vivlio-chapter attr(data-vivlio-chapter);
+   without one: the heading the plugin marked as naming a chapter - which is H1
+   in a book of one note per chapter and H2 in a book written as one note - or,
+   when the document keeps no heading at all, the document naming itself. */
+.vivlio-chapter-title {
+  string-set: vivlio-chapter content();
 }
 
-h1 {
-  string-set: vivlio-chapter content();
+[data-vivlio-chapter] {
+  string-set: vivlio-chapter attr(data-vivlio-chapter);
 }
 
 @page {
@@ -278,6 +279,12 @@ ruby.boten > rt {
   block-size: var(--vs-novel--block-extent);
 }
 
+/* The series stands above the title, smaller, the way a series is named. */
+.titlepage .series {
+  font-size: 0.9rem;
+  margin-block: 0 1rem;
+}
+
 /* Sized so a title of ordinary length fits the block in one line: the block
    is `charsPerLine` ems tall, and 1.3rem leaves room for about 28 characters
    before it wraps. */
@@ -303,8 +310,13 @@ ruby.boten > rt {
   text-align: end;
 }
 
-.titlepage .author {
+.titlepage .author,
+.titlepage .translator {
   font-size: 1rem;
+}
+
+.titlepage .translator {
+  margin-block-start: 1rem;
 }
 
 .titlepage .publisher {

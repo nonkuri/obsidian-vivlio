@@ -13,6 +13,7 @@ import { notationRules, PAGE_BREAK_CLASS } from "./replace/rules";
 import { assetsPlugin } from "./hast/assets";
 import { applyIndentPlugin, readManuscriptIndentPlugin } from "./hast/indent";
 import { linksPlugin } from "./hast/links";
+import { blankLinesPlugin } from "./hast/spacing";
 import { obsidianPlugin } from "./hast/obsidian";
 import {
   addClass,
@@ -31,6 +32,9 @@ import { log } from "../util/log";
 
 /** Stylesheet every generated document links to. */
 export const BOOK_STYLESHEET = "vivlio.css";
+
+/** The heading a theme takes the running head from (see novel.css). */
+export const CHAPTER_TITLE_CLASS = "vivlio-chapter-title";
 
 /**
  * Convert one note to a document (SPEC 5.3).
@@ -80,6 +84,10 @@ export async function convertChapter(
           // two-digit number and knows nothing about the brackets around it.
           // Running links first also means a notation inside a link label
           // still works.
+          // First of ours, while the nodes still carry the source positions
+          // it counts blank lines off (a callout is replaced further down,
+          // and a replacement has no position to count from).
+          ...(context.config.syntax.blankLines ? [blankLinesPlugin()] : []),
           assetsPlugin(context, file.path),
           linksPlugin(context, file.path),
           obsidianPlugin(context),
@@ -91,7 +99,7 @@ export async function convertChapter(
           // for one opening with a bracket.
           applyIndentPlugin(context.config.paragraphIndentMode),
           dropBookTitleHeadingPlugin(context),
-          documentShapePlugin(chapter, namesItself(context, chapter, file)),
+          documentShapePlugin(chapter, chapterHeadingLevel(context, chapter, file)),
         ],
       }) as unknown as ReturnType<NonNullable<StringifyMarkdownOptions["editPlugins"]>>,
     },
@@ -113,20 +121,29 @@ export async function convertChapter(
 }
 
 /**
- * True when nothing in the document will name the chapter for the running head.
+ * The heading level a document uses for its chapters, for the running head.
  *
- * A theme takes the head from a heading, which a manuscript need not have: a
- * folder book whose notes open straight into prose, or one whose only heading
- * repeats the book title and is dropped, leaves the string empty and the head
- * blank. Such a document is made to name itself instead - but only such a
- * document, so a manuscript with headings keeps taking the head from them.
+ * Which level that is depends on the manuscript: a folder book gives each
+ * chapter its own note and opens it at H1, while a book written as one note
+ * usually spends H1 on the title - which is dropped, being the title - and
+ * runs its chapters at H2. The shallowest heading the document actually keeps
+ * is the one naming a chapter either way.
+ *
+ * Null when it keeps none. Such a document is made to name itself instead, so
+ * the head is never blank; a document with headings is left to them, because
+ * a named string takes the value in force at the start of the page and the
+ * document's own name would win on the page a chapter opens.
  */
-function namesItself(context: BuildContext, chapter: Chapter, file: TFile): boolean {
-  if (!chapter.isBody || !chapter.title) return false;
-  const headings = context.headings.get(file.path) ?? [];
-  return !headings.some(
-    (heading) => heading.level === 1 && !isBookTitleHeading(context, heading),
-  );
+function chapterHeadingLevel(
+  context: BuildContext,
+  chapter: Chapter,
+  file: TFile,
+): number | null {
+  if (!chapter.isBody) return null;
+  const levels = (context.headings.get(file.path) ?? [])
+    .filter((heading) => !isBookTitleHeading(context, heading))
+    .map((heading) => heading.level);
+  return levels.length > 0 ? Math.min(...levels) : null;
 }
 
 function buildMetadata(
@@ -258,7 +275,7 @@ function dropBookTitleHeadingPlugin(context: BuildContext) {
  * get the right named page; the two parts with no DPUB role (title page and
  * half title) get a class instead.
  */
-function documentShapePlugin(chapter: Chapter, namesItself: boolean) {
+function documentShapePlugin(chapter: Chapter, chapterLevel: number | null) {
   return function attach() {
     return (tree: UNode): void => {
       const body = findBody(tree);
@@ -279,8 +296,15 @@ function documentShapePlugin(chapter: Chapter, namesItself: boolean) {
       if (chapter.role) host.properties.role = chapter.role;
       if (chapter.slot === "titlePage") addClass(host, "titlepage");
       if (chapter.slot === "halfTitle") addClass(host, "halftitle");
-      // What the running head calls a chapter that has no heading of its own.
-      if (namesItself) host.properties["data-vivlio-chapter"] = chapter.title;
+      // What the running head is to call a chapter: the heading that names it,
+      // or - for a document with no heading at all - the document itself.
+      if (chapterLevel !== null) {
+        visit(tree, (node) => {
+          if (isElement(node, `h${chapterLevel}`)) addClass(node as UElement, CHAPTER_TITLE_CLASS);
+        });
+      } else if (chapter.isBody && chapter.title) {
+        host.properties["data-vivlio-chapter"] = chapter.title;
+      }
 
       // Marks the pages that get roman numerals; read back after layout to
       // write /PageLabels (SPEC 5.11).

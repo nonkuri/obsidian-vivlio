@@ -95,17 +95,27 @@ export function halfTitleDocument(context: BuildContext): string {
   });
 }
 
-/** Title, subtitle, author and publisher (SPEC 5.11). */
+/**
+ * The title page: everything the book calls itself (SPEC 5.11).
+ *
+ * The head names the work - the series it belongs to, its title, its subtitle -
+ * and the imprint names the people, which is the division a title page makes
+ * and the reason the two are separate boxes: the stylesheet pushes the imprint
+ * to the far corner of the page, where a Japanese title page puts it.
+ */
 export function titlePageDocument(context: BuildContext): string {
   const { config } = context;
-  const parts = [`<p class="title">${escapeHtml(config.title || t("book.untitled"))}</p>`];
+  const parts: string[] = [];
+
+  if (config.series) parts.push(`<p class="series">${escapeHtml(config.series)}</p>`);
+  parts.push(`<p class="title">${escapeHtml(config.title || t("book.untitled"))}</p>`);
   if (config.subtitle) parts.push(`<p class="subtitle">${escapeHtml(config.subtitle)}</p>`);
 
-  // Author and publisher travel together, in one box the stylesheet can push
-  // to the foot of the page. Spaced off the title by a margin instead, they
-  // landed wherever the length of the title left them.
   const imprint: string[] = [];
   if (config.author) imprint.push(`<p class="author">${escapeHtml(config.author)}</p>`);
+  if (config.translator) {
+    imprint.push(`<p class="translator">${escapeHtml(config.translator)}</p>`);
+  }
   if (config.publisher) {
     imprint.push(`<p class="publisher">${escapeHtml(config.publisher)}</p>`);
   }

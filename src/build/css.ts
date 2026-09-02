@@ -227,6 +227,14 @@ ruby.boten > rt {
   font-family: var(--vs--tcy-font-family, inherit);
 }
 
+/* Blank lines the manuscript left, as whole lines of the grid so the text below
+   still sits on it (see blankLinesPlugin). */
+.vivlio-blank-lines {
+  margin-block-start: calc(
+    1rem * var(--vs-line-height, 1.5) * var(--vivlio-blank-lines, 1)
+  );
+}
+
 /* A forced page break (see notationRules). The class lands on the block that
    is to start the page, not on a marker of its own - a box with no height can
    be placed again and again without filling the page, and the typesetter never

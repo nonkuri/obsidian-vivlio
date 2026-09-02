@@ -160,6 +160,8 @@ export const en = {
   "syntax.stripLeadingSpace":
     "Remove the ideographic space that indents a paragraph (the stylesheet indents instead)",
   "syntax.pageBreak": "Break the page at ［＃改ページ］",
+  "syntax.blankLines":
+    "Turn a run of blank lines in the manuscript into space on the page (three lines give one)",
 
   "section.halfTitle": "Half title",
   "section.titlePage": "Title page",

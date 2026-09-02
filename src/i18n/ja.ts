@@ -159,6 +159,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "syntax.stripBlockIds": "ブロック ID を削除する",
   "syntax.stripLeadingSpace": "行頭の全角スペースを削除する（字下げは CSS で行う）",
   "syntax.pageBreak": "［＃改ページ］で強制改ページ",
+  "syntax.blankLines": "原稿の連続する空行を紙面の空きにする（3 行で 1 行アキ）",
 
   "section.halfTitle": "半扉",
   "section.titlePage": "扉",

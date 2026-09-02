@@ -366,7 +366,23 @@ function packageDocument(
     `    <dc:language>${escapeXml(config.lang || "ja")}</dc:language>`,
     `    <meta property="dcterms:modified">${modified}</meta>`,
   ];
+  // A subtitle is a second title, refined to say which kind it is; a
+  // translator is a contributor with a role, which is how EPUB says both.
+  if (config.subtitle) {
+    meta.push(`    <dc:title id="subtitle">${escapeXml(config.subtitle)}</dc:title>`);
+    meta.push(`    <meta refines="#subtitle" property="title-type">subtitle</meta>`);
+  }
+  if (config.series) {
+    meta.push(`    <meta property="belongs-to-collection" id="series">${escapeXml(config.series)}</meta>`);
+    meta.push(`    <meta refines="#series" property="collection-type">series</meta>`);
+  }
   if (config.author) meta.push(`    <dc:creator>${escapeXml(config.author)}</dc:creator>`);
+  if (config.translator) {
+    meta.push(
+      `    <dc:contributor id="translator">${escapeXml(config.translator)}</dc:contributor>`,
+    );
+    meta.push(`    <meta refines="#translator" property="role" scheme="marc:relators">trl</meta>`);
+  }
   if (config.publisher) {
     meta.push(`    <dc:publisher>${escapeXml(config.publisher)}</dc:publisher>`);
   }
