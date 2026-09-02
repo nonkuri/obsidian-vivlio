@@ -24,6 +24,8 @@ import { PreviewServer } from "../src/server/static";
 import { setLanguage } from "../src/i18n";
 import { setLogLevel } from "../src/util/log";
 import { load as loadYaml } from "js-yaml";
+import GithubSlugger from "github-slugger";
+import type { HeadingEntry } from "../src/build/context";
 
 const target = process.argv[3];
 if (!target) {
@@ -37,6 +39,19 @@ function frontmatterOf(source: string): Record<string, unknown> {
   if (end === -1) return {};
   const parsed = loadYaml(source.slice(4, end));
   return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
+}
+
+/** Headings with the ids VFM will give them. */
+function parseHeadings(markdown: string): HeadingEntry[] {
+  const slugger = new GithubSlugger();
+  const out: HeadingEntry[] = [];
+  for (const line of markdown.split("\n")) {
+    const match = line.match(/^(#{1,6})\s+(.*)$/);
+    if (!match) continue;
+    const text = match[2].trim();
+    out.push({ level: match[1].length, text, slug: slugger.slug(text) });
+  }
+  return out;
 }
 
 async function main(): Promise<void> {
@@ -106,7 +121,9 @@ async function main(): Promise<void> {
     bookRoot: "",
     chapters,
     chapterByPath: new Map([[file.path, chapters[2]]]),
-    headings: new Map(),
+    // Obsidian supplies these from its metadata cache; parse them here so the
+    // generated table of contents is the real one.
+    headings: new Map([[file.path, parseHeadings(markdown)]]),
     warnings: [],
     component: {} as BuildContext["component"],
     workspaceBase: `${server.base}/w/${workspace.id}/`,

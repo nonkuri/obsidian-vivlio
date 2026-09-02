@@ -18,7 +18,7 @@ export const PRESETS: Preset[] = [
     id: "bunko",
     labelKey: "preset.bunko",
     values: {
-      theme: "bunko",
+      theme: "novel",
       writingMode: "vertical-rl",
       size: "文庫",
       charsPerLine: 39,
@@ -67,7 +67,7 @@ export const PRESETS: Preset[] = [
     id: "webnovel",
     labelKey: "preset.webnovel",
     values: {
-      theme: "bunko",
+      theme: "novel",
       writingMode: "vertical-rl",
       size: "文庫",
       charsPerLine: 40,

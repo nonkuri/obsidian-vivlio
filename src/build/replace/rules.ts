@@ -79,6 +79,15 @@ export function notationRules(config: BookConfig): TextRule[] {
     });
   }
 
+  // #15 A paragraph indented with an ideographic space: the character stands
+  // in for the indent, which the stylesheet does properly.
+  if (syntax.stripLeadingSpace) {
+    rules.push({
+      test: /(^|\n)[　 ]+/g,
+      replace: (match) => (match[1] ? [text(match[1])] : []),
+    });
+  }
+
   // #14 ^block-ids are anchors for Obsidian, not content.
   if (syntax.stripBlockIds) {
     rules.push({

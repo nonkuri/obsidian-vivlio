@@ -36,12 +36,13 @@ export const DEFAULT_SYNTAX: SyntaxToggles = {
   keepTags: false,
   stripComments: true,
   stripBlockIds: true,
+  stripLeadingSpace: true,
 };
 
 export const DEFAULT_SETTINGS: VivlioSettings = {
   defaultPreset: "bunko",
 
-  theme: "bunko",
+  theme: "novel",
   size: "文庫",
   writingMode: "vertical-rl",
   footnote: "gcpm",
@@ -109,7 +110,7 @@ export function baseBookConfig(): BookConfig {
     lang: "ja",
     version: "",
 
-    theme: "bunko",
+    theme: "novel",
     writingMode: "vertical-rl",
     size: "文庫",
     charsPerLine: null,

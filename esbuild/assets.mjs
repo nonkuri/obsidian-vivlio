@@ -50,6 +50,12 @@ export function vivlioAssetsPlugin(root) {
         );
 
         const themes = {};
+
+        // The plugin's own themes sit next to the bundled ones, so a relative
+        // `@import` reaches theme-base the same way.
+        const own = collect(path.join(root, "src", "themes"), (rel) => rel.endsWith(".css"));
+        for (const [rel, value] of Object.entries(own)) themes[`vivlio/${rel}`] = value;
+
         for (const name of ["theme-base", "theme-bunko", "theme-techbook", "theme-academic"]) {
           const files = collect(path.join(scope, name), (rel) => rel.endsWith(".css"));
           for (const [rel, value] of Object.entries(files)) {

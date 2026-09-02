@@ -1,0 +1,209 @@
+/*
+ * Vivlio — Japanese novel
+ *
+ * A page design for a vertically set Japanese novel, built on theme-base.
+ *
+ * theme-base is the neutral foundation: named pages per DPUB role, the table
+ * of contents leaders, footnote areas, the margin-box plumbing. It has no
+ * opinion about where a folio goes, so the decisions below are ours to make
+ * and to expose as settings.
+ *
+ * This exists because theme-bunko, the obvious starting point, makes several
+ * choices a Japanese novel usually makes differently: it prints the folio and
+ * a running head carrying the *book* title at the head of the page, expresses
+ * headings by line-taking alone so a section break is invisible, and sizes its
+ * text block from the type rather than the paper. Undoing those one variable
+ * at a time from the plugin left a growing pile of counter-rules, and anyone
+ * choosing a different theme got a different book.
+ *
+ * The grid: one line is `--vs-line-height` rem. Vertical space is given in
+ * whole multiples of it so headings and paragraphs stay on the same grid.
+ * The plugin derives the body size from the paper and this line height; the
+ * two must agree (see gridFontSize in src/build/css.ts).
+ */
+
+@import url(../@vivliostyle/theme-base/theme-all.css);
+
+:root {
+  --vs-writing-mode: vertical-rl;
+  --vs-line-height: 2;
+
+  /* A novel has no gap between paragraphs; the indent marks the break. */
+  --vs-spacing-rlh: 0;
+
+  --vs-font-family: '游明朝', 'YuMincho', 'Hiragino Mincho ProN', 'Noto Serif JP', serif;
+  --vs-border-width: 0.5px;
+
+  /* Paragraphs ---------------------------------------------------------- */
+  --vs--p-text-align: justify;
+  --vs--p-text-indent: 1em;
+  /* Hanging punctuation at the line end only. `first` would pull the start of
+     the first line outside the text block, which swallows the indent. */
+  --vs--p-hanging-punctuation: allow-end;
+  /* No trimming at the start of a line, for the same reason. */
+  --vs--p-text-spacing: space-start ideograph-alpha ideograph-numeric;
+
+  /* Ruby ---------------------------------------------------------------- */
+  --vs--rt-font-size: 0.5rem;
+
+  /* Page ---------------------------------------------------------------- */
+  /* The block is centred on the sheet; the plugin sizes the type so it fits. */
+  --vs-page--margin-top: auto;
+  --vs-page--margin-bottom: auto;
+  --vs-page--margin-inner: auto;
+  --vs-page--margin-outer: auto;
+  --vs-page--mbox-font-size: 0.75rem;
+  --vs-page--mbox-font-family: var(--vs-font-family);
+
+  /* Headings ------------------------------------------------------------ */
+  /* Space in whole lines, so the grid survives a heading. */
+  --vs--heading-font-weight: var(--vs-font-weight-bold);
+  --vs--h1-font-size: 1.4rem;
+  --vs--h1-margin-block: 0 4rem;
+  --vs--h2-font-size: 1.2rem;
+  --vs--h2-margin-block: 0 4rem;
+  --vs--h2-letter-spacing: 0.1em;
+  --vs--h3-font-size: 1rem;
+  --vs--h3-margin-block: 4rem 2rem;
+  --vs--h4-font-size: 1rem;
+  --vs--h4-margin-block: 2rem 2rem;
+
+  /* Table of contents --------------------------------------------------- */
+  --vs-toc--ol-indent-size: 1.5rem;
+  --vs-toc--page-leader-content: leader('.') ' ';
+}
+
+:root:lang(ja) {
+  --vs-section--counter-style: cjk-ideographic;
+  --vs-section--counter-delimiter: '・';
+}
+
+/* Running heads and folios ------------------------------------------------
+ *
+ * The folio sits at the foot, centred. The running head carries the chapter
+ * title, not the book title: on an opened book the reader already knows which
+ * book it is, and wants to know where in it they are.
+ */
+h2 {
+  string-set: vivlio-chapter content();
+}
+
+@page {
+  @bottom-center {
+    margin-block-start: 6mm;
+  }
+  @top-left {
+    margin-block-end: 6mm;
+  }
+  @top-right {
+    margin-block-end: 6mm;
+  }
+}
+
+:root {
+  --vs-page--mbox-content-bottom-center: counter(page);
+}
+
+/* The running head goes on the outer edge, which swaps with the page side. */
+@page :left {
+  --vs-page--mbox-content-top-left: string(vivlio-chapter);
+}
+
+@page :right {
+  --vs-page--mbox-content-top-right: string(vivlio-chapter);
+}
+
+/* A chapter opens a new page, and the first page of a chapter carries no
+   running head - the title is right there. */
+h2 {
+  break-before: page;
+}
+
+h1,
+h2,
+h3 {
+  break-after: avoid;
+}
+
+/* Body -------------------------------------------------------------------- */
+
+figure {
+  margin-block: unset;
+  margin-inline: unset;
+  writing-mode: horizontal-tb;
+  max-inline-size: 100%;
+}
+
+/* Emphasis dots ------------------------------------------------------------
+ *
+ * `text-emphasis` draws outside the character, which grows the line box and
+ * breaks the vertical grid: a line carrying emphasis is set wider than its
+ * neighbours. Reserving the space on every line instead keeps the rhythm even,
+ * at the cost of a slightly wider measure - which is what a typesetter does by
+ * hand as well.
+ */
+.boten {
+  font-style: normal;
+  text-emphasis: filled sesame;
+  text-emphasis-position: over right;
+}
+
+p {
+  text-emphasis-position: over right;
+}
+
+/* Tate-chu-yoko ----------------------------------------------------------- */
+.tcy {
+  text-combine-upright: all;
+}
+
+.upright {
+  text-orientation: upright;
+}
+
+/* Front and back matter ---------------------------------------------------- */
+
+.titlepage,
+.halftitle {
+  text-align: center;
+}
+
+[role='doc-colophon'] {
+  font-size: 0.85rem;
+  line-height: 1.6rem;
+  break-inside: avoid;
+}
+
+/* Table of contents -------------------------------------------------------
+ *
+ * theme-base hides the numbering and draws the leaders; what it does not do is
+ * make the depth legible, so each level is set a step smaller and indented.
+ */
+:is(#toc, [role='doc-toc']) > ol {
+  --vs--ol-padding-inline-start: 0;
+}
+
+:is(#toc, [role='doc-toc']) ol ol {
+  --vs--ol-padding-inline-start: var(--vs-toc--ol-indent-size);
+  font-size: 0.9em;
+}
+
+:is(#toc, [role='doc-toc']) li {
+  margin-block-start: 0.5rem;
+}
+
+:is(#toc, [role='doc-toc']) > ol > li {
+  margin-block-start: 2rem;
+  font-weight: var(--vs-font-weight-bold);
+}
+
+:is(#toc, [role='doc-toc']) > ol > li > a {
+  font-weight: inherit;
+}
+
+@media screen {
+  :root {
+    --vs--anchor-color: darkblue;
+    --vs--anchor-text-decoration: none;
+  }
+}

@@ -93,6 +93,15 @@ export interface SyntaxToggles {
   stripComments: boolean;
   /** #14 `^block-id` */
   stripBlockIds: boolean;
+  /**
+   * #15 the ideographic space many manuscripts use to indent a paragraph.
+   *
+   * It is a plain-text stand-in for the indent, and typesetters trim a space
+   * at the start of a line, so leaving it in gives no indent at all in print
+   * and an inconsistent one in EPUB readers. Removing it and letting
+   * `paragraphIndent` do the work is both reliable and portable.
+   */
+  stripLeadingSpace: boolean;
 }
 
 /**

@@ -16,6 +16,7 @@ export type { EmbeddedAsset };
 
 /** Bundled themes, in the order they are offered in the UI. */
 export const BUNDLED_THEMES: Record<string, string> = {
+  novel: "vivlio/novel.css",
   bunko: "@vivliostyle/theme-bunko/theme.css",
   techbook: "@vivliostyle/theme-techbook/theme.css",
   academic: "@vivliostyle/theme-academic/theme.css",

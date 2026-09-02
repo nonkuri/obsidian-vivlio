@@ -346,12 +346,12 @@ function pageNumberingCss(context: BuildContext): string {
   const reset = `.vivlio-page-reset { counter-reset: page 1; }`;
   if (mode === "continuous") return reset;
 
+  // Only the foot: setting a running-head variable as well printed the number
+  // twice on every front-matter page.
   return `
 ${reset}
 
 :root.vivlio-front-matter {
-  --vs-theme--page-top-left-content: counter(page, lower-roman);
-  --vs-theme--page-top-right-content: counter(page, lower-roman);
   --vs-page--mbox-content-bottom-center: counter(page, lower-roman);
 }
 `.trim();

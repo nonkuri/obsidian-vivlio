@@ -22,6 +22,7 @@ const SYNTAX_KEYS: (keyof SyntaxToggles)[] = [
   "keepTags",
   "stripComments",
   "stripBlockIds",
+  "stripLeadingSpace",
 ];
 
 /** The vault-wide defaults: layer 1 of the three (SPEC 5.4, 5.5). */

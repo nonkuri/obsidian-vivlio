@@ -148,6 +148,8 @@ export const en = {
   "syntax.keepTags": "Keep #tags",
   "syntax.stripComments": "Strip %%comments%%",
   "syntax.stripBlockIds": "Strip ^block-ids",
+  "syntax.stripLeadingSpace":
+    "Remove the ideographic space that indents a paragraph (the stylesheet indents instead)",
 
   "section.halfTitle": "Half title",
   "section.titlePage": "Title page",

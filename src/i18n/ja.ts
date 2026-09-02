@@ -148,6 +148,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "syntax.keepTags": "タグを残す",
   "syntax.stripComments": "%%コメント%% を削除する",
   "syntax.stripBlockIds": "ブロック ID を削除する",
+  "syntax.stripLeadingSpace": "行頭の全角スペースを削除する（字下げは CSS で行う）",
 
   "section.halfTitle": "半扉",
   "section.titlePage": "扉",
