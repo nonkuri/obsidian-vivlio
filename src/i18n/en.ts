@@ -221,6 +221,8 @@ export const en = {
   "section.colophon": "Colophon",
 
   "book.untitled": "Untitled",
+  "role.author": "written by",
+  "role.translator": "translated by",
   "toc.heading": "Contents",
   "colophon.title": "Title",
   "colophon.series": "Series",
@@ -231,6 +233,8 @@ export const en = {
   "colophon.contact": "Contact",
   "colophon.website": "Website",
   "colophon.date": "Date",
+  "colophon.issued": "Published {date}",
+  "colophon.issuedEdition": "{version}, published {date}",
   "colophon.version": "Version",
   "error.chapter": "This chapter could not be converted",
 };

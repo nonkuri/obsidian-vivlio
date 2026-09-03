@@ -91,6 +91,7 @@ ${renderList(buildTocEntries(context, chapters))}
 </nav>`;
 
   return htmlDocument({
+    writingMode: context.config.writingMode,
     lang: context.config.lang,
     title: t("toc.heading"),
     rootClass: "vivlio-front-matter vivlio-toc",

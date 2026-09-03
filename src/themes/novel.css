@@ -76,6 +76,14 @@
      against. In vertical writing the block axis runs across the page, which
      is the width above. */
   --vs-novel--block-extent: var(--vs-page--width);
+
+  /* Two inks below the body's, for the parts of a book that are annotation
+     rather than text: a series name, a role, an address, a label. Grey and
+     not a lighter weight, because a lighter weight of a Mincho face
+     disappears at these sizes; grey keeps the shape and drops the voice.
+     Dark enough to survive a halftone screen at 300 dpi. */
+  --vs-novel--secondary-ink: #3a3a3a;
+  --vs-novel--rule-ink: #bdbdbd;
   --vs-page--margin-top: auto;
   --vs-page--margin-bottom: auto;
   --vs-page--margin-inner: auto;
@@ -279,26 +287,42 @@ ruby.boten > rt {
   block-size: var(--vs-novel--block-extent);
 }
 
-/* The series stands above the title, smaller, the way a series is named. */
+/* The series stands above the title, smaller and lighter, the way a series is
+   named: it is the shelf the book belongs to, not the book. */
 .titlepage .series {
-  font-size: 0.9rem;
-  margin-block: 0 1rem;
+  font-size: 0.8rem;
+  color: var(--vs-novel--secondary-ink);
+  letter-spacing: 0.15em;
+  margin-block: 0 1.5rem;
 }
 
-/* Sized so a title of ordinary length fits the block in one line: the block
-   is `charsPerLine` ems tall, and 1.3rem leaves room for about 28 characters
-   before it wraps. */
+/* The title carries the page, so it is given the room to. 1.6rem sets about
+   22 characters in the block before it wraps, which covers most titles, and
+   the weight and letter-spacing are what make it read as a title rather than
+   as a large line of text.
+
+   The half title is the same statement made quietly on its own page, so it
+   shares the rule but not the size. */
 .titlepage .title,
 .halftitle .title {
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   font-weight: var(--vs-font-weight-bold);
-  letter-spacing: 0.1em;
-  margin-block: 2rem 0;
+  letter-spacing: 0.18em;
+  margin-block: 0;
 }
 
+.halftitle .title {
+  font-size: 1.15rem;
+  letter-spacing: 0.12em;
+}
+
+/* The subtitle hangs off the title rather than standing beside it: near
+   enough to belong to it, and small enough not to compete. */
 .titlepage .subtitle {
-  font-size: 1.1rem;
-  margin-block: 2rem 0;
+  font-size: 0.95rem;
+  color: var(--vs-novel--secondary-ink);
+  letter-spacing: 0.05em;
+  margin-block: 1.5rem 0;
 }
 
 /* `margin-block-start: auto` eats the free space of the column, so the imprint
@@ -310,18 +334,45 @@ ruby.boten > rt {
   text-align: end;
 }
 
+/* The people who made the book are one group, the house that published it is
+   another. Keeping the names a line apart and the publisher three away is
+   what separates "who wrote this" from "who issued it"; spacing all three
+   evenly read as a list of unrelated names. */
+.titlepage .byline {
+  display: flex;
+  flex-direction: column;
+}
+
 .titlepage .author,
 .titlepage .translator {
   font-size: 1rem;
+  letter-spacing: 0.08em;
+  margin-block: 0;
 }
 
 .titlepage .translator {
-  margin-block-start: 1rem;
+  margin-block-start: 0.8rem;
+}
+
+/* The role is an annotation on the name, not part of it: smaller, set away
+   from the name by a space of its own, and never bold.
+
+   The space goes on the inline axis - which is the direction the name runs,
+   downward in vertical writing - so it lands between the name and the role.
+   `margin-block-start` would have pushed the role sideways, off the name. */
+.titlepage .role {
+  font-size: 0.7em;
+  font-weight: normal;
+  color: var(--vs-novel--secondary-ink);
+  margin-inline-start: 0.6em;
+  display: inline-block;
 }
 
 .titlepage .publisher {
-  font-size: 0.9rem;
-  margin-block-start: 2rem;
+  font-size: 0.85rem;
+  color: var(--vs-novel--secondary-ink);
+  letter-spacing: 0.1em;
+  margin-block-start: 3rem;
 }
 
 /* The colophon ------------------------------------------------------------
@@ -341,10 +392,31 @@ ruby.boten > rt {
   block-size: var(--vs-novel--block-extent);
   font-size: 0.85rem;
   break-inside: avoid;
+  /* The colophon sits at the foot as well as the far edge - the corner, which
+     is the whole of "the far corner of the last page". Stretching it instead
+     hung every column from the top of the block, which is what made the page
+     read as a band of entries floating above an empty page, and drew the rule
+     below the title the full height of the paper with nothing beside most of
+     it. `flex-end` on the cross axis shrinks the block to its content and
+     drops it to the bottom.
+
+     `safe` is what keeps a colophon longer than the page from being clipped
+     at the head, where the title is: the alignment falls back to the start
+     rather than pushing the beginning of the block off the paper.
+
+     Vertical only. The inline end is the foot of the page when the lines run
+     down it, and the outer margin when they run across it - a horizontal
+     colophon belongs at the foot on the near side, which is where leaving
+     the alignment alone already puts it. */
+  align-items: stretch;
 }
 
 [role='doc-colophon'] .colophon {
   margin-block-start: auto;
+}
+
+.vivlio-vertical [role='doc-colophon'] {
+  align-items: safe flex-end;
 }
 
 [role='doc-colophon'] p {
@@ -353,14 +425,22 @@ ruby.boten > rt {
 }
 
 [role='doc-colophon'] .colophon-series {
-  font-size: 0.85rem;
-  margin-block: 0 1rem;
+  font-size: 0.8rem;
+  color: var(--vs-novel--secondary-ink);
+  letter-spacing: 0.1em;
+  margin-block: 0 0.75rem;
 }
 
+/* The book names itself once, at the head of the block, and a rule closes
+   that statement off. Without it the title was just the first of eleven
+   columns all beginning on the same line. */
 [role='doc-colophon'] .colophon-title {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: var(--vs-font-weight-bold);
-  margin-block: 0 2rem;
+  letter-spacing: 0.1em;
+  margin-block: 0 1.25rem;
+  padding-block-end: 1.25rem;
+  border-block-end: 1px solid var(--vs-novel--rule-ink);
 }
 
 [role='doc-colophon'] .colophon-rows {
@@ -368,8 +448,37 @@ ruby.boten > rt {
   margin-inline: 0;
 }
 
+/* The groups are what keep this from reading as a table. Every entry starting
+   on the same line and running the same way is exactly what a colophon is
+   not: it answers four questions - when, by whom, from where, and by whose
+   hand - and the space between them is what says so. */
+[role='doc-colophon'] .colophon-group + .colophon-group {
+  margin-block-start: 1.25rem;
+}
+
 [role='doc-colophon'] .colophon-row {
   margin-block-start: 0;
+}
+
+/* The date is a sentence, so it takes no label and no 5em ladder to hang
+   from, and it is set a shade larger than the entries below it: it is the
+   line a reader looks for first. */
+[role='doc-colophon'] .colophon-line {
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+}
+
+/* An address and a website are how to reach the publisher, not two more
+   parties to the book. They hang under the name, indented past the label
+   column so the eye reads them as belonging to it. */
+[role='doc-colophon'] .colophon-detail {
+  margin-block-start: 0.3rem;
+}
+
+[role='doc-colophon'] .colophon-detail dd {
+  margin-inline-start: 6em;
+  font-size: 0.9em;
+  color: var(--vs-novel--secondary-ink);
 }
 
 /* The label is set to a fixed measure and its characters spread across it, the
@@ -384,6 +493,8 @@ ruby.boten > rt {
   inline-size: 5em;
   margin-inline-end: 1em;
   font-weight: normal;
+  font-size: 0.9em;
+  color: var(--vs-novel--secondary-ink);
   text-align: justify;
   text-align-last: justify;
 }

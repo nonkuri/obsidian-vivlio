@@ -36,6 +36,7 @@ export function buildCover(context: BuildContext): CoverResult | null {
 
   return {
     html: htmlDocument({
+    writingMode: config.writingMode,
       lang: config.lang,
       title: config.title || "cover",
       rootClass: "vivlio-cover",

@@ -86,6 +86,7 @@ export function planSections(context: BuildContext): SectionPlan[] {
 export function halfTitleDocument(context: BuildContext): string {
   const { config } = context;
   return htmlDocument({
+    writingMode: config.writingMode,
     lang: config.lang,
     title: config.title || t("book.untitled"),
     rootClass: "vivlio-front-matter",
@@ -103,6 +104,12 @@ export function halfTitleDocument(context: BuildContext): string {
  * and the reason the two are separate boxes: the stylesheet pushes the imprint
  * to the far corner of the page, where a Japanese title page puts it.
  */
+/** A name, with the role it is credited in when the book has to say which. */
+function named(cls: string, name: string, role: string): string {
+  const suffix = role ? `<span class="role">${escapeHtml(role)}</span>` : "";
+  return `<p class="${cls}">${escapeHtml(name)}${suffix}</p>`;
+}
+
 export function titlePageDocument(context: BuildContext): string {
   const { config } = context;
   const parts: string[] = [];
@@ -111,17 +118,28 @@ export function titlePageDocument(context: BuildContext): string {
   parts.push(`<p class="title">${escapeHtml(config.title || t("book.untitled"))}</p>`);
   if (config.subtitle) parts.push(`<p class="subtitle">${escapeHtml(config.subtitle)}</p>`);
 
-  const imprint: string[] = [];
-  if (config.author) imprint.push(`<p class="author">${escapeHtml(config.author)}</p>`);
-  if (config.translator) {
-    imprint.push(`<p class="translator">${escapeHtml(config.translator)}</p>`);
+  // A name on its own is the author, and a Japanese title page says so by
+  // saying nothing. That only holds while there is one name: as soon as the
+  // book has a translator, an unmarked pair of names is a question rather
+  // than an attribution, so both take their role (SPEC 5.11).
+  const translated = Boolean(config.translator);
+  const byline: string[] = [];
+  if (config.author) {
+    byline.push(named("author", config.author, translated ? t("role.author") : ""));
   }
+  if (config.translator) {
+    byline.push(named("translator", config.translator, t("role.translator")));
+  }
+
+  const imprint: string[] = [];
+  if (byline.length > 0) imprint.push(`<div class="byline">\n${byline.join("\n")}\n</div>`);
   if (config.publisher) {
     imprint.push(`<p class="publisher">${escapeHtml(config.publisher)}</p>`);
   }
   if (imprint.length > 0) parts.push(`<div class="imprint">\n${imprint.join("\n")}\n</div>`);
 
   return htmlDocument({
+    writingMode: config.writingMode,
     lang: config.lang,
     title: config.title || t("book.untitled"),
     rootClass: "vivlio-front-matter",
@@ -143,28 +161,69 @@ export function titlePageDocument(context: BuildContext): string {
 export function colophonDocument(context: BuildContext): string {
   const { config } = context;
 
-  const rows: string[] = [];
-  const add = (label: string, value: string) => {
+  // The colophon is written in groups, not as one ladder of labelled lines.
+  // Every entry starting at the same point and running the same way is what
+  // made it read as a table: a printed colophon says when the book was
+  // published, then who made it, then who published it, and puts space
+  // between those answers because they answer different questions.
+  const groups: string[][] = [];
+  const group = (): string[] => {
+    const rows: string[] = [];
+    groups.push(rows);
+    return rows;
+  };
+  const add = (rows: string[], label: string, value: string) => {
     if (!value.trim()) return;
     rows.push(
       `<div class="colophon-row"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`,
     );
   };
+  /** A line that is a sentence, not an entry: no label, nothing to align to. */
+  const line = (rows: string[], text: string) => {
+    if (!text.trim()) return;
+    rows.push(`<div class="colophon-line">${escapeHtml(text)}</div>`);
+  };
 
-  add(t("colophon.author"), config.author);
-  add(t("colophon.translator"), config.translator);
-  // A vertical page writes its dates in kanji; digits would be laid on their
-  // side, and a colophon does not set them as tate-chu-yoko either.
-  add(
-    t("colophon.date"),
-    config.writingMode === "vertical-rl" ? kanjiDate(config.date) : config.date,
-  );
-  add(t("colophon.version"), config.version);
-  add(t("colophon.publisher"), config.publisher);
-  add(t("colophon.printer"), config.printer);
-  add(t("colophon.contact"), config.contact);
-  add(t("colophon.website"), config.website);
-  for (const entry of config.colophonExtra) add(entry.label, entry.value);
+  // When the book was published. A vertical page writes its dates in kanji;
+  // digits would be laid on their side, and a colophon does not set them as
+  // tate-chu-yoko either. The edition belongs on that same line - "初版発行"
+  // is one statement, and splitting it into 発行日 and 版 made two entries
+  // out of a sentence every colophon writes in one.
+  const date =
+    config.writingMode === "vertical-rl" ? kanjiDate(config.date) : config.date;
+  const published = group();
+  if (date) {
+    line(
+      published,
+      config.version
+        ? t("colophon.issuedEdition", { date, version: config.version })
+        : t("colophon.issued", { date }),
+    );
+  } else if (config.version) {
+    line(published, config.version);
+  }
+
+  // Who made it.
+  const people = group();
+  add(people, t("colophon.author"), config.author);
+  add(people, t("colophon.translator"), config.translator);
+
+  // Who published it. The address and the website belong under the publisher
+  // rather than beside it: they are how to reach that name, not two more
+  // parties to the book, and giving each its own label made the column of
+  // labels longer than the column of answers.
+  const house = group();
+  add(house, t("colophon.publisher"), config.publisher);
+  for (const detail of [config.contact, config.website]) {
+    if (detail.trim()) {
+      house.push(`<div class="colophon-row colophon-detail"><dd>${escapeHtml(detail)}</dd></div>`);
+    }
+  }
+  add(house, t("colophon.printer"), config.printer);
+
+  // Whatever else the book wants to name.
+  const extra = group();
+  for (const entry of config.colophonExtra) add(extra, entry.label, entry.value);
 
   const head: string[] = [];
   if (config.series) {
@@ -175,13 +234,17 @@ export function colophonDocument(context: BuildContext): string {
   );
 
   return htmlDocument({
+    writingMode: config.writingMode,
     lang: config.lang,
     title: t("section.colophon"),
     body: `<section role="doc-colophon" id="${DOCUMENT_ANCHOR}">
 <div class="colophon">
 ${head.join("\n")}
 <dl class="colophon-rows">
-${rows.join("\n")}
+${groups
+  .filter((rows) => rows.length > 0)
+  .map((rows) => `<div class="colophon-group">\n${rows.join("\n")}\n</div>`)
+  .join("\n")}
 </dl>
 </div>
 </section>`,

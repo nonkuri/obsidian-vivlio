@@ -368,7 +368,14 @@ async function main(): Promise<void> {
         titlePage2.includes('<p class="subtitle">副題</p>'),
       titlePage2,
     ),
-    check("and the translator", titlePage2.includes('<p class="translator">訳者</p>')),
+    // A single name is the author and needs no saying so; a second name makes
+    // an unmarked pair a question, so both take their role (SPEC 5.11).
+    check(
+      "a translated book credits both roles",
+      titlePage2.includes('<p class="translator">訳者<span class="role">訳</span></p>') &&
+        titlePage2.includes('<p class="author">著者<span class="role">著</span></p>'),
+      titlePage2,
+    ),
   );
 
   // The writer can settle the question outright instead of leaving it to the
@@ -535,7 +542,7 @@ async function main(): Promise<void> {
   checks.push(
     check(
       "title page groups the imprint",
-      /<div class="imprint">\s*<p class="author">著者名<\/p>\s*<p class="publisher">/.test(
+      /<div class="imprint">\s*<div class="byline">\s*<p class="author">著者名<\/p>\s*<\/div>\s*<p class="publisher">/.test(
         titlePage,
       ),
       titlePage,

@@ -217,6 +217,8 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "section.colophon": "奥付",
 
   "book.untitled": "無題",
+  "role.author": "著",
+  "role.translator": "訳",
   "toc.heading": "目次",
   "colophon.title": "書名",
   "colophon.series": "シリーズ",
@@ -227,6 +229,8 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "colophon.contact": "連絡先",
   "colophon.website": "ＷＥＢ",
   "colophon.date": "発行日",
+  "colophon.issued": "{date}　発行",
+  "colophon.issuedEdition": "{date}　{version}発行",
   "colophon.version": "版",
   "error.chapter": "この章を変換できませんでした",
 };
