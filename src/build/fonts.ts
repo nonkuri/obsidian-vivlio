@@ -1,6 +1,6 @@
 import { warn, type BuildContext } from "./context";
 import type { EmbedFont } from "../config/types";
-import { normalizeAbsolute, sanitizeFileName, sha1, mimeType, extname } from "../util/paths";
+import { assetFileName, normalizeAbsolute, sha1, mimeType, extname } from "../util/paths";
 import { log } from "../util/log";
 
 interface LocalFontData {
@@ -168,7 +168,7 @@ function resolveFontUrl(context: BuildContext, font: EmbedFont): string | null {
       return `${context.vaultBase}${file.path.split("/").map(encodeURIComponent).join("/")}`;
     }
     const asset = context.workspace.addAsset({
-      publicPath: `assets/${sha1(file.path).slice(0, 8)}-${sanitizeFileName(file.name)}`,
+      publicPath: `assets/${sha1(file.path).slice(0, 8)}-${assetFileName(file.name)}`,
       kind: "vault",
       vaultPath: file.path,
       mime: mimeType(file.name),
@@ -190,7 +190,7 @@ function resolveFontUrl(context: BuildContext, font: EmbedFont): string | null {
   const root = absolute.slice(0, absolute.lastIndexOf("/"));
   context.workspace.extraRoots.add(root);
   const asset = context.workspace.addAsset({
-    publicPath: `assets/${sha1(absolute).slice(0, 8)}-${sanitizeFileName(
+    publicPath: `assets/${sha1(absolute).slice(0, 8)}-${assetFileName(
       font.src.split(/[\\/]/).pop() ?? "font",
     )}`,
     kind: "absolute",

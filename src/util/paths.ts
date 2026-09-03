@@ -72,6 +72,31 @@ export function sanitizeFileName(name: string): string {
 }
 
 /**
+ * The name part of an asset path: safe in a URL, a zip entry and an OPF href.
+ *
+ * `sanitizeFileName` above answers a different question - what a *file system*
+ * accepts - and a name that survives it can still be unusable here. Obsidian's
+ * own pasted-image name carries spaces ("Pasted image 20250101120000.png"), a
+ * Japanese vault names its attachments in Japanese, and an `&` is legal in
+ * both. Unencoded, the first two make `src="assets/… my figure.png"` a URI
+ * reference no strict reader resolves, and the third makes the EPUB package
+ * document malformed XML, which loses the whole book rather than one image.
+ *
+ * Percent-encoding at each use site would mean encoding in three places and
+ * remembering to in a fourth. The identity is in the hash the caller puts in
+ * front, so the name only has to stay recognisable: everything outside
+ * `A-Za-z0-9._-` becomes a hyphen, and a name left with nothing is `asset`.
+ */
+export function assetFileName(name: string): string {
+  const extension = extname(name).replace(/[^A-Za-z0-9.]/g, "");
+  const stem = stripExtension(name)
+    .replace(/[^A-Za-z0-9._-]+/g, "-")
+    .replace(/^[-._]+|[-._]+$/g, "")
+    .slice(0, 60);
+  return `${stem || "asset"}${extension}`;
+}
+
+/**
  * Normalize an absolute filesystem path for containment checks: resolves
  * `..`, unifies separators and strips the Windows `\\?\` long-path prefix
  * (SPEC 5.12, defence 5).

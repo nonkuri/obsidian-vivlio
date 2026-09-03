@@ -85,8 +85,8 @@ const KEY_DOCS: Partial<Record<keyof BookConfig, KeyDoc>> = {
   },
   imageWidthUnit: {
     group: "layout",
-    ja: "![[fig.png|300]] の 300 の解釈: px | percent | mm",
-    en: "How the 300 in ![[fig.png|300]] is read: px | percent | mm",
+    ja: "単位のない ![[fig.png|300]] の 300 の解釈: px | percent | mm。画像ごとに ![[fig.png|60%]] ![[fig.png|80mm]] と書けばそちらが優先",
+    en: "How a unitless ![[fig.png|300]] is read: px | percent | mm. Per image, write ![[fig.png|60%]] or ![[fig.png|80mm]] to override it",
   },
 
   cover: { group: "cover", ja: "表紙画像", en: "Cover image" },

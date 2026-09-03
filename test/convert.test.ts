@@ -31,12 +31,16 @@ function makeFile(path: string): TFile {
 const chapterOne = makeFile("book/01.md");
 const chapterTwo = makeFile("book/02.md");
 const picture = makeFile("book/fig.png");
+// Obsidian's own name for a pasted image. Every character of it has to
+// survive into a URL, a zip entry and an EPUB package document.
+const pasted = makeFile("book/Pasted image 20250101120000.png");
 const outsider = makeFile("elsewhere/Other.md");
 
 const files: Record<string, TFile> = {
   "01": chapterOne,
   "02": chapterTwo,
   "fig.png": picture,
+  "Pasted image 20250101120000.png": pasted,
   Other: outsider,
   "第二章": chapterTwo,
 };
@@ -126,6 +130,12 @@ vivlio-theme: bunko
 
 ![[fig.png|300]]
 
+![[fig.png|60%]]
+
+![[fig.png|80mm]]
+
+![[Pasted image 20250101120000.png]]
+
 \`\`\`js
 const x = 42; // 42 must stay a plain number inside code
 \`\`\`
@@ -175,6 +185,16 @@ async function main(): Promise<void> {
     check("out-of-book wikilink flattened", html.includes("よそのノート") && !html.includes('href="Other')),
     check("image resolved to the vault route", html.includes("/vault/book/fig.png")),
     check("image width is logical", html.includes("inline-size: min(300px, 100%)")),
+    // A share of the text block, and a physical width, said per image: the
+    // book-wide unit cannot answer either, because the answer differs by
+    // figure (SPEC 5.8).
+    check("a percentage width is kept as one", html.includes("inline-size: 60%"), html),
+    check("a millimetre width is kept as one", html.includes("inline-size: 80mm"), html),
+    check(
+      "a width that is not px is capped at the text block",
+      (html.match(/max-inline-size: 100%/g) ?? []).length === 2,
+      html,
+    ),
     check("stylesheet linked", html.includes('href="vivlio.css"')),
     check("plugin frontmatter is not a meta tag", !html.includes('name="vivlio-theme"')),
     check("a body chapter is marked as body", /<html[^>]*class="[^"]*vivlio-body/.test(html)),
@@ -196,6 +216,41 @@ async function main(): Promise<void> {
     ),
     check("and the mark itself is gone", !html.includes("改ページ")),
   ];
+
+  // Exporting rewrites every image to a path the output carries itself, and
+  // that path lands unencoded in three places at once: an `src`, a zip entry
+  // and the EPUB package document. A vault name is not safe in any of them -
+  // Obsidian's own pasted-image name has spaces in it (SPEC 5.8).
+  const exported = makeContext({ mode: "epub" });
+  const exportedHtml = await convertChapter(
+    exported,
+    exported.chapters[0],
+    chapterOne,
+    "![[Pasted image 20250101120000.png]]\n\n![[fig.png|300]]",
+  );
+  const assetPaths = [...exported.workspace.assets.values()].map((asset) => asset.publicPath);
+  checks.push(
+    check(
+      "an exported asset path is safe in a URL",
+      assetPaths.every((path) => /^assets\/[A-Za-z0-9._-]+$/.test(path)),
+      assetPaths.join(", "),
+    ),
+    check(
+      "and the document points at exactly that path",
+      assetPaths.every((path) => exportedHtml.includes(`src="${path}"`)),
+      `${(exportedHtml.match(/<img[^>]*>/g) ?? []).join(" | ")}`,
+    ),
+    check(
+      "an embedded image is not blanked by the second pass",
+      !exportedHtml.includes("vivlio-missing"),
+      exportedHtml,
+    ),
+    check(
+      "a name of its own is still recognisable",
+      assetPaths.some((path) => path.endsWith("-fig.png")),
+      assetPaths.join(", "),
+    ),
+  );
 
   // The bare ruby form reaches for the kanji in front of it, so the two things
   // that also use 《》 have to stay clear of it.
