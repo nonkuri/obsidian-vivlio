@@ -80,6 +80,11 @@ export class SetupWizard extends Modal {
         break;
     }
 
+    // The last step is where the wizard stops being a form and becomes a
+    // file, so it is where the file has to be named: a writer who is not told
+    // the path has nothing to go and look at.
+    if (index === STEPS.length - 1) this.renderDestination(contentEl);
+
     const navigation = new Setting(contentEl);
     if (index > 0) {
       navigation.addButton((button) =>
@@ -107,6 +112,20 @@ export class SetupWizard extends Modal {
           .onClick(() => void this.finish()),
       );
     }
+  }
+
+  /** Where the wizard is about to write, and how to find it afterwards. */
+  private renderDestination(container: HTMLElement): void {
+    const path = joinPosix(this.bookRoot, CONFIG_FILE);
+    const box = container.createDiv({ cls: "vivlio-wizard-destination" });
+    box.createEl("p", {
+      cls: "vivlio-wizard-path",
+      text: t("wizard.destination", { path }),
+    });
+    box.createEl("p", {
+      cls: "setting-item-description",
+      text: t("wizard.destination.desc"),
+    });
   }
 
   private renderPreset(container: HTMLElement): void {

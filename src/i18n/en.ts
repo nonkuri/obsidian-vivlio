@@ -66,6 +66,9 @@ export const en = {
   "wizard.back": "Back",
   "wizard.next": "Next",
   "wizard.finish": "Write vivlio.yaml",
+  "wizard.destination": "Writes to {path}",
+  "wizard.destination.desc":
+    "This book's own configuration file: the page it is set on, what it calls itself, and which parts it has. Obsidian does not list .yaml in the file explorer by default — turn on Settings → Files and links → Detect all file extensions to see it there, or edit it in any text editor.",
 
   "preset.bunko": "Paperback novel (vertical)",
   "preset.techbook": "Tech book (A5, horizontal)",

@@ -94,6 +94,24 @@
   margin-top: 0;
 }
 
+/* The last wizard step names the file it is about to write. */
+.vivlio-wizard-destination {
+  margin-block-start: var(--size-4-4);
+  padding: var(--size-4-2) var(--size-4-3);
+  border-radius: var(--radius-s);
+  background: var(--background-secondary);
+}
+
+.vivlio-wizard-destination p {
+  margin-block: 0;
+}
+
+.vivlio-wizard-destination .vivlio-wizard-path {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  margin-block-end: var(--size-4-1);
+}
+
 .vivlio-font-stack {
   width: 100%;
   font-family: var(--font-monospace);

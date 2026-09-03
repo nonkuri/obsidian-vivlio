@@ -66,6 +66,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "wizard.back": "戻る",
   "wizard.next": "次へ",
   "wizard.finish": "vivlio.yaml を書き出す",
+  "wizard.destination": "{path} に書き出します",
+  "wizard.destination.desc":
+    "この本だけの設定ファイルです。どの判型で組むか、本が自分を何と名乗るか、どの部位を持つかを書きます。Obsidian は既定で .yaml をファイルエクスプローラーに表示しないので、見当たらないときは 設定 →「ファイルとリンク」→「すべてのファイル拡張子を検出」をオンにしてください（テキストエディタで直接開いても構いません）。",
 
   "preset.bunko": "文庫本（縦組み）",
   "preset.techbook": "技術同人誌（A5 横組み）",
