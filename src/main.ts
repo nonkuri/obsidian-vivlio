@@ -12,7 +12,6 @@ import { DEFAULT_SETTINGS } from "./config/defaults";
 import { findPreset } from "./config/presets";
 import type { VivlioSettings } from "./config/types";
 import {
-  frontmatterSnippet,
   referenceYaml,
   settingsFromYaml,
   settingsToYaml,
@@ -30,6 +29,7 @@ import {
 } from "./view/FileViews";
 import { ExportModal } from "./view/ExportModal";
 import { SetupWizard } from "./view/SetupWizard";
+import { FrontmatterModal } from "./view/FrontmatterModal";
 import { VivlioSettingTab } from "./view/SettingsTab";
 import type { ExportFormat } from "./export/run";
 import { vaultBasePath } from "./export/run";
@@ -217,7 +217,7 @@ export default class VivlioPlugin extends Plugin {
       id: "insert-frontmatter",
       name: t("command.insertFrontmatter"),
       editorCallback: (editor: Editor) => {
-        void this.insertFrontmatter(editor);
+        new FrontmatterModal(this.app, this, editor).open();
       },
     });
 
@@ -299,21 +299,6 @@ export default class VivlioPlugin extends Plugin {
   /** Used by the preview toolbar. */
   exportBook(target: BuildTarget, format: ExportFormat): void {
     this.openExport(target, format);
-  }
-
-  private async insertFrontmatter(editor: Editor): Promise<void> {
-    const snippet = frontmatterSnippet(this.settings, "standard");
-    const content = editor.getValue();
-
-    if (content.startsWith("---")) {
-      const end = content.indexOf("\n---", 3);
-      if (end !== -1) {
-        const line = content.slice(0, end).split("\n").length;
-        editor.replaceRange(`${snippet}\n`, { line, ch: 0 });
-        return;
-      }
-    }
-    editor.replaceRange(`---\n${snippet}\n---\n\n`, { line: 0, ch: 0 });
   }
 
   private async writeConfig(contents: string, name: string): Promise<void> {

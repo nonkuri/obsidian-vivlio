@@ -71,6 +71,13 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "wizard.back": "戻る",
   "wizard.next": "次へ",
   "wizard.finish": "vivlio.yaml を書き出す",
+
+  "frontmatter.title": "このノートに設定を追加",
+  "frontmatter.desc":
+    "選んだ項目が、Vault の既定値を入れた状態でこのノートのフロントマターに追加され、以後はプロパティパネルで編集できます。ここでの指定は vivlio.yaml よりも設定タブよりも優先されます。このノートで実際に決めることだけを選んでください —— 使わない項目も、付いている限りプロパティパネルに並び続けます。入れ子が要るキー（sections / colophonExtra / embedFonts / vfm）はプロパティエディタで編集できないので、vivlio.yaml に書きます。",
+  "frontmatter.alreadyThere": "このノートに既にあります（変更しません）。",
+  "frontmatter.add": "追加する",
+  "frontmatter.cancel": "キャンセル",
   "wizard.destination": "{path} に書き出します",
   "wizard.destination.desc":
     "この本だけの設定ファイルです。どの判型で組むか、本が自分を何と名乗るか、どの部位を持つかを書きます。書き出すとこの場で開き、以後は原稿と並んでファイルエクスプローラーに出ます —— 設定の「.yaml / .css / .epub をファイルエクスプローラーに表示する」をオフにしている場合は Obsidian に出ないので、テキストエディタで開いてください。",

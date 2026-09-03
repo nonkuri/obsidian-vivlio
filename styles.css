@@ -94,6 +94,34 @@
   margin-top: 0;
 }
 
+/* The property picker (src/view/FrontmatterModal.ts). */
+.vivlio-frontmatter-list {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-inline-end: var(--size-4-2);
+}
+
+.vivlio-frontmatter-list h4 {
+  margin-block: var(--size-4-4) var(--size-4-1);
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vivlio-frontmatter-list h4:first-child {
+  margin-block-start: 0;
+}
+
+.vivlio-frontmatter-list .setting-item {
+  padding-block: var(--size-4-2);
+}
+
+.vivlio-frontmatter-list .setting-item-name {
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+}
+
 /* The yaml / css / epub views (src/view/FileViews.ts). */
 .vivlio-file-view {
   display: flex;

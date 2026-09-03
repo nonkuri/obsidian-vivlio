@@ -13,7 +13,12 @@ import {
   kebabToCamel,
 } from "../src/config/resolve";
 import { validateConfig } from "../src/config/schema";
-import { configToYaml, referenceYaml, frontmatterSnippet } from "../src/config/yaml";
+import {
+  configToYaml,
+  referenceYaml,
+  frontmatterKeyChoices,
+  frontmatterSnippetFor,
+} from "../src/config/yaml";
 import { configFromSettings } from "../src/config/resolve";
 import { DEFAULT_SETTINGS } from "../src/config/defaults";
 import { collectNotes } from "../src/build/collect";
@@ -149,8 +154,29 @@ async function main(): Promise<void> {
   check("the reference lists every part", reference.includes("colophon:"));
   check("the reference is commented", reference.includes("# "));
 
-  const snippet = frontmatterSnippet(DEFAULT_SETTINGS, "minimal");
-  check("the snippet is flat", snippet.startsWith("vivlio-theme:"), snippet);
+  const snippet = frontmatterSnippetFor(DEFAULT_SETTINGS, ["theme", "cover"]);
+  check("the snippet is flat", snippet.startsWith("vivlio-theme: novel"), snippet);
+  check(
+    "a chosen key with no default is still written",
+    snippet.includes("vivlio-cover:") && !snippet.includes("vivlio-cover: "),
+    snippet,
+  );
+  check(
+    "a preset list skips what has no value",
+    !frontmatterSnippetFor(DEFAULT_SETTINGS, ["theme", "cover"], false).includes("cover"),
+  );
+
+  const choices = frontmatterKeyChoices();
+  check(
+    "the picker offers a flat key",
+    choices.some((choice) => choice.property === "vivlio-writing-mode"),
+  );
+  check(
+    "the picker leaves out the keys that need nesting",
+    !choices.some((choice) => ["sections", "colophonExtra", "embedFonts", "vfm"].includes(choice.key)),
+    choices.map((choice) => choice.key).join(","),
+  );
+  check("every offered key is described", choices.every((choice) => choice.description.length > 0));
 
   // --- chapter order (SPEC 5.2) -----------------------------------------
   const two = makeFile("book/2.md");

@@ -71,6 +71,13 @@ export const en = {
   "wizard.back": "Back",
   "wizard.next": "Next",
   "wizard.finish": "Write vivlio.yaml",
+
+  "frontmatter.title": "Add configuration to this note",
+  "frontmatter.desc":
+    "Every property you pick is added to the note's frontmatter with the vault default already filled in, and stays editable in the property panel. What the note says here wins over its vivlio.yaml and over the settings tab. Pick only what this note actually decides — a property added and never used still shows on every note that has it. Keys that need nesting (sections, colophonExtra, embedFonts, vfm) belong in a vivlio.yaml: the property editor cannot edit them.",
+  "frontmatter.alreadyThere": "Already in this note; left as it is.",
+  "frontmatter.add": "Add",
+  "frontmatter.cancel": "Cancel",
   "wizard.destination": "Writes to {path}",
   "wizard.destination.desc":
     "This book's own configuration file: the page it is set on, what it calls itself, and which parts it has. It opens here when written, and stays in the file explorer beside the notes — unless you have turned off “Show .yaml / .css / .epub in the file explorer”, in which case Obsidian hides it and any text editor will open it.",

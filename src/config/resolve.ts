@@ -112,7 +112,10 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
   for (const [key, rawValue] of Object.entries(raw)) {
     if (!KNOWN_KEYS.has(key)) continue;
     const value = coerce(key, rawValue);
-    if (value === undefined) continue;
+    // `undefined` is an absent key; `null` is a property the writer added and
+    // has not filled in yet. Neither is an instruction to override the layer
+    // below - a blank `vivlio-theme:` means "not decided here", not "no theme".
+    if (value === undefined || value === null) continue;
 
     if (key === "sections") {
       if (value && typeof value === "object") {

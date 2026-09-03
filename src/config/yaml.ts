@@ -245,9 +245,8 @@ export function configToYaml(
   return `${lines.join("\n")}\n`;
 }
 
-/** The frontmatter keys a single-note export is likely to need (SPEC 5.4). */
-const MINIMAL_KEYS: (keyof BookConfig)[] = ["theme", "size"];
-const STANDARD_KEYS: (keyof BookConfig)[] = [
+/** Ticked when the picker opens on a note that has none of them yet (SPEC 5.4). */
+export const STANDARD_KEYS: (keyof BookConfig)[] = [
   "theme",
   "size",
   "writingMode",
@@ -257,23 +256,62 @@ const STANDARD_KEYS: (keyof BookConfig)[] = [
   "output",
 ];
 
+/** One key the frontmatter picker can offer, with its group and its text. */
+export interface FrontmatterKeyChoice {
+  key: keyof BookConfig;
+  /** `vivlio-writing-mode` - what actually goes in the note. */
+  property: string;
+  group: string;
+  groupLabel: string;
+  description: string;
+}
+
+/**
+ * Every key a note may carry, grouped as the reference file groups them.
+ *
+ * The keys that need nesting are left out: Obsidian's property editor cannot
+ * edit nested YAML, so offering `sections` here would produce a note whose
+ * own property panel breaks it. Those stay in the vivlio.yaml.
+ */
+export function frontmatterKeyChoices(): FrontmatterKeyChoice[] {
+  const language = locale();
+  const choices: FrontmatterKeyChoice[] = [];
+  for (const [key, doc] of Object.entries(KEY_DOCS) as [keyof BookConfig, KeyDoc][]) {
+    if (doc.yamlOnly) continue;
+    choices.push({
+      key,
+      property: `vivlio-${camelToKebab(key)}`,
+      group: doc.group,
+      groupLabel: GROUP_TITLES[doc.group]?.[language] ?? doc.group,
+      description: doc[language],
+    });
+  }
+  return choices;
+}
+
 /**
  * A flat `vivlio-*` frontmatter block.
  *
  * Obsidian's property editor cannot edit nested YAML, so a note only ever gets
  * flat keys - they show up in the property panel and stay editable there.
+ *
+ * A key chosen deliberately is written even when its value is empty
+ * (`keepEmpty`): an empty property is a row in the property panel waiting to
+ * be filled in, which is the whole reason for asking for it. A key that
+ * arrives from a list nobody picked is not, since nobody asked for a blank.
  */
-export function frontmatterSnippet(
+export function frontmatterSnippetFor(
   settings: VivlioSettings,
-  level: "minimal" | "standard",
+  keys: (keyof BookConfig)[],
+  keepEmpty = true,
 ): string {
   const config = configFromSettings(settings);
-  const keys = level === "minimal" ? MINIMAL_KEYS : STANDARD_KEYS;
   const lines: string[] = [];
   for (const key of keys) {
     const value = config[key];
-    if (value === "" || value === null || value === undefined) continue;
-    lines.push(`vivlio-${camelToKebab(key)}: ${scalar(value)}`);
+    const empty = value === "" || value === null || value === undefined;
+    if (empty && !keepEmpty) continue;
+    lines.push(`vivlio-${camelToKebab(key)}:${empty ? "" : ` ${scalar(value)}`}`);
   }
   return lines.join("\n");
 }
