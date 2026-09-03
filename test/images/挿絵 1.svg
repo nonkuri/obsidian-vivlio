@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 44 800 400" width="800" height="400" role="img" aria-label="机の上の、開いた本と灯り">
+  <title>机の上の、開いた本と灯り</title>
+  <desc>読書灯の下に開かれた本と、湯気の立つカップの線画。</desc>
+
+  <defs>
+    <radialGradient id="pool" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f6d9a2" stop-opacity="0.9"/>
+      <stop offset="0.55" stop-color="#f6d9a2" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#f6d9a2" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect x="-8" y="-8" width="816" height="480" fill="#f7f4ee"/>
+
+  <!-- The lamp throws the only light, so the pool sits under the shade. -->
+  <ellipse cx="470" cy="330" rx="330" ry="150" fill="url(#pool)"/>
+
+  <g fill="none" stroke="#2b3040" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- The lamp: base, post, arm, shade. Drawn first so the book overlaps it. -->
+    <ellipse cx="648" cy="392" rx="62" ry="14" fill="#f7f4ee"/>
+    <path d="M648 380 V 214"/>
+    <path d="M648 214 L 566 158"/>
+    <path d="M508 96 L 604 96 L 574 168 L 522 168 Z" fill="#f5e6c4"/>
+    <path d="M566 158 L 548 168" stroke-width="4"/>
+
+    <!-- The desk. -->
+    <path d="M44 400 H 756" stroke-width="6"/>
+
+    <!-- An open book: two covers falling away from a spine in the middle. -->
+    <path d="M188 398 Q 286 350 396 384 Q 506 350 604 398" fill="#ffffff"/>
+    <path d="M188 398 Q 286 300 396 342" />
+    <path d="M604 398 Q 506 300 396 342" />
+    <path d="M396 342 V 384"/>
+
+    <!-- Lines of type, curving with the page. -->
+    <g stroke-width="3" opacity="0.55">
+      <path d="M236 372 Q 310 336 378 362"/>
+      <path d="M248 386 Q 316 354 378 376"/>
+      <path d="M414 362 Q 482 336 556 372"/>
+      <path d="M414 376 Q 476 354 544 386"/>
+    </g>
+
+    <!-- A mug, because a desk has one. -->
+    <path d="M96 336 V 386 Q 96 400 112 400 H 168 Q 184 400 184 386 V 336 Z" fill="#f7f4ee"/>
+    <path d="M184 346 Q 214 346 214 366 T 184 386" stroke-width="4"/>
+    <path d="M96 336 H 184" stroke-width="4"/>
+    <g stroke-width="3" opacity="0.6">
+      <path d="M124 314 q 12 -18 0 -34"/>
+      <path d="M156 314 q 12 -18 0 -34"/>
+    </g>
+  </g>
+</svg>

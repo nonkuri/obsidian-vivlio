@@ -48,6 +48,55 @@ function frontmatterOf(source: string): Record<string, unknown> {
   return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : {};
 }
 
+/**
+ * The vault, as the harness can see it: every file under the note's folder.
+ *
+ * Stubbing the lookups to null - which is what this did - left images out of
+ * the only place the whole pipeline can be looked at, and images are the one
+ * part with two code paths that disagree (SPEC 5.8). A real map is a dozen
+ * lines and makes `![[…]]` behave here the way it does in Obsidian.
+ */
+function readVault(root: string): Map<string, TFile> {
+  const files = new Map<string, TFile>();
+  const walk = (dir: string, prefix: string): void => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
+      const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        walk(path.join(dir, entry.name), relative);
+        continue;
+      }
+      const file = new TFile();
+      file.path = relative;
+      file.name = entry.name;
+      file.extension = entry.name.includes(".") ? entry.name.split(".").pop()! : "";
+      file.basename = file.extension
+        ? entry.name.slice(0, -(file.extension.length + 1))
+        : entry.name;
+      files.set(relative, file);
+    }
+  };
+  walk(root, "");
+  return files;
+}
+
+/**
+ * Obsidian's link resolution, near enough: an exact path first, then the
+ * shortest path whose name matches, then the same again assuming `.md`.
+ */
+function linkpathResolver(files: Map<string, TFile>) {
+  const byName = [...files.values()].sort((a, b) => a.path.length - b.path.length);
+  return (linkpath: string): TFile | null => {
+    const target = linkpath.replace(/^\.\//, "");
+    return (
+      files.get(target) ??
+      files.get(`${target}.md`) ??
+      byName.find((file) => file.name === target || file.basename === target) ??
+      null
+    );
+  };
+}
+
 /** Headings with the ids VFM will give them. */
 function parseHeadings(markdown: string): HeadingEntry[] {
   const slugger = new GithubSlugger();
@@ -80,7 +129,11 @@ async function main(): Promise<void> {
 
   const workspace = new Workspace("book");
   const server = new PreviewServer();
-  await server.start({ vaultRoot: path.dirname(target) });
+  const vaultRoot = path.dirname(target);
+  await server.start({ vaultRoot });
+
+  const vault = readVault(vaultRoot);
+  const resolveLink = linkpathResolver(vault);
 
   const chapters: Chapter[] = [
     {
@@ -125,10 +178,13 @@ async function main(): Promise<void> {
   const context: BuildContext = {
     app: {
       metadataCache: {
-        getFirstLinkpathDest: () => null,
+        getFirstLinkpathDest: (linkpath: string) => resolveLink(linkpath),
         getFileCache: () => ({ frontmatter, headings: [] }),
       },
-      vault: { cachedRead: async () => "", getFileByPath: () => null },
+      vault: {
+        cachedRead: async () => "",
+        getFileByPath: (target: string) => vault.get(target) ?? null,
+      },
     } as unknown as BuildContext["app"],
     settings: DEFAULT_SETTINGS,
     config,

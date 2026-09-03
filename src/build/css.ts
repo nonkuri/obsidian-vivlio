@@ -83,6 +83,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (faces) blocks.push(faces);
 
   blocks.push(NOTATION_CSS);
+  blocks.push(imageBlockCap(grid));
   blocks.push(coverCss(context));
   blocks.push(sectionCss(context));
   blocks.push(pageNumberingCss(context));
@@ -90,6 +91,42 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
 
   return blocks.filter(Boolean).join("\n\n");
+}
+
+/**
+ * Keep a picture on the page along the axis that has no percentage to cap it.
+ *
+ * `max-inline-size: 100%` caps the inline axis only, and in vertical writing
+ * that axis is the *height*: a landscape figure asked for `inline-size: 100%`
+ * took the full measure in height, twice the page in width, and hung off the
+ * left edge. The block axis has nothing to cap against - the paragraph
+ * shrink-wraps the image, so `100%` of the containing block *is* the image -
+ * so it is capped against the text block the theme composes, `lines x
+ * line-height`, the same pair the grid and the body size are built from.
+ *
+ * One expression serves both writing modes, because both name the block axis:
+ * down the page where the lines run across it, across the page where they run
+ * down it. A theme that lays out from margins has no such pair, and nothing
+ * here to measure against, so the cap is left out rather than guessed.
+ *
+ * `object-fit: contain` goes with it. Clamping one axis of a replaced element
+ * whose other axis is definite does not rescale the picture - it squashes it,
+ * and a 1400x900 photograph came out at a ratio of 0.8 - so the box may end
+ * up a different shape from its contents, and the contents have to keep their
+ * own. The box being larger than the picture it holds is the part still worth
+ * fixing; a distorted picture is not something to ship in the meantime.
+ */
+function imageBlockCap(grid: Grid | null): string {
+  if (!grid) return "";
+  return `
+img,
+svg {
+  max-block-size: calc(
+    var(--vs-theme--num-of-line, ${grid.lines}) *
+    var(--vs-line-height, ${GRID_LINE_HEIGHT}) * 1rem
+  );
+  object-fit: contain;
+}`.trim();
 }
 
 /** Running heads and folios sit below the body size, as in a printed book. */
