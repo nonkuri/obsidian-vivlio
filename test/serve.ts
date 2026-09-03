@@ -20,6 +20,7 @@ import { bookStylesheet, themeUrlFor } from "../src/build/css";
 import { publicationManifest } from "../src/build/manifest";
 import { tocDocument } from "../src/build/toc";
 import { colophonDocument, titlePageDocument } from "../src/build/sections";
+import { buildCover } from "../src/build/cover";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { DEFAULT_SETTINGS } from "../src/config/defaults";
@@ -136,6 +137,19 @@ async function main(): Promise<void> {
   const resolveLink = linkpathResolver(vault);
 
   const chapters: Chapter[] = [
+    // The cover is a page of its own kind: full bleed, no folio, not set
+    // inside the text block. It is the one page whose rules nothing else
+    // shares, which is exactly why it belongs in the only view of the whole
+    // book there is.
+    {
+      docName: "cover.html",
+      file: null,
+      title: "cover",
+      role: "doc-cover",
+      slot: null,
+      isBody: false,
+      isFrontMatter: true,
+    },
     {
       docName: "titlepage.html",
       file: null,
@@ -192,7 +206,7 @@ async function main(): Promise<void> {
     mode: "preview",
     bookRoot: "",
     chapters,
-    chapterByPath: new Map([[file.path, chapters[2]]]),
+    chapterByPath: new Map([[file.path, chapters[3]]]),
     // Obsidian supplies these from its metadata cache; parse them here so the
     // generated table of contents is the real one.
     headings: new Map([[file.path, parseHeadings(markdown)]]),
@@ -204,7 +218,11 @@ async function main(): Promise<void> {
   };
 
   workspace.putText(BOOK_STYLESHEET, bookStylesheet(context, themeUrlFor(context)));
-  workspace.putText("ch01.html", await convertChapter(context, chapters[2], file, markdown));
+  workspace.putText("ch01.html", await convertChapter(context, chapters[3], file, markdown));
+
+  const cover = buildCover(context);
+  if (cover) workspace.putText("cover.html", cover.html);
+  else context.chapters.shift();
   workspace.putText("titlepage.html", titlePageDocument(context));
   workspace.putText("toc.html", tocDocument(context, chapters));
   workspace.putText("colophon.html", colophonDocument(context));

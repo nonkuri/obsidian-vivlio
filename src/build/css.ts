@@ -376,19 +376,49 @@ ol.task-list {
 function coverCss(context: BuildContext): string {
   const fit = context.config.coverFit === "contain" ? "contain" : "cover";
   return `
-@page cover {
+/* theme-base assigns the cover \`page: cover-document\`, not \`cover\`, so a
+   \`@page cover\` rule never reached it - which is why the cover was still
+   being laid out inside the text block.
+
+   \`width\` / \`height\` in \`@page\` are the page *area*: theme-bunko and the
+   novel theme set them from the character grid and let the margins take the
+   rest, which is right for a page of text and wrong for a cover. A cover is
+   not set inside the text block, it is the sheet. */
+@page cover, cover-document {
   margin: 0;
+  width: auto;
+  height: auto;
+}
+
+.vivlio-cover,
+.vivlio-cover body {
+  margin: 0;
+  block-size: 100%;
 }
 
 .cover {
+  /* Named here rather than relying on theme-base, which assigns
+     \`cover-document\` through \`body:has([role='doc-cover'])\` - a selector the
+     typesetter did not act on, which is how the cover kept being laid out
+     inside the text block however the page rule was written. */
+  page: cover;
   block-size: 100%;
+  inline-size: 100%;
   margin: 0;
 }
 
 .cover img {
   inline-size: 100%;
   block-size: 100%;
+  /* The cover is not set inside the text block, it *is* the page: full bleed,
+     no margin, no folio. So it has to say so, because the cap in
+     imageBlockCap is a max constraint and a max clamps the used value however
+     specific the rule that asked for 100% was - the cover came out at the
+     text block's 85% with white below it. */
+  max-inline-size: none;
+  max-block-size: none;
   object-fit: ${fit};
+  display: block;
 }
 `.trim();
 }

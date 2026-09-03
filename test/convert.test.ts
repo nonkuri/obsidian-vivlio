@@ -408,6 +408,26 @@ async function main(): Promise<void> {
     // The theme's indent must stay untouched unless asked for: a manuscript
     // that does not self-indent still wants theme-bunko's 1em.
     check("no paragraph indent override by default", !css.includes("--vs--p-text-indent")),
+    // A picture is held inside the text block on the axis that has no
+    // percentage to cap it (SPEC 5.8); the cover is the one page that is not
+    // set inside the text block at all, and a max constraint clamps whatever
+    // asked for 100% however specific it was.
+    check("a picture is capped on the block axis", css.includes("max-block-size: calc(")),
+    check(
+      "the cover names its own page",
+      /\.cover\s*\{[^}]*page: cover;/.test(css),
+      css.slice(css.indexOf(".cover {"), css.indexOf(".cover {") + 200),
+    ),
+    check(
+      "and the cover page is the whole sheet",
+      /@page cover, cover-document \{[^}]*margin: 0;[^}]*width: auto;[^}]*height: auto;/.test(css),
+      css.slice(css.indexOf("@page cover"), css.indexOf("@page cover") + 160),
+    ),
+    check(
+      "so the cover image is free of the cap",
+      /\.cover img \{[\s\S]*?max-block-size: none;/.test(css),
+      css.slice(css.indexOf(".cover img"), css.indexOf(".cover img") + 260),
+    ),
   );
 
   // The text block is sized from the type, so a grid that does not fit the

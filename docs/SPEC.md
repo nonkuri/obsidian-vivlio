@@ -892,6 +892,28 @@ img, svg {
 余りが空く）。箱を絵に合わせるには生成時に intrinsic size が要る —— 書き出しでは
 `materializeAssets` が読んでいるが、プレビューは Vault から直接配信していて読んでいない。
 
+**【決定】表紙だけはこの規則の外に置く。** 表紙は版面の中に組むものではなく、**紙そのもの**である。
+
+```css
+@page cover, cover-document { margin: 0; width: auto; height: auto; }
+.cover { page: cover; block-size: 100%; inline-size: 100%; margin: 0; }
+.cover img { inline-size: 100%; block-size: 100%; max-inline-size: none; max-block-size: none; }
+```
+
+3 つとも必要だった。順に:
+
+1. **`page: cover` を自分で振る。** theme-base は `body:has([role='doc-cover'])` で
+   `cover-document` を割り当てるが、`:has()` は組版側で効かず、`@page` に何を書いても
+   表紙のページには届いていなかった
+2. **`@page` の `width` / `height` は「版面」**であって紙ではない。theme-bunko と novel は
+   これを文字グリッドから決め、残りを余白にする —— 本文のページには正しく、表紙には誤り。
+   `auto` に戻して紙いっぱいにする
+3. **`max-*: none` を明示する。** 上の画像キャップは max 制約で、**max は
+   どれだけ詳細なセレクタが 100% を要求しても使用値を切り詰める**。表紙が版面の 85% で出て
+   下に白が残っていたのはこれ
+
+表紙が紙いっぱいに出ているかは、`test/serve.ts` が表紙ページを組むので目視で確認できる。
+
 #### (4) VFM の figure / figcaption 変換
 
 VFM が担当する部分で、frontmatter の `vfm:` にそのまま流せる。
