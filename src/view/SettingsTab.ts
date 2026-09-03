@@ -350,6 +350,12 @@ export class VivlioSettingTab extends PluginSettingTab {
 
   private structure(container: HTMLElement): void {
     container.createEl("h3", { text: t("settings.heading.structure") });
+    // Said once, above the rows: seven parts point at vivlio.yaml, and
+    // repeating what that file is on each of them would drown the section.
+    container.createEl("p", {
+      text: t("settings.heading.structure.desc"),
+      cls: "setting-item-description",
+    });
 
     for (const slot of SECTION_SLOTS) {
       const setting = new Setting(container).setName(t(`section.${slot}` as StringKey));

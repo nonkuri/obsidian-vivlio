@@ -79,6 +79,8 @@ export const en = {
   "settings.heading.output": "Output",
   "settings.heading.syntax": "Syntax",
   "settings.heading.structure": "Book structure",
+  "settings.heading.structure.desc":
+    "The half title, title page, contents and colophon the plugin writes itself, so they switch on and off here. The rest need a note of your own, and are named in the book's own configuration file: a vivlio.yaml beside the notes, which the “Create book configuration” command writes for you. What it says there wins over what this tab says.",
   "settings.heading.preview": "Preview",
   "settings.heading.pdf": "PDF",
   "settings.heading.advanced": "Advanced",
@@ -154,8 +156,7 @@ export const en = {
     "A dataview block is a query and only reads the vault; a dataviewjs or templater block is JavaScript from the note, run as written. Turn this off for notes you did not write yourself — the rest of the switch above still applies.",
   "settings.printTimeout": "PDF timeout (ms)",
   "settings.language": "Interface language",
-  "settings.section.yamlOnly":
-    "Needs a note of your own; name one under `sections:` in vivlio.yaml to include it. Left out of the book otherwise.",
+  "settings.section.yamlOnly": "Include it by naming a note under `sections:` in vivlio.yaml.",
   "settings.fixedPort": "Fixed port",
   "settings.fixedPort.desc":
     "The preview is served by a local HTTP server bound to 127.0.0.1. 0 lets the OS pick a free port each time; fix it when a firewall rule has to name one.",

@@ -79,6 +79,8 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.heading.output": "出力先",
   "settings.heading.syntax": "記法",
   "settings.heading.structure": "造本",
+  "settings.heading.structure.desc":
+    "半扉・扉・目次・奥付はプラグインが中身を作れるので、ここでオン / オフします。それ以外は中身になるノートが要るので、本ごとの設定ファイルで指定します —— 原稿と同じフォルダに置く vivlio.yaml のことで、コマンド「本の設定を作成」が書き出します。そこでの指定はこのタブより優先されます。",
   "settings.heading.preview": "プレビュー",
   "settings.heading.pdf": "PDF",
   "settings.heading.advanced": "詳細",
@@ -151,8 +153,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
     "dataview はクエリ言語で Vault を読むだけですが、dataviewjs / templater はノートに書かれた JavaScript をそのまま実行します。自分で書いていないノートではオフにしてください（上のスイッチの他の記法は効いたままです）。",
   "settings.printTimeout": "PDF 生成のタイムアウト（ミリ秒）",
   "settings.language": "UI 言語",
-  "settings.section.yamlOnly":
-    "中身になるノートが要ります。vivlio.yaml の `sections:` にノートを指定すると入り、指定しなければ入りません。",
+  "settings.section.yamlOnly": "vivlio.yaml の `sections:` にノートを指定すると入ります。",
   "settings.fixedPort": "固定ポート",
   "settings.fixedPort.desc":
     "プレビューは 127.0.0.1 のローカル HTTP サーバから配信します。0 なら毎回 OS が空きポートを選びます。ファイアウォールでポート番号を指定して許可したいときだけ固定してください。",
