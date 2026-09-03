@@ -77,6 +77,12 @@ export async function openPath(path: string): Promise<void> {
   await shell?.openPath(path);
 }
 
+/** Reveal a file in Explorer / Finder, selected. */
+export function showInFolder(path: string): void {
+  const shell = remote()?.shell ?? electron()?.shell;
+  shell?.showItemInFolder(path);
+}
+
 declare global {
   interface Window {
     require?: (module: string) => unknown;

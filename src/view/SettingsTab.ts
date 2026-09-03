@@ -284,6 +284,16 @@ export class VivlioSettingTab extends PluginSettingTab {
         await this.save();
       }),
     );
+
+    new Setting(container)
+      .setName(t("settings.showPluginFiles"))
+      .setDesc(t("settings.showPluginFiles.desc"))
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.showPluginFiles).onChange(async (value) => {
+          this.plugin.settings.showPluginFiles = value;
+          await this.save();
+        }),
+      );
   }
 
   /**

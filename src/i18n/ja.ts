@@ -27,6 +27,11 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "view.building": "組版中…",
   "view.autoRefreshOff": "自動更新はオフです",
 
+  "fileView.openExternally": "外部アプリで開く",
+  "fileView.showInFolder": "フォルダを開く",
+  "fileView.binary.desc":
+    "{size}。Obsidian は EPUB を読めません。仕上がりの確認はリーダーアプリで行ってください。",
+
   "notice.buildFailed": "Vivlio: ビルドに失敗しました — {message}",
   "notice.exported": "Vivlio: {path} に書き出しました",
   "notice.exporting": "Vivlio: 書き出し中…",
@@ -68,7 +73,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "wizard.finish": "vivlio.yaml を書き出す",
   "wizard.destination": "{path} に書き出します",
   "wizard.destination.desc":
-    "この本だけの設定ファイルです。どの判型で組むか、本が自分を何と名乗るか、どの部位を持つかを書きます。Obsidian は既定で .yaml をファイルエクスプローラーに表示しないので、見当たらないときは 設定 →「ファイルとリンク」→「すべてのファイル拡張子を検出」をオンにしてください（テキストエディタで直接開いても構いません）。",
+    "この本だけの設定ファイルです。どの判型で組むか、本が自分を何と名乗るか、どの部位を持つかを書きます。書き出すとこの場で開き、以後は原稿と並んでファイルエクスプローラーに出ます —— 設定の「.yaml / .css / .epub をファイルエクスプローラーに表示する」をオフにしている場合は Obsidian に出ないので、テキストエディタで開いてください。",
 
   "preset.bunko": "文庫本（縦組み）",
   "preset.techbook": "技術同人誌（A5 横組み）",
@@ -126,6 +131,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.outputFolder": "出力フォルダ",
   "settings.outputFolder.desc": "Vault 相対。本の設定の output が優先されます。",
   "settings.openAfterExport": "書き出し後にファイルを開く",
+  "settings.showPluginFiles": ".yaml / .css / .epub をファイルエクスプローラーに表示する",
+  "settings.showPluginFiles.desc":
+    "Obsidian は、どこかが引き受けた拡張子しか一覧に出しません。そのため vivlio.yaml も自作テーマも書き出した EPUB も、既定ではサイドバーに現れません。ここでそれを引き受けます —— yaml と css はこのプラグインの簡易テキストエディタで開き、EPUB はこの PC の EPUB リーダーに渡します。他のプラグインが既に持っている拡張子はそちらに譲ります。反映には Obsidian の再起動が必要です。",
   "settings.highlight": "==ハイライト== の扱い",
   "settings.highlight.desc": "変換したハイライトの見せ方。上のスイッチがオンのときだけ使います。",
   "settings.highlight.boten": "傍点（文字の脇に点を打つ）",

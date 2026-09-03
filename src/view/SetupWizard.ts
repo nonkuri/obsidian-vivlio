@@ -317,11 +317,18 @@ export class SetupWizard extends Modal {
     const yaml = configToYaml(this.values, configFromSettings(this.plugin.settings));
 
     const existing = this.app.vault.getFileByPath(path);
+    const file = existing ?? (await this.app.vault.create(path, yaml));
     if (existing) await this.app.vault.modify(existing, yaml);
-    else await this.app.vault.create(path, yaml);
 
     new Notice(t("notice.configWritten", { path }));
     this.close();
+
+    // Opening it is the shortest proof that the file is real and where the
+    // wizard said it would be. Only when the plugin owns `.yaml`: otherwise
+    // Obsidian has no view to open it with.
+    if (this.plugin.settings.showPluginFiles) {
+      await this.app.workspace.getLeaf("tab").openFile(file);
+    }
   }
 }
 

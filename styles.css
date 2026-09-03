@@ -94,6 +94,43 @@
   margin-top: 0;
 }
 
+/* The yaml / css / epub views (src/view/FileViews.ts). */
+.vivlio-file-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-4-2);
+  padding: var(--size-4-3);
+  height: 100%;
+}
+
+.vivlio-file-actions {
+  display: flex;
+  gap: var(--size-4-2);
+  flex: 0 0 auto;
+}
+
+.vivlio-file-editor {
+  flex: 1 1 auto;
+  width: 100%;
+  resize: none;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+  line-height: 1.5;
+  tab-size: 2;
+}
+
+.vivlio-binary-card {
+  align-self: flex-start;
+  padding: var(--size-4-3);
+  border-radius: var(--radius-m);
+  background: var(--background-secondary);
+}
+
+.vivlio-binary-card .vivlio-binary-name {
+  margin-block: 0 var(--size-4-1);
+  font-weight: var(--font-semibold);
+}
+
 /* The last wizard step names the file it is about to write. */
 .vivlio-wizard-destination {
   margin-block-start: var(--size-4-4);

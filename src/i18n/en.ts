@@ -27,6 +27,11 @@ export const en = {
   "view.building": "Typesetting…",
   "view.autoRefreshOff": "Auto refresh is off",
 
+  "fileView.openExternally": "Open in the default app",
+  "fileView.showInFolder": "Show in the folder",
+  "fileView.binary.desc":
+    "{size}. Obsidian cannot read an EPUB; open it in a reader to check the result.",
+
   "notice.buildFailed": "Vivlio: build failed — {message}",
   "notice.exported": "Vivlio: exported to {path}",
   "notice.exporting": "Vivlio: exporting…",
@@ -68,7 +73,7 @@ export const en = {
   "wizard.finish": "Write vivlio.yaml",
   "wizard.destination": "Writes to {path}",
   "wizard.destination.desc":
-    "This book's own configuration file: the page it is set on, what it calls itself, and which parts it has. Obsidian does not list .yaml in the file explorer by default — turn on Settings → Files and links → Detect all file extensions to see it there, or edit it in any text editor.",
+    "This book's own configuration file: the page it is set on, what it calls itself, and which parts it has. It opens here when written, and stays in the file explorer beside the notes — unless you have turned off “Show .yaml / .css / .epub in the file explorer”, in which case Obsidian hides it and any text editor will open it.",
 
   "preset.bunko": "Paperback novel (vertical)",
   "preset.techbook": "Tech book (A5, horizontal)",
@@ -128,6 +133,9 @@ export const en = {
   "settings.outputFolder": "Output folder",
   "settings.outputFolder.desc": "Vault-relative. `output` in the book configuration wins.",
   "settings.openAfterExport": "Open the file after exporting",
+  "settings.showPluginFiles": "Show .yaml / .css / .epub in the file explorer",
+  "settings.showPluginFiles.desc":
+    "Obsidian lists only the file types something has claimed, so a vivlio.yaml, a theme of your own and an exported EPUB are all invisible in the sidebar. This claims them: the first two open in a plain text editor here, the EPUB in whatever reads EPUBs on this machine. An extension another plugin already owns is left to it. Takes effect after Obsidian is restarted.",
   "settings.highlight": "==highlight== becomes",
   "settings.highlight.desc":
     "How a converted highlight is set. Only used while the switch above is on.",

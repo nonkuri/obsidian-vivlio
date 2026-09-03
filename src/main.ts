@@ -21,6 +21,13 @@ import { PreviewServer } from "./server/static";
 import { CONFIG_FILE } from "./build/pipeline";
 import type { BuildTarget } from "./build/collect";
 import { VivlioPreviewView, VIEW_TYPE_PREVIEW } from "./view/PreviewView";
+import {
+  claimExtensions,
+  VivlioBinaryFileView,
+  VivlioTextFileView,
+  VIEW_TYPE_BINARY,
+  VIEW_TYPE_TEXT,
+} from "./view/FileViews";
 import { ExportModal } from "./view/ExportModal";
 import { SetupWizard } from "./view/SetupWizard";
 import { VivlioSettingTab } from "./view/SettingsTab";
@@ -47,6 +54,18 @@ export default class VivlioPlugin extends Plugin {
       VIEW_TYPE_PREVIEW,
       (leaf: WorkspaceLeaf) => new VivlioPreviewView(leaf, this),
     );
+
+    // The views are always registered; only the extension claim is optional.
+    // A leaf saved in the workspace layout has to find its view type again
+    // after a restart, whether or not the sidebar is still listing the file.
+    this.registerView(VIEW_TYPE_TEXT, (leaf: WorkspaceLeaf) => new VivlioTextFileView(leaf));
+    this.registerView(
+      VIEW_TYPE_BINARY,
+      (leaf: WorkspaceLeaf) => new VivlioBinaryFileView(leaf),
+    );
+    if (this.settings.showPluginFiles) {
+      claimExtensions((extensions, viewType) => this.registerExtensions(extensions, viewType));
+    }
 
     this.addRibbonIcon("book-open", t("command.openPreview"), () => {
       void this.openPreview();

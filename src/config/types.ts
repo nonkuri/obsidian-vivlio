@@ -253,6 +253,15 @@ export interface VivlioSettings {
   pageNumbering: PageNumbering;
   tocDepth: number;
 
+  /**
+   * Claim `.yaml` / `.css` / `.epub` so the file explorer lists them.
+   *
+   * Obsidian shows only the extensions some view has claimed, so the book
+   * configuration this plugin writes is invisible by default. Off is for a
+   * vault where another plugin should own those files instead.
+   */
+  showPluginFiles: boolean;
+
   // preview
   autoRefresh: boolean;
   debounceMs: number;

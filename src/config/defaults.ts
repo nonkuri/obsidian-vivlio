@@ -61,6 +61,7 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
 
   outputFolder: "_output",
   openAfterExport: true,
+  showPluginFiles: true,
 
   syntax: { ...DEFAULT_SYNTAX },
   highlight: "boten",
