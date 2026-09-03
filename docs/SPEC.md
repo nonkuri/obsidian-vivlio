@@ -855,6 +855,10 @@ imageWidthUnit: px      # px（既定）| percent（数値を版面幅に対す�
 **【決定】単位は画像ごとにも書ける。** `![[fig.png|60%]]` / `![[fig.png|80mm]]` / `![[fig.png|300px]]`
 （Markdown 形式の `![alt|60%](fig.png)` も同じ）。書いてあればそれが `imageWidthUnit` より優先される。
 
+本ごとの設定だけでは足りない。**「この図は版面の何割か」は図ごとに違う答えを持つ質問**で、
+扉裏の全幅図と本文中の小さな図解に同じ数値を当てる意味がない。単位のない数値の意味は変えていないので、
+既に書かれた原稿は動かない。
+
 **【決定】数値はどれも「紙面での画像の幅」を指す（縦組みでも横組みでも）。**
 `%` は版面の幅に対する割合。論理プロパティで言うと縦組みでは数値が画像の**高さ**になってしまい、
 `px` を既定にした理由（Obsidian の編集画面と見た目が一致する）が縦組みで成り立っていなかった。
@@ -865,11 +869,14 @@ imageWidthUnit: px      # px（既定）| percent（数値を版面幅に対す�
 箱は 300×400 のまま出た。結果として **`60%` の図と `100%` の図が同じ大きさで刷られ**、
 変わるのは周りに確保される空きだけだった（`100%` で無駄 60%、`60%` で 14%・実測）。
 
-intrinsic size があれば交渉するものは無い。片方の軸だけを書き、もう片方は auto に残す:
+intrinsic size があれば交渉するものは無い。**片方の軸だけを書き、もう片方は auto に残す。**
 
 ```
 width: 53.55mm; height: auto     ← 60% を、版面幅 89.25mm に対して解決した結果
 ```
+
+`width` を直に書いてよい。縦組みで問題を起こしていたのは **割合** のほうで、包含ブロックが
+画像に合わせて縮むために解決先が意図とずれていた。ここで書くのは絶対長なので、その問題は無い。
 
 - **収集より前に全画像の intrinsic size を読む**（`build/imageSizes.ts`）。サイズを決める変換は
   同期で、ファイルを読めない。`materializeAssets` は書き出し時にこれを読んでいるが
@@ -885,49 +892,22 @@ width: 53.55mm; height: auto     ← 60% を、版面幅 89.25mm に対して解
   CSS の backstop に落ちる。`max-width` / `max-height` を版面の実寸で置く ——
   **確定値を持たない max 2 本は比率を保つ**（1400×900 が 300×400 の枠で 300×193 に収まる・実測）
 
-本ごとの設定だけでは足りない。**「この図は版面の何割か」は図ごとに違う答えを持つ質問**で、
-扉裏の全幅図と本文中の小さな図解に同じ数値を当てる意味がない。しかも `%` こそが版面基準の指定である
-（画像の百分率 inline-size は包含ブロック = 版面幅に対して解決される）のに、本全体で 1 つの単位しか
-選べないうちは、px の本の中で 1 枚だけ版面基準にする、ということができなかった。
-単位のない数値の意味は変えていないので、既に書かれた原稿は動かない。
-
-出力は `style="inline-size: …"`。**縦組みでは `width` ではなく論理プロパティ（`inline-size`）を使う**こと。
-`width` 直書きは縦組みで意図とずれる。`px` は `min(<n>px, 100%)` で自分から版面に収まるが、
-`%` と `mm` には `max-inline-size: 100%` を添える —— 版面をはみ出す図は、図ではなく紙面を壊すため。
-
-実効 dpi の警告（下記）に渡す表示幅は `px` と `mm` から取る（`mm` は 96/25.4 倍）。
-`%` は渡さない。版面幅はテーマの余白設定次第なので、そこから出した数値は当て推量になる。
-
-**【決定】もう一方の軸も版面で止める。** 論理プロパティは片方の軸しか押さえない。しかも
-**縦組みでは `inline-size` は「高さ」**である（行が縦に流れるので、インライン軸が上下）。
-横長の絵に `inline-size: 100%` を与えると、高さが版面いっぱい・幅がその 2 倍になり、実測で
-**紙面の左に 372px はみ出した**。ブロック軸には割合の基準が無い（段落が画像に合わせて縮むので、
-包含ブロックの 100% は画像自身である）ため、テーマが組む版面 —— `行数 × 行送り` —— で止める:
-
-```css
-img, svg {
-  max-block-size: calc(var(--vs-theme--num-of-line) * var(--vs-line-height) * 1rem);
-  object-fit: contain;
-}
-```
-
-1 つの式で縦組みにも横組みにも効く。どちらもブロック軸を指しているからで、行が横に流れるなら
-天地方向、縦に流れるなら左右方向を指す。グリッドを持たないテーマにはこの対がないので、
-当て推量をせず出力しない。
-
-`object-fit: contain` が要るのは、**片方の軸が確定している置換要素のもう片方を切り詰めても、
-絵は縮まず潰れる**ため（1400 × 900 の写真が比率 0.8 で出た）。箱の形と中身の形が食い違うことは
-許して、中身の比率を守る。
+実効 dpi の警告（下記）に渡す表示幅は、この計算結果の mm をそのまま px に直したもの。
+どの単位で書かれていても紙面上の幅が確定しているので、`%` の図も検査の対象になる。
 
 実測（既定の文庫・40字×16行）: `100%` の 2:1 の図は箱 732×366・比 2.000・**無駄 0%**、
 `60%` の 1.556:1 の図は箱 439×282・比 1.556・**無駄 0%**。どちらも箱＝絵になっている。
+
+**`300x200` だけは例外**で、箱を名指しする指示なのでそのまま `width` / `height` に流す。
+比率が崩れるとしてもそれは書き手が指定したことである。
 
 **【決定】表紙だけはこの規則の外に置く。** 表紙は版面の中に組むものではなく、**紙そのもの**である。
 
 ```css
 @page cover, cover-document { margin: 0; width: auto; height: auto; }
 .cover { page: cover; block-size: 100%; inline-size: 100%; margin: 0; }
-.cover img { inline-size: 100%; block-size: 100%; max-inline-size: none; max-block-size: none; }
+.cover img { inline-size: 100%; block-size: 100%;
+             max-inline-size: none; max-block-size: none; max-width: none; max-height: none; }
 ```
 
 3 つとも必要だった。順に:
@@ -938,9 +918,9 @@ img, svg {
 2. **`@page` の `width` / `height` は「版面」**であって紙ではない。theme-bunko と novel は
    これを文字グリッドから決め、残りを余白にする —— 本文のページには正しく、表紙には誤り。
    `auto` に戻して紙いっぱいにする
-3. **`max-*: none` を明示する。** 上の画像キャップは max 制約で、**max は
+3. **`max-*: none` を論理・物理の両方で明示する。** (3) の backstop は max 制約で、**max は
    どれだけ詳細なセレクタが 100% を要求しても使用値を切り詰める**。表紙が版面の 85% で出て
-   下に白が残っていたのはこれ
+   下に白が残っていたのはこれ。表紙は版面の中に組むものではないので、どの軸でも外に置く
 
 表紙が紙いっぱいに出ているかは、`test/serve.ts` が表紙ページを組むので目視で確認できる。
 
@@ -963,7 +943,9 @@ VFM が担当する部分で、frontmatter の `vfm:` にそのまま流せる�
   await Promise.all([...doc.images].map(img => img.decode().catch(() => {})));
   ```
   ローカル HTTP 配信なので実測では一瞬だが、外部 URL 画像があると効いてくる
-- リフロー防止として、収集時に画像ヘッダから intrinsic size を読み `width` / `height` 属性を埋めておく（アスペクト比が確定し、レイアウトが 1 パスで決まる）
+- **intrinsic size は組版前に読んである**（`build/imageSizes.ts` → (3)）。**ただし `width` /
+  `height` 属性はまだ埋めていない。** 属性が入ればアスペクト比が画像の到着前に確定し、
+  レイアウトが 1 パスで決まる。読む処理はもうあるので、残っているのは属性を書くところだけ
 
 #### (6) PDF での解像度 ★実務上いちばん重要
 
@@ -987,7 +969,10 @@ Chromium の PDF 出力は Blink → Skia PDF 経路。**JFIF JPEG は元のバ�
 - **EPUB 3 コアメディアタイプは GIF / JPEG / PNG / SVG / WebP。`avif` と `bmp` は非対応** → 書き出し時に PNG へ変換（`createImageBitmap` + `OffscreenCanvas` でレンダラ内で完結）、または警告してスキップ
 - リモート画像は不可 → 必ずダウンロードして同梱（→ (2)）
 - OPF の manifest に全画像を列挙。カバー画像は `properties="cover-image"`
-- px 固定幅はリーダーで破綻しやすい → EPUB 用 CSS で `img { max-inline-size: 100%; block-size: auto; }` を強制上書き
+- **紙用の寸法はリーダーに持ち込めない。** 幅は `rem` で届き（→ (3)）、紙の版面で置いた
+  `max-width` / `max-height` の mm は EPUB 用 CSS が打ち消す:
+  `img, svg { max-width: 100%; max-height: none; max-inline-size: 100%; block-size: auto; }`。
+  読者の段が唯一意味のある上限で、`rem` なら読者が選んだ字の大きさに図の比率が追従する
 
 #### (8) 非対応・要前処理のもの
 
@@ -1037,15 +1022,17 @@ body:has([role='doc-cover'])              { page: cover-document; }
 
 ```html
 <section class="cover" role="doc-cover">
-  <img src="assets/3f2a91c4-表紙.png" alt="">
+  <img src="assets/3f2a91c4-cover.png" alt="">   <!-- 名前は URL 安全に畳む → 5.8(2) -->
 </section>
 ```
 
 ```css
-@page cover { margin: 0; }                       /* 裁ち落とし */
-.cover { block-size: 100%; }
+/* 全文と、3 つとも要る理由は 5.8(3)「表紙だけはこの規則の外に置く」 */
+@page cover, cover-document { margin: 0; width: auto; height: auto; }   /* 裁ち落とし */
+.cover { page: cover; block-size: 100%; inline-size: 100%; margin: 0; }
 .cover img {
   inline-size: 100%; block-size: 100%;
+  max-inline-size: none; max-block-size: none; max-width: none; max-height: none;
   object-fit: cover;                              /* coverFit: cover */
   /* coverFit: contain のときは object-fit: contain */
 }
@@ -1682,6 +1669,9 @@ Phase 0〜2 の全項目と、Phase 3 のうち PDF の栞・メタデータ・�
     拾う対象が書き手に見えなければ、フォルダに入れた・入れていないの確認ができない。
     上の `registerExtensions()` の一覧に `woff2` / `otf` / `ttf` を足し、ビューは
     書体見本（その書体で組んだ数行）と外部アプリで開くボタンにする
+- **画像の `width` / `height` 属性**（5.8(5)）。intrinsic size は組版前に読んであるので
+  （`build/imageSizes.ts`）、残っているのは属性を書くところだけ。入れば画像の到着前に
+  アスペクト比が確定し、レイアウトが 1 パスで決まる
 - **EPUB のフォントサブセット化**（3.3 / 5.10 のとおり Phase 3 以降の課題）
 
 ### 検証の範囲
