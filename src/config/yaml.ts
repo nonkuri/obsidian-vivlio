@@ -42,8 +42,8 @@ const KEY_DOCS: Partial<Record<keyof BookConfig, KeyDoc>> = {
 
   theme: {
     group: "layout",
-    ja: "bunko | techbook | academic | base | Vault 内の css パス",
-    en: "bunko | techbook | academic | base | a CSS path inside the vault",
+    ja: "novel | bunko | techbook | academic | base | Vault 内の css パス（5.10）",
+    en: "novel | bunko | techbook | academic | base | a CSS path inside the vault",
   },
   writingMode: {
     group: "layout",
