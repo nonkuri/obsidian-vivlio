@@ -7,7 +7,6 @@
  * A lower layer overrides a higher one (1 < 2 < 3).
  */
 
-export type ThemeName = "bunko" | "techbook" | "academic" | "base";
 export type WritingMode = "vertical-rl" | "horizontal-tb";
 export type FootnoteMode = "gcpm" | "pandoc" | "dpub";
 export type HighlightMode = "boten" | "strong" | "mark" | "off";
@@ -74,7 +73,7 @@ export interface EmbedFont {
   style?: string;
 }
 
-/** The 15 preprocessing stages of SPEC 5.3, individually switchable. */
+/** The preprocessing stages of SPEC 5.3, individually switchable. */
 export interface SyntaxToggles {
   /** #1 `![[Note]]` embedding */
   embed: boolean;
@@ -277,5 +276,4 @@ export interface VivlioSettings {
   // advanced
   fixedPort: number;
   logLevel: "silent" | "error" | "info" | "debug";
-  cliPath: string;
 }

@@ -1,6 +1,6 @@
 import type { App, TFile } from "obsidian";
 import { warn, type BuildContext } from "./context";
-import { BUNDLED_THEMES, bundledThemePath, themeAssets } from "../vendor/assets";
+import { SELECTABLE_THEMES, bundledThemePath, themeAssets } from "../vendor/assets";
 import { dirname, joinPosix } from "../util/paths";
 import { log } from "../util/log";
 
@@ -16,7 +16,8 @@ import { log } from "../util/log";
  * embedded in the plugin, not files in the vault.
  *
  * A theme of one's own starts from a bundled one by importing `vivlio:novel`,
- * or `vivlio:base`, `vivlio:bunko`, `vivlio:techbook`, `vivlio:academic`.
+ * or `vivlio:base`, `vivlio:bunko`, `vivlio:techbook`, `vivlio:academic`. All
+ * five still resolve; the picker offers only the ones in `SELECTABLE_THEMES`.
  *
  * Anything else is an ordinary import: a path relative to the importing file,
  * read from the vault.
@@ -133,14 +134,16 @@ export interface ThemeChoice {
 }
 
 /**
- * Every theme a picker can offer.
+ * Every theme a picker can offer: the bundled ones ready to be chosen, plus
+ * every stylesheet in the vault.
  *
  * The current value is kept even when nothing matches it, so a setting that
- * points at a stylesheet since renamed is visible rather than silently
- * replaced by whatever the list happens to start with.
+ * points at a stylesheet since renamed - or at a bundled theme the picker no
+ * longer lists - is visible rather than silently replaced by whatever the
+ * list happens to start with.
  */
 export function themeChoices(app: App, current = ""): ThemeChoice[] {
-  const choices: ThemeChoice[] = Object.keys(BUNDLED_THEMES).map((name) => ({
+  const choices: ThemeChoice[] = SELECTABLE_THEMES.map((name) => ({
     value: name,
     label: name,
   }));

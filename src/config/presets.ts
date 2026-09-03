@@ -1,9 +1,5 @@
 import type { BookConfig } from "./types";
-import {
-  DEFAULT_MONO_STACK,
-  DEFAULT_SANS_STACK,
-  DEFAULT_SERIF_STACK,
-} from "./defaults";
+import { DEFAULT_SERIF_STACK } from "./defaults";
 
 export interface Preset {
   id: string;
@@ -12,7 +8,14 @@ export interface Preset {
   values: Partial<BookConfig>;
 }
 
-/** Starting points offered by the setup wizard (SPEC 5.4). */
+/**
+ * Starting points offered by the setup wizard (SPEC 5.4).
+ *
+ * Every preset here names a theme the picker offers (see SELECTABLE_THEMES).
+ * The tech-book and academic presets are held back with their themes: a
+ * preset that set a theme nobody could then see in the picker would only
+ * produce a book whose look could not be adjusted.
+ */
 export const PRESETS: Preset[] = [
   {
     id: "bunko",
@@ -27,39 +30,6 @@ export const PRESETS: Preset[] = [
       highlight: "boten",
       autoTcy: true,
       pageNumbering: "roman-then-arabic",
-      fontFamily: DEFAULT_SERIF_STACK,
-    },
-  },
-  {
-    id: "techbook",
-    labelKey: "preset.techbook",
-    values: {
-      theme: "techbook",
-      writingMode: "horizontal-tb",
-      size: "A5",
-      charsPerLine: null,
-      linesPerPage: null,
-      footnote: "gcpm",
-      highlight: "strong",
-      autoTcy: false,
-      pageNumbering: "roman-then-arabic",
-      fontFamily: DEFAULT_SANS_STACK,
-      monospaceFontFamily: DEFAULT_MONO_STACK,
-    },
-  },
-  {
-    id: "academic",
-    labelKey: "preset.academic",
-    values: {
-      theme: "academic",
-      writingMode: "horizontal-tb",
-      size: "A4",
-      charsPerLine: null,
-      linesPerPage: null,
-      footnote: "pandoc",
-      highlight: "mark",
-      autoTcy: false,
-      pageNumbering: "continuous",
       fontFamily: DEFAULT_SERIF_STACK,
     },
   },

@@ -11,8 +11,18 @@ import {
   type IndentMode,
   type SyntaxToggles,
 } from "../config/types";
+import { en } from "../i18n/en";
 import { t, type StringKey } from "../i18n";
 
+/** Lets a row ask whether a string exists before it shows one. */
+const EN_STRINGS: Record<string, unknown> = en;
+
+/**
+ * The preprocessing stages offered under "Syntax", in reading order.
+ *
+ * `stripLeadingSpace` is deliberately not here: it only means anything beside
+ * the indent settings it exists to serve, so the typesetting section shows it.
+ */
 const SYNTAX_KEYS: (keyof SyntaxToggles)[] = [
   "embed",
   "dynamic",
@@ -26,9 +36,10 @@ const SYNTAX_KEYS: (keyof SyntaxToggles)[] = [
   "callout",
   "taskList",
   "keepTags",
+  "pageBreak",
+  "blankLines",
   "stripComments",
   "stripBlockIds",
-  "stripLeadingSpace",
 ];
 
 /** The vault-wide defaults: layer 1 of the three (SPEC 5.4, 5.5). */
@@ -138,9 +149,9 @@ export class VivlioSettingTab extends PluginSettingTab {
       .setDesc(t("settings.footnote.desc"))
       .addDropdown((dropdown) => {
         dropdown
-          .addOption("gcpm", "gcpm")
-          .addOption("pandoc", "pandoc")
-          .addOption("dpub", "dpub")
+          .addOption("gcpm", t("settings.footnote.gcpm"))
+          .addOption("pandoc", t("settings.footnote.pandoc"))
+          .addOption("dpub", t("settings.footnote.dpub"))
           .setValue(this.plugin.settings.footnote)
           .onChange(async (value) => {
             this.plugin.settings.footnote = value as "gcpm" | "pandoc" | "dpub";
@@ -175,6 +186,10 @@ export class VivlioSettingTab extends PluginSettingTab {
             await this.save();
           });
       });
+
+    // The space the manuscript indents with and the indent the stylesheet
+    // draws are two halves of one decision, so they are settled in one place.
+    this.syntaxToggle(container, "stripLeadingSpace");
 
     new Setting(container)
       .setName(t("settings.extraCss"))
@@ -271,29 +286,65 @@ export class VivlioSettingTab extends PluginSettingTab {
     );
   }
 
+  /**
+   * One preprocessing stage, with its explanation where it has one.
+   *
+   * Shared with the typesetting section, which shows `stripLeadingSpace`.
+   */
+  private syntaxToggle(container: HTMLElement, key: keyof SyntaxToggles): void {
+    const setting = new Setting(container).setName(t(`syntax.${key}` as StringKey));
+    const desc = `syntax.${key}.desc` as StringKey;
+    if (desc in EN_STRINGS) setting.setDesc(t(desc));
+    setting.addToggle((toggle) =>
+      toggle.setValue(this.plugin.settings.syntax[key]).onChange(async (value) => {
+        this.plugin.settings.syntax[key] = value;
+        await this.save();
+      }),
+    );
+  }
+
   private syntax(container: HTMLElement): void {
     container.createEl("h3", { text: t("settings.heading.syntax") });
 
-    new Setting(container).setName(t("settings.highlight")).addDropdown((dropdown) => {
-      dropdown
-        .addOption("boten", "boten")
-        .addOption("strong", "strong")
-        .addOption("mark", "mark")
-        .addOption("off", "off")
-        .setValue(this.plugin.settings.highlight)
-        .onChange(async (value) => {
-          this.plugin.settings.highlight = value as "boten" | "strong" | "mark" | "off";
-          await this.save();
-        });
-    });
-
+    // Two settings are shown against the switch they qualify rather than in a
+    // section of their own: what a highlight becomes says nothing without the
+    // switch that converts it, and running scripts is the sharp edge of the
+    // same switch that draws dataview and mermaid.
     for (const key of SYNTAX_KEYS) {
-      new Setting(container).setName(t(`syntax.${key}` as StringKey)).addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.syntax[key]).onChange(async (value) => {
-          this.plugin.settings.syntax[key] = value;
-          await this.save();
-        }),
-      );
+      this.syntaxToggle(container, key);
+
+      if (key === "dynamic") {
+        new Setting(container)
+          .setName(t("settings.allowDynamicScripts"))
+          .setDesc(t("settings.allowDynamicScripts.desc"))
+          .addToggle((control) =>
+            control
+              .setValue(this.plugin.settings.allowDynamicScripts)
+              .onChange(async (value) => {
+                this.plugin.settings.allowDynamicScripts = value;
+                await this.save();
+              }),
+          );
+      }
+
+      if (key === "highlight") {
+        new Setting(container)
+          .setName(t("settings.highlight"))
+          .setDesc(t("settings.highlight.desc"))
+          .addDropdown((dropdown) => {
+            for (const mode of ["boten", "strong", "mark", "off"] as const) {
+              dropdown.addOption(mode, t(`settings.highlight.${mode}` as StringKey));
+            }
+            dropdown.setValue(this.plugin.settings.highlight).onChange(async (value) => {
+              this.plugin.settings.highlight = value as
+                | "boten"
+                | "strong"
+                | "mark"
+                | "off";
+              await this.save();
+            });
+          });
+      }
     }
   }
 
@@ -302,8 +353,10 @@ export class VivlioSettingTab extends PluginSettingTab {
 
     for (const slot of SECTION_SLOTS) {
       const setting = new Setting(container).setName(t(`section.${slot}` as StringKey));
+      // A part the plugin cannot write itself has nothing to switch on: it is
+      // out of the book until a vivlio.yaml names the note that fills it.
       if (!AUTO_CAPABLE_SLOTS.includes(slot)) {
-        setting.setDesc("vivlio.yaml");
+        setting.setDesc(t("settings.section.yamlOnly"));
         continue;
       }
       setting.addToggle((toggle) =>
@@ -316,20 +369,21 @@ export class VivlioSettingTab extends PluginSettingTab {
       );
     }
 
-    new Setting(container).setName(t("settings.pageNumbering")).addDropdown((dropdown) => {
-      dropdown
-        .addOption("roman-then-arabic", "roman-then-arabic")
-        .addOption("continuous", "continuous")
-        .addOption("none", "none")
-        .setValue(this.plugin.settings.pageNumbering)
-        .onChange(async (value) => {
+    new Setting(container)
+      .setName(t("settings.pageNumbering"))
+      .setDesc(t("settings.pageNumbering.desc"))
+      .addDropdown((dropdown) => {
+        for (const mode of ["roman-then-arabic", "continuous", "none"] as const) {
+          dropdown.addOption(mode, t(`settings.pageNumbering.${mode}` as StringKey));
+        }
+        dropdown.setValue(this.plugin.settings.pageNumbering).onChange(async (value) => {
           this.plugin.settings.pageNumbering = value as
             | "roman-then-arabic"
             | "continuous"
             | "none";
           await this.save();
         });
-    });
+      });
 
     new Setting(container).setName(t("settings.tocDepth")).addSlider((slider) =>
       slider
@@ -405,16 +459,6 @@ export class VivlioSettingTab extends PluginSettingTab {
           }),
       );
 
-    new Setting(container)
-      .setName(t("settings.allowDynamicScripts"))
-      .setDesc(t("settings.allowDynamicScripts.desc"))
-      .addToggle((control) =>
-        control.setValue(this.plugin.settings.allowDynamicScripts).onChange(async (value) => {
-          this.plugin.settings.allowDynamicScripts = value;
-          await this.save();
-        }),
-      );
-
     new Setting(container).setName(t("settings.printTimeout")).addText((text) =>
       text.setValue(String(this.plugin.settings.printTimeoutMs)).onChange(async (value) => {
         const parsed = Number(value);
@@ -454,16 +498,6 @@ export class VivlioSettingTab extends PluginSettingTab {
           await this.save();
         });
     });
-
-    new Setting(container)
-      .setName(t("settings.cliPath"))
-      .setDesc(t("settings.cliPath.desc"))
-      .addText((text) =>
-        text.setValue(this.plugin.settings.cliPath).onChange(async (value) => {
-          this.plugin.settings.cliPath = value;
-          await this.save();
-        }),
-      );
   }
 }
 

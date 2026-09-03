@@ -9,6 +9,7 @@ import {
 } from "obsidian";
 import { load as loadYaml } from "js-yaml";
 import { DEFAULT_SETTINGS } from "./config/defaults";
+import { findPreset } from "./config/presets";
 import type { VivlioSettings } from "./config/types";
 import {
   frontmatterSnippet,
@@ -73,6 +74,11 @@ export default class VivlioPlugin extends Plugin {
         ...stored?.sectionDefaults,
       },
     };
+    // A preset that has since been withdrawn would leave the picker showing
+    // one name and the wizard starting from another.
+    if (!findPreset(this.settings.defaultPreset)) {
+      this.settings.defaultPreset = DEFAULT_SETTINGS.defaultPreset;
+    }
     setLanguage(this.settings.language);
     setLogLevel(this.settings.logLevel);
   }

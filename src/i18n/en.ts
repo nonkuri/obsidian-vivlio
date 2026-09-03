@@ -91,7 +91,10 @@ export const en = {
   "settings.size": "Default paper size",
   "settings.writingMode": "Default writing mode",
   "settings.footnote": "Default footnote mode",
-  "settings.footnote.desc": "gcpm places footnotes at the bottom of the page.",
+  "settings.footnote.desc": "Where a footnote is printed, and how it is marked up.",
+  "settings.footnote.gcpm": "At the foot of the page that calls it (gcpm)",
+  "settings.footnote.pandoc": "Collected at the end of the chapter (pandoc)",
+  "settings.footnote.dpub": "Marked up for e-readers to pop up (dpub)",
   "settings.paragraphIndent": "Paragraph indent",
   "settings.paragraphIndent.desc":
     "Use 0 when your manuscript already starts paragraphs with an ideographic space. Leave empty to keep the theme's own indent.",
@@ -99,10 +102,13 @@ export const en = {
   "settings.paragraphIndentMode": "Paragraphs to indent",
   "settings.paragraphIndentMode.desc":
     "Which paragraphs take the indent. By default the manuscript decides, where it indents itself with an ideographic space.",
-  "settings.paragraphIndentMode.auto": "Automatic (follow the manuscript)",
-  "settings.paragraphIndentMode.manuscript": "Only the ones the manuscript indents",
-  "settings.paragraphIndentMode.brackets": "All but those opening with a bracket",
-  "settings.paragraphIndentMode.all": "Every paragraph",
+  "settings.paragraphIndentMode.auto":
+    "Automatic — follow the manuscript, or use the bracket rule when it indents nothing",
+  "settings.paragraphIndentMode.manuscript":
+    "Only paragraphs the manuscript starts with an ideographic space",
+  "settings.paragraphIndentMode.brackets":
+    "Every paragraph except dialogue opening with 「 『 （",
+  "settings.paragraphIndentMode.all": "Every paragraph, dialogue included",
   "settings.extraCss": "Extra stylesheet",
   "settings.extraCss.desc": "Vault-relative path to a CSS file injected after the theme.",
   "settings.fontFamily": "Body font",
@@ -113,13 +119,24 @@ export const en = {
   "settings.warnMissingFonts": "Warn about missing fonts",
   "settings.embedFontsInEpub": "Embed fonts in EPUB",
   "settings.embedFontsInEpub.desc":
-    "Off by default. Checking the licence of an embedded font is your responsibility.",
+    "Pack the font folder's files into the EPUB so every reader shows the same typeface. The font-family stays in the CSS either way, so a device that has the font already uses it. Off by default: a Japanese font outruns the rest of the book several times over, and checking that its licence allows redistribution is your responsibility. EPUB only.",
   "settings.outputFolder": "Output folder",
   "settings.outputFolder.desc": "Vault-relative. `output` in the book configuration wins.",
   "settings.openAfterExport": "Open the file after exporting",
   "settings.highlight": "==highlight== becomes",
+  "settings.highlight.desc":
+    "How a converted highlight is set. Only used while the switch above is on.",
+  "settings.highlight.boten": "Emphasis dots beside the text (boten)",
+  "settings.highlight.strong": "Bold (<strong>)",
+  "settings.highlight.mark": "A highlighter ground (<mark>)",
+  "settings.highlight.off": "Nothing — drop the == and keep the words plain",
   "settings.autoTcy": "Automatic tate-chu-yoko for 2-digit numbers",
   "settings.pageNumbering": "Page numbering",
+  "settings.pageNumbering.desc": "How the folio is numbered through the book.",
+  "settings.pageNumbering.roman-then-arabic":
+    "Roman numerals through the front matter, then 1 again at the first chapter",
+  "settings.pageNumbering.continuous": "Arabic numerals straight through, from the first page",
+  "settings.pageNumbering.none": "No page numbers at all",
   "settings.tocDepth": "Table of contents depth",
   "settings.autoRefresh": "Refresh the preview automatically",
   "settings.debounceMs": "Refresh delay (ms)",
@@ -134,31 +151,40 @@ export const en = {
   "settings.allowOutsideVaultPaths": "Allow files outside the vault",
   "settings.allowDynamicScripts": "Run dataviewjs / templater blocks",
   "settings.allowDynamicScripts.desc":
-    "These execute arbitrary code from your notes. Turn off for notes you did not write.",
+    "A dataview block is a query and only reads the vault; a dataviewjs or templater block is JavaScript from the note, run as written. Turn this off for notes you did not write yourself — the rest of the switch above still applies.",
   "settings.printTimeout": "PDF timeout (ms)",
   "settings.language": "Interface language",
+  "settings.section.yamlOnly":
+    "Needs a note of your own; name one under `sections:` in vivlio.yaml to include it. Left out of the book otherwise.",
   "settings.fixedPort": "Fixed port",
-  "settings.fixedPort.desc": "0 lets the OS pick an ephemeral port.",
+  "settings.fixedPort.desc":
+    "The preview is served by a local HTTP server bound to 127.0.0.1. 0 lets the OS pick a free port each time; fix it when a firewall rule has to name one.",
   "settings.logLevel": "Log level",
-  "settings.cliPath": "vivliostyle CLI path",
-  "settings.cliPath.desc": "Optional. Used for press-ready / CMYK preflight.",
 
   "syntax.embed": "Expand ![[Note]] embeds",
   "syntax.dynamic": "Render dataview / mermaid blocks",
+  "syntax.dynamic.desc":
+    "Replace a dataview, mermaid, tasks or chart block with what Obsidian draws for it, so the result reaches the page instead of the source. Needs the plugin that draws it to be installed and on.",
   "syntax.boten": "《《text》》 as emphasis dots",
   "syntax.aozoraRuby": "｜kanji《kana》 as ruby",
   "syntax.tcy": "^^10^^ as tate-chu-yoko",
   "syntax.autoTcy": "Automatic tate-chu-yoko",
   "syntax.highlight": "Convert ==highlight==",
+  "syntax.highlight.desc": "Off leaves the == marks in the text as written.",
   "syntax.imageEmbed": "Resolve ![[image.png]]",
+  "syntax.imageEmbed.desc":
+    "Turn a vault image embed into a real image on the page and pack the file into the output. Off leaves the ![[...]] as text.",
   "syntax.wikilink": "Resolve [[Note]]",
+  "syntax.wikilink.desc":
+    "Turn a wiki link into a cross-reference the typesetter can resolve to a page number. A link pointing outside the book keeps its words and loses the link, since a page number for it would not exist.",
   "syntax.callout": "Keep callouts",
   "syntax.taskList": "Keep task lists",
   "syntax.keepTags": "Keep #tags",
   "syntax.stripComments": "Strip %%comments%%",
   "syntax.stripBlockIds": "Strip ^block-ids",
-  "syntax.stripLeadingSpace":
-    "Remove the ideographic space that indents a paragraph (the stylesheet indents instead)",
+  "syntax.stripLeadingSpace": "Remove the ideographic space that indents a paragraph",
+  "syntax.stripLeadingSpace.desc":
+    "A typesetter trims a space at the start of a line, so the manuscript's own space gives no indent in print and an inconsistent one in EPUB. Removing it leaves the indent above to do the work; keeping it indents twice wherever that indent is also set.",
   "syntax.pageBreak": "Break the page at ［＃改ページ］",
   "syntax.blankLines":
     "Turn a run of blank lines in the manuscript into space on the page (three lines give one)",

@@ -99,7 +99,6 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
 
   fixedPort: 0,
   logLevel: "error",
-  cliPath: "",
 };
 
 /** Book defaults that do not come from the settings tab. */
