@@ -21,6 +21,7 @@ import { publicationManifest } from "../src/build/manifest";
 import { tocDocument } from "../src/build/toc";
 import { colophonDocument, titlePageDocument } from "../src/build/sections";
 import { buildCover } from "../src/build/cover";
+import { collectImageSizes } from "../src/build/imageSizes";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { DEFAULT_SETTINGS } from "../src/config/defaults";
@@ -198,6 +199,8 @@ async function main(): Promise<void> {
       vault: {
         cachedRead: async () => "",
         getFileByPath: (target: string) => vault.get(target) ?? null,
+        readBinary: async (target: TFile) =>
+          fs.readFileSync(path.join(vaultRoot, target.path)).buffer,
       },
     } as unknown as BuildContext["app"],
     settings: DEFAULT_SETTINGS,
@@ -210,12 +213,21 @@ async function main(): Promise<void> {
     // Obsidian supplies these from its metadata cache; parse them here so the
     // generated table of contents is the real one.
     headings: new Map([[file.path, parseHeadings(markdown)]]),
+    imageSizes: new Map(),
     warnings: [],
     component: {} as BuildContext["component"],
     workspaceBase: `${server.base}/w/${workspace.id}/`,
     vaultBase: `${server.base}/vault/`,
     themeBase: `${server.base}/themes/`,
   };
+
+  // The harness has no metadata cache to walk, so every picture in the folder
+  // is offered directly; the reading itself is the real code path.
+  context.imageSizes = await collectImageSizes(
+    context.app,
+    [],
+    [...vault.values()],
+  );
 
   workspace.putText(BOOK_STYLESHEET, bookStylesheet(context, themeUrlFor(context)));
   workspace.putText("ch01.html", await convertChapter(context, chapters[3], file, markdown));

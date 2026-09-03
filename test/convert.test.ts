@@ -91,6 +91,12 @@ function makeContext(overrides: Partial<BuildContext> = {}): BuildContext {
     chapterByPath: new Map(chapters.map((chapter) => [chapter.file!.path, chapter])),
     // Obsidian supplies these from its metadata cache; the pipeline reads them
     // to decide whether a document has a heading to name itself by.
+    // Sizing a picture needs its shape (SPEC 5.8(3)); the real build reads it
+    // off the file, and here it is stated outright.
+    imageSizes: new Map([
+      ["book/fig.png", { width: 1400, height: 900 }],
+      ["book/Pasted image 20250101120000.png", { width: 1400, height: 900 }],
+    ]),
     headings: new Map([
       ["book/01.md", [{ level: 1, text: "第一章", slug: "第一章" }]],
       ["book/02.md", [{ level: 1, text: "第二章", slug: "第二章" }]],
@@ -184,15 +190,32 @@ async function main(): Promise<void> {
     check("in-book wikilink", html.includes('href="ch02.html"')),
     check("out-of-book wikilink flattened", html.includes("よそのノート") && !html.includes('href="Other')),
     check("image resolved to the vault route", html.includes("/vault/book/fig.png")),
-    check("image width is logical", html.includes("inline-size: min(300px, 100%)")),
-    // A share of the text block, and a physical width, said per image: the
-    // book-wide unit cannot answer either, because the answer differs by
-    // figure (SPEC 5.8).
-    check("a percentage width is kept as one", html.includes("inline-size: 60%"), html),
-    check("a millimetre width is kept as one", html.includes("inline-size: 80mm"), html),
+    // Sizes are worked out here, against the printed text block, and written
+    // as one definite axis with the other left automatic - so the ratio is
+    // never in contention and the box is the picture (SPEC 5.8(3)).
+    //
+    // The block is 40 characters by 16 lines on 105x148mm: 89.25mm across,
+    // 111.6mm down. A picture is 1400x900.
+    check("a pixel width becomes its printed width", html.includes("width: 79.38mm"), html),
     check(
-      "a width that is not px is capped at the text block",
-      (html.match(/max-inline-size: 100%/g) ?? []).length === 2,
+      "a percentage is a share of the text block",
+      html.includes("width: 53.55mm"),
+      html,
+    ),
+    check("a millimetre width is taken as given", html.includes("width: 80.00mm"), html),
+    check(
+      "a picture nobody sized is brought inside the block",
+      html.includes("width: 89.25mm"),
+      html,
+    ),
+    check(
+      "the other axis is always left to follow",
+      (html.match(/height: auto/g) ?? []).length === 4,
+      html,
+    ),
+    check(
+      "and nothing is sized logically any more",
+      !html.includes("inline-size:"),
       html,
     ),
     check("stylesheet linked", html.includes('href="vivlio.css"')),
@@ -244,6 +267,11 @@ async function main(): Promise<void> {
       "an embedded image is not blanked by the second pass",
       !exportedHtml.includes("vivlio-missing"),
       exportedHtml,
+    ),
+    check(
+      "a reflowable reader is given rem, not millimetres",
+      /width: [\d.]+rem/.test(exportedHtml) && !exportedHtml.includes("mm"),
+      (exportedHtml.match(/<img[^>]*>/g) ?? []).join(" | "),
     ),
     check(
       "a name of its own is still recognisable",
@@ -412,7 +440,11 @@ async function main(): Promise<void> {
     // percentage to cap it (SPEC 5.8); the cover is the one page that is not
     // set inside the text block at all, and a max constraint clamps whatever
     // asked for 100% however specific it was.
-    check("a picture is capped on the block axis", css.includes("max-block-size: calc(")),
+    check(
+      "the backstop is physical and measured in millimetres",
+      /img,\s*svg \{\s*max-width: [\d.]+mm;\s*max-height: [\d.]+mm;/.test(css),
+      css.slice(css.indexOf("max-width"), css.indexOf("max-width") + 120),
+    ),
     check(
       "the cover names its own page",
       /\.cover\s*\{[^}]*page: cover;/.test(css),
@@ -425,7 +457,7 @@ async function main(): Promise<void> {
     ),
     check(
       "so the cover image is free of the cap",
-      /\.cover img \{[\s\S]*?max-block-size: none;/.test(css),
+      /\.cover img \{[\s\S]*?max-width: none;/.test(css),
       css.slice(css.indexOf(".cover img"), css.indexOf(".cover img") + 260),
     ),
   );

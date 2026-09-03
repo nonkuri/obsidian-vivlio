@@ -78,6 +78,7 @@ async function main(): Promise<void> {
     chapters: [chapter],
     chapterByPath: new Map([[file.path, chapter]]),
     headings: new Map(),
+    imageSizes: new Map(),
     warnings: [],
     component: {} as BuildContext["component"],
     workspaceBase: "http://127.0.0.1:1/s/t/w/check/",

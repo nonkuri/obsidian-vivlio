@@ -214,8 +214,17 @@ function bookTheme(context: BuildContext): string {
 }
 
 const EPUB_OVERRIDES = `
-/* Reflowable output: the reader paginates, so paged-media artefacts go. */
-img {
+/* Reflowable output: the reader paginates, so paged-media artefacts go.
+
+   The backstop the paged stylesheet carries is measured in millimetres,
+   against a page this book no longer has: the reader's own column is the
+   only bound that means anything here. Widths reach this file in rem
+   (see applySize), so a picture keeps its proportion to the type at
+   whatever size the reader has chosen. */
+img,
+svg {
+  max-width: 100%;
+  max-height: none;
   max-inline-size: 100%;
   block-size: auto;
 }

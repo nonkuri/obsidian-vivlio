@@ -19,6 +19,7 @@ import {
   titleOf,
   type BuildTarget,
 } from "./collect";
+import { collectImageSizes } from "./imageSizes";
 import { bookStylesheet, themeUrlFor } from "./css";
 import { resolveVaultTheme, THEME_STYLESHEET } from "./theme";
 import { BOOK_STYLESHEET, convertChapter } from "./vfm";
@@ -127,6 +128,7 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
     chapters: [],
     chapterByPath: new Map(),
     headings: new Map(),
+    imageSizes: new Map(),
     warnings: [],
     component: request.component,
     workspaceBase: `${server.base}/w/${workspace.id}/`,
@@ -156,6 +158,20 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   for (const chapter of chapters) {
     if (chapter.file) context.chapterByPath.set(chapter.file.path, chapter);
   }
+
+  // Every picture is measured before any of them is laid out. The transform
+  // that sizes a picture is synchronous and cannot read a file, and the box
+  // it has to compute depends on the picture's shape (SPEC 5.8(3)).
+  const coverFile = config.cover
+    ? app.metadataCache.getFirstLinkpathDest(config.cover, `${bookRoot}/`)
+    : null;
+  context.imageSizes = await collectImageSizes(
+    app,
+    notes,
+    coverFile ? [coverFile] : [],
+    signal,
+  );
+  throwIfAborted(signal);
 
   // A theme of the writer's own is resolved into the workspace before the
   // stylesheet that imports it, so `themeUrlFor` can point at the resolved

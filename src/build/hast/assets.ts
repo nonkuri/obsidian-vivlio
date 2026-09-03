@@ -1,5 +1,7 @@
 import type { TFile } from "obsidian";
 import { warn, type BuildContext } from "../context";
+import { textBlockMm, type TextBlockMm } from "../css";
+import { mmToPx, pxToMm } from "../../util/imageSize";
 import type { ImageWidthUnit } from "../../config/types";
 import {
   addClass,
@@ -208,12 +210,14 @@ export function resolveVaultFile(
 /** `assets/<sha1-8>-<name>` keeps same-named files from different folders apart. */
 export function registerVaultAsset(context: BuildContext, file: TFile): AssetRef {
   const publicPath = `assets/${sha1(file.path).slice(0, 8)}-${assetFileName(file.name)}`;
+  const intrinsic = context.imageSizes?.get(file.path);
   return context.workspace.addAsset({
     publicPath,
     kind: "vault",
     vaultPath: file.path,
     mime: mimeType(file.name),
     label: file.path,
+    ...(intrinsic ? { width: intrinsic.width, height: intrinsic.height } : {}),
   });
 }
 
@@ -251,10 +255,14 @@ export function srcFor(context: BuildContext, asset: AssetRef): string {
  * A bare number is Obsidian's own syntax and keeps meaning whatever the book
  * says (`imageWidthUnit`), so nothing already written moves. A number with a
  * unit is this plugin's, and answers the question a bare number cannot: how
- * big is *this* figure against the text block. `%` is the one that matters
- * for a book - an image's percentage inline size resolves against its
- * containing block, which is the text block - and it is the one a book-wide
- * setting could never express, because the answer differs per figure.
+ * big is *this* figure on the paper. `%` is the one a book-wide setting could
+ * never express, because the answer differs per figure.
+ *
+ * Every one of them names the picture's **width as printed**, in both writing
+ * modes - which is what the writer is looking at in the editor, and what they
+ * mean by "this one is 60%". Saying it in logical terms instead made a number
+ * mean the height of the picture in a vertical book, and the width in a
+ * horizontal one.
  *
  * Anything else is a caption, as before.
  */
@@ -282,14 +290,26 @@ const UNIT_BY_SUFFIX: Record<string, ImageWidthUnit> = {
   px: "px",
 };
 
-/** CSS px per millimetre, which is what a `mm` width is worth to the dpi check. */
-const PX_PER_MM = 96 / 25.4;
-
 /**
- * Turn Obsidian's pixel width into a logical size.
+ * Size a picture, on paper, to the width it was asked for.
  *
- * `width` is wrong in vertical writing - the physical axis flips - so the
- * output uses `inline-size` (SPEC 5.8(3)).
+ * The plugin works the box out itself rather than handing CSS a size and a
+ * maximum and hoping. It cannot be left to CSS: a definite size on one axis
+ * makes a replaced element's ratio non-negotiable, and a maximum on the other
+ * axis then trims the *box* instead of rescaling the picture. Measured, in
+ * plain Chromium as well as in the typesetter: a 1400x900 picture given
+ * `inline-size: 100%` in a 300x400 frame came out in a 300x400 box - so a
+ * figure at 60% and the same figure at 100% printed at identical size, and
+ * only the blank reserved around them changed.
+ *
+ * With the intrinsic size in hand there is nothing to negotiate. One axis is
+ * written, the other is left automatic, and the number is brought inside the
+ * text block here, before CSS sees it.
+ *
+ * The width is written physically. `width` on its own is safe in any writing
+ * mode - what made it wrong before was the *percentage*, which resolves
+ * against a containing block that shrink-wraps the picture in vertical text.
+ * These are absolute lengths.
  */
 function applySize(
   context: BuildContext,
@@ -297,32 +317,85 @@ function applySize(
   size: SizeHint,
   asset: AssetRef,
 ): void {
-  if (size.width === null) return;
+  const block = textBlockMm(context.config);
+  const ratio =
+    asset.width && asset.height ? asset.width / asset.height : null;
 
+  // `300x200` names a box outright. That is an instruction, not a request to
+  // fit something, so it is passed through as given.
+  if (size.width !== null && size.height !== null) {
+    addStyle(image, [
+      `width: ${size.width}px`,
+      `height: ${size.height}px`,
+    ]);
+    asset.displayWidthPx = Math.max(asset.displayWidthPx ?? 0, size.width);
+    return;
+  }
+
+  const asked = requestedWidthMm(context, size, block);
+
+  // Nothing to do: no size asked for, and no way to check the fit either.
+  if (asked === null && !(block && ratio)) return;
+
+  let widthMm = asked ?? pxToMm(asset.width ?? 0);
+  if (widthMm <= 0) return;
+
+  if (block && ratio) {
+    // Fit inside the text block, along whichever axis runs out first. Both
+    // are checked, because a picture can be too wide, too tall, or both.
+    widthMm = Math.min(widthMm, block.widthMm, block.heightMm * ratio);
+  } else if (block) {
+    widthMm = Math.min(widthMm, block.widthMm);
+  }
+
+  // A picture nobody sized, that already fits, is left exactly as it is.
+  if (asked === null && ratio && Math.abs(widthMm - pxToMm(asset.width ?? 0)) < 0.01) {
+    return;
+  }
+
+  addStyle(image, [widthDeclaration(context, widthMm, block), "height: auto"]);
+  asset.displayWidthPx = Math.max(asset.displayWidthPx ?? 0, mmToPx(widthMm));
+}
+
+/** The width the writer asked for, in millimetres, or null if they did not. */
+function requestedWidthMm(
+  context: BuildContext,
+  size: SizeHint,
+  block: TextBlockMm | null,
+): number | null {
+  if (size.width === null) return null;
   const unit = size.unit ?? context.config.imageWidthUnit;
-  const inline =
-    unit === "percent"
-      ? `${size.width}%`
-      : unit === "mm"
-        ? `${size.width}mm`
-        : `min(${size.width}px, 100%)`;
+  if (unit === "mm") return size.width;
+  if (unit === "px") return pxToMm(size.width);
+  // A percentage is a share of the printed width of the text block, which is
+  // the thing a reader compares a figure against. Without a text block there
+  // is nothing to take a share of.
+  return block ? (block.widthMm * size.width) / 100 : null;
+}
 
-  // A figure wider than the text block breaks the page rather than the
-  // figure; `px` already caps itself with the `min()` above.
-  const declarations = [`inline-size: ${inline}`];
-  if (unit !== "px") declarations.push("max-inline-size: 100%");
-  if (size.height !== null) declarations.push(`block-size: ${size.height}px`);
+/**
+ * Millimetres for print, `rem` for a reflowable reader.
+ *
+ * An EPUB has no page whose width is known here, and its root font size is
+ * deliberately left to the reader (see epubStylesheet), so a figure given in
+ * `rem` keeps its proportion to the type at whatever size that reader has
+ * chosen. In paged output the root size is the one derived from the paper, so
+ * the two spellings describe the same picture.
+ */
+function widthDeclaration(
+  context: BuildContext,
+  widthMm: number,
+  block: TextBlockMm | null,
+): string {
+  if (context.mode === "epub" && block) {
+    return `width: ${(widthMm / block.fontMm).toFixed(3)}rem`;
+  }
+  return `width: ${widthMm.toFixed(2)}mm`;
+}
+
+function addStyle(image: UElement, declarations: string[]): void {
   const existing = String(image.properties.style ?? "").trim();
   image.properties.style = [existing, declarations.join("; ")]
     .filter(Boolean)
     .join("; ");
-
-  // What the dpi check compares the intrinsic size against. A percentage is
-  // left out: it is a share of a text block whose width depends on margins
-  // the theme decides, so any number here would be a guess.
-  const displayPx =
-    unit === "px" ? size.width : unit === "mm" ? size.width * PX_PER_MM : null;
-  if (displayPx !== null) {
-    asset.displayWidthPx = Math.max(asset.displayWidthPx ?? 0, displayPx);
-  }
 }

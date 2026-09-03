@@ -83,7 +83,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (faces) blocks.push(faces);
 
   blocks.push(NOTATION_CSS);
-  blocks.push(imageBlockCap(grid));
+  blocks.push(imageBackstop(textBlockMm(config)));
   blocks.push(coverCss(context));
   blocks.push(sectionCss(context));
   blocks.push(pageNumberingCss(context));
@@ -94,38 +94,31 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
 }
 
 /**
- * Keep a picture on the page along the axis that has no percentage to cap it.
+ * The backstop, for pictures the plugin could not measure itself.
  *
- * `max-inline-size: 100%` caps the inline axis only, and in vertical writing
- * that axis is the *height*: a landscape figure asked for `inline-size: 100%`
- * took the full measure in height, twice the page in width, and hung off the
- * left edge. The block axis has nothing to cap against - the paragraph
- * shrink-wraps the image, so `100%` of the containing block *is* the image -
- * so it is capped against the text block the theme composes, `lines x
- * line-height`, the same pair the grid and the body size are built from.
+ * Sizing is done in `applySize` now, from the intrinsic size: it works out
+ * the box and writes one definite axis, leaving the other automatic, so the
+ * ratio is never in contention and nothing here has to bite. What is left is
+ * the case where the intrinsic size was unreadable - a format the header
+ * parser does not know, a file that could not be read - and a picture whose
+ * shape is unknown still must not print off the page.
  *
- * One expression serves both writing modes, because both name the block axis:
- * down the page where the lines run across it, across the page where they run
- * down it. A theme that lays out from margins has no such pair, and nothing
- * here to measure against, so the cap is left out rather than guessed.
+ * Two maxima with no definite size is the one combination that keeps the
+ * ratio: the element sizes itself and shrinks to fit, exactly the way a
+ * picture with no CSS at all does. (Measured: a 1400x900 picture in a 300x400
+ * frame comes out 300x193, its own ratio. The same picture with a definite
+ * inline size and one maximum comes out 300x400 - the box, not the picture.)
  *
- * `object-fit: contain` goes with it. Clamping one axis of a replaced element
- * whose other axis is definite does not rescale the picture - it squashes it,
- * and a 1400x900 photograph came out at a ratio of 0.8 - so the box may end
- * up a different shape from its contents, and the contents have to keep their
- * own. The box being larger than the picture it holds is the part still worth
- * fixing; a distorted picture is not something to ship in the meantime.
+ * Physical, not logical, because "does it fit on the paper" is a question
+ * about the paper.
  */
-function imageBlockCap(grid: Grid | null): string {
-  if (!grid) return "";
+function imageBackstop(block: TextBlockMm | null): string {
+  if (!block) return "";
   return `
 img,
 svg {
-  max-block-size: calc(
-    var(--vs-theme--num-of-line, ${grid.lines}) *
-    var(--vs-line-height, ${GRID_LINE_HEIGHT}) * 1rem
-  );
-  object-fit: contain;
+  max-width: ${block.widthMm.toFixed(2)}mm;
+  max-height: ${block.heightMm.toFixed(2)}mm;
 }`.trim();
 }
 
@@ -193,6 +186,52 @@ function gridFontSize(config: BookConfig, grid: Grid | null): string | null {
 interface Grid {
   chars: number;
   lines: number;
+}
+
+/** The printed text block: physical, so a picture can be measured against it. */
+export interface TextBlockMm {
+  widthMm: number;
+  heightMm: number;
+  /** Root font size, which is what a `rem` is worth on this page. */
+  fontMm: number;
+}
+
+/**
+ * The text block the book will actually be composed on, in millimetres.
+ *
+ * Physical rather than logical on purpose. Everything that has to *fit* a
+ * picture - is it wider than the block, is it taller - is a question about
+ * the paper, and the answer must not change when the writing mode does.
+ * The logical axes are derived here instead: the characters run along the
+ * inline axis, the lines stack along the block axis, and which of those is
+ * the width depends on the writing mode.
+ *
+ * Null when the numbers are not knowable: a theme that lays out from margins
+ * has no grid, and a book that sets `baseFontSize` in a unit that is not
+ * millimetres has a block this cannot measure. Callers fall back to letting
+ * CSS do what it can.
+ */
+export function textBlockMm(config: BookConfig): TextBlockMm | null {
+  const grid = resolveGrid(config);
+  if (!grid) return null;
+
+  const explicit = config.baseFontSize.trim();
+  const derived = gridFontSize(config, grid);
+  const source = explicit || derived;
+  if (!source) return null;
+
+  const match = /^([\d.]+)mm$/.exec(source);
+  if (!match) return null;
+  const fontMm = Number(match[1]);
+  if (!Number.isFinite(fontMm) || fontMm <= 0) return null;
+
+  const alongChars = grid.chars * fontMm;
+  const alongLines = grid.lines * GRID_LINE_HEIGHT * fontMm;
+  const vertical = config.writingMode !== "horizontal-tb";
+
+  return vertical
+    ? { widthMm: alongLines, heightMm: alongChars, fontMm }
+    : { widthMm: alongChars, heightMm: alongLines, fontMm };
 }
 
 /**
@@ -417,6 +456,8 @@ function coverCss(context: BuildContext): string {
      text block's 85% with white below it. */
   max-inline-size: none;
   max-block-size: none;
+  max-width: none;
+  max-height: none;
   object-fit: ${fit};
   display: block;
 }

@@ -62,6 +62,14 @@ export interface BuildContext {
   chapterByPath: Map<string, Chapter>;
   /** Vault path -> heading slugs, mirroring VFM's slugger. */
   headings: Map<string, HeadingEntry[]>;
+  /**
+   * Vault path -> intrinsic pixel size, read before conversion (SPEC 5.8(3)).
+   *
+   * Sizing a picture needs its shape, and the transform that sizes it is
+   * synchronous, so the reading is done up front. Empty is allowed: an
+   * unreadable format falls back to letting CSS fit the picture.
+   */
+  imageSizes: Map<string, { width: number; height: number }>;
   warnings: BuildWarning[];
   /** Owner for `MarkdownRenderer.render()` children (SPEC 5.8(8)). */
   component: Component;
