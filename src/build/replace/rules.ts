@@ -30,11 +30,15 @@ export function notationRules(config: BookConfig): TextRule[] {
     });
   }
 
-  // #4 Aozora / Kakuyomu ruby: ｜kanji《kana》 (the marker may be escaped).
+  // #4 Aozora / Kakuyomu ruby, in both of the forms those two write.
+  //
+  // With the marker, `｜` says where the base begins and the base may be
+  // anything; without it, the base is the run of kanji the reading follows,
+  // which is the shorthand a manuscript uses nearly everywhere.
   if (syntax.aozoraRuby) {
     rules.push({
-      test: /(?:\\\||[|｜])([^|｜《》\n]+)《([^》\n]+)》/g,
-      replace: (match) => [ruby(match[1], match[2])],
+      test: RUBY,
+      replace: (match) => [ruby(match[1] ?? match[2], match[3])],
     });
   }
 
@@ -118,6 +122,18 @@ export const PAGE_BREAK_CLASS = "vivlio-page-break";
 function span(className: string, value: string): UElement {
   return element("span", { className: [className] }, [text(value)]);
 }
+
+/**
+ * Ruby, marked or bare.
+ *
+ * The bare form takes a run of kanji as its base, as Aozora Bunko and Kakuyomu
+ * both define it: 々 and its fellows count, because 人々 and 一ヶ月 read as kanji
+ * runs even where Unicode files those characters elsewhere. Kana is not a base
+ * - a reading in kana over kana is not what anyone means by it - which is what
+ * `｜` is for on the occasions the base is not kanji.
+ */
+const RUBY =
+  /(?:(?:\\\||[|｜])([^|｜《》\n]+)|([\p{Script=Han}々〆〇ヵヶ]+))《([^》\n]+)》/gu;
 
 /** SESAME DOT, the mark Japanese typesetting uses for emphasis. */
 const SESAME = "﹅";

@@ -108,7 +108,7 @@ vivlio-theme: bunko
 
 # 第一章
 
-《《ここは傍点》》になり、｜漢字《かんじ》にルビが付く。^^10^^ 年と 42 冊。
+《《ここは傍点》》になり、｜漢字《かんじ》にルビが付く。標無《しるしなし》にも付く。^^10^^ 年と 42 冊。
 
 ==ハイライト== は傍点になる。%%この注記は消える%%
 
@@ -154,6 +154,13 @@ async function main(): Promise<void> {
     // keeps the same measure (see notationRules).
     check("emphasis dots", /<ruby class="boten">こ<rp>\(<\/rp><rt>﹅<\/rt>/.test(html), html.slice(html.indexOf("boten") - 20, html.indexOf("boten") + 120)),
     check("ruby", /<ruby>漢字<rp>\(<\/rp><rt>かんじ<\/rt>/.test(html)),
+    // Kakuyomu writes ruby without the marker nearly everywhere: a reading
+    // after a run of kanji is ruby for that run.
+    check(
+      "ruby without the marker",
+      /<ruby>標無<rp>\(<\/rp><rt>しるしなし<\/rt>/.test(html),
+      html.slice(html.indexOf("しるしなし") - 90, html.indexOf("しるしなし") + 30),
+    ),
     check("explicit tate-chu-yoko", html.includes('<span class="tcy">10</span>')),
     check("automatic tate-chu-yoko", html.includes('<span class="tcy">42</span>')),
     check("highlight becomes emphasis dots", (html.match(/<ruby class="boten">/g) ?? []).length === 2),
@@ -189,6 +196,27 @@ async function main(): Promise<void> {
     ),
     check("and the mark itself is gone", !html.includes("改ページ")),
   ];
+
+  // The bare ruby form reaches for the kanji in front of it, so the two things
+  // that also use 《》 have to stay clear of it.
+  const rubyEdges = await convertChapter(
+    makeContext(),
+    context.chapters[0],
+    chapterOne,
+    ["　本文《《強調》》です。", "　これは《引用》です。"].join("\n\n"),
+  );
+  checks.push(
+    check(
+      "emphasis dots after kanji stay emphasis dots",
+      rubyEdges.includes('<ruby class="boten">強'),
+      rubyEdges,
+    ),
+    check(
+      "and kana takes no ruby without the marker",
+      rubyEdges.includes("これは《引用》です。"),
+      rubyEdges,
+    ),
+  );
 
   // Blank lines the manuscript left (SPEC 5.3 #18). Markdown throws them away;
   // the count comes back off the source positions.
