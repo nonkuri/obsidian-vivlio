@@ -656,7 +656,14 @@ async function main(): Promise<void> {
       "the epub leaves the body size to the reader",
       !packed.includes("font-size: var(--vs--html-font-size)"),
     ),
-    check("and the colophon label does not touch its value", packed.includes("margin-inline-end: 1em")),
+    // The gap has to be a margin, because justifying the label across its 5em
+    // pushes the last character hard against the end of it (SPEC 5.11). How
+    // wide is a design decision; that there is one is not.
+    check(
+      "and the colophon label does not touch its value",
+      /margin-inline-end: (?!0)[\d.]+em/.test(packed),
+      packed.slice(packed.indexOf("margin-inline-end"), packed.indexOf("margin-inline-end") + 60),
+    ),
   );
 
   // A theme of the writer's own (SPEC 5.10): resolved into one stylesheet, so

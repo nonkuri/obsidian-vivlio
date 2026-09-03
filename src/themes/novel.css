@@ -476,7 +476,9 @@ ruby.boten > rt {
 }
 
 [role='doc-colophon'] .colophon-detail dd {
-  margin-inline-start: 6em;
+  /* The label column plus its gap, in the same 0.9em these are set in, so a
+     detail begins exactly where a value does. */
+  margin-inline-start: 6.8em;
   font-size: 0.9em;
   color: var(--vs-novel--secondary-ink);
 }
@@ -491,7 +493,10 @@ ruby.boten > rt {
 [role='doc-colophon'] dt {
   display: inline-block;
   inline-size: 5em;
-  margin-inline-end: 1em;
+  /* The gap is measured in the label's own em, which is 0.9 of the row's, so
+     it reads smaller than the number suggests. Wide enough that the label and
+     the value are two things rather than one run of characters. */
+  margin-inline-end: 1.8em;
   font-weight: normal;
   font-size: 0.9em;
   color: var(--vs-novel--secondary-ink);
