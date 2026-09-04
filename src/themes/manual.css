@@ -21,7 +21,12 @@
  * against. The spacing is stated instead of distributed.
  */
 
-@import url("vivlio:techbook");
+/* Relative, not `vivlio:`. A bundled theme is served as the file it is and
+   its imports are resolved by the browser, so it reaches its foundation the
+   way novel.css reaches theme-base. The `vivlio:` scheme is for a theme of
+   one's own in the vault, where the plugin flattens the chain itself before
+   anything is served. */
+@import url(../@vivliostyle/theme-techbook/theme.css);
 
 :root {
   /* One ink below the body's, for the parts of a book that annotate rather
