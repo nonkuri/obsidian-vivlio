@@ -22,7 +22,33 @@ import {
 import { configFromSettings } from "../src/config/resolve";
 import { DEFAULT_SETTINGS } from "../src/config/defaults";
 import { collectNotes } from "../src/build/collect";
+import { buildTocEntries } from "../src/build/toc";
+import type { BuildContext, Chapter } from "../src/build/context";
+import { Workspace } from "../src/build/workspace";
+import { baseBookConfig } from "../src/config/defaults";
 import { setLanguage } from "../src/i18n";
+
+/** The little of a build context that a contents list actually reads. */
+function tocContext(chapters: Chapter[]): BuildContext {
+  return {
+    app: {} as BuildContext["app"],
+    settings: { ...DEFAULT_SETTINGS },
+    config: baseBookConfig(),
+    workspace: new Workspace("toc"),
+    mode: "preview",
+    bookRoot: "",
+    chapters,
+    chapterByPath: new Map(),
+    imageSizes: new Map(),
+    headings: new Map(),
+    warnings: [],
+    component: {} as BuildContext["component"],
+    workspaceBase: "",
+    vaultBase: "",
+    themeBase: "",
+  };
+}
+
 
 const checks: { label: string; ok: boolean; detail?: string }[] = [];
 function check(label: string, ok: boolean, detail?: string): void {
@@ -175,6 +201,30 @@ async function main(): Promise<void> {
     "a preset list skips what has no value",
     !frontmatterSnippetFor(DEFAULT_SETTINGS, ["theme", "cover"], false).includes("cover"),
   );
+
+  // The printed contents page and the EPUB's navigation answer different
+  // questions, so they are asked for different lists.
+  {
+    const parts: Chapter[] = [
+      { docName: "cover.html", file: null, title: "本の名", role: "doc-cover", slot: null, isBody: false, isFrontMatter: true },
+      { docName: "titlepage.html", file: null, title: "扉", role: null, slot: "titlePage", isBody: false, isFrontMatter: true },
+      { docName: "toc.html", file: null, title: "目次", role: "doc-toc", slot: "toc", isBody: false, isFrontMatter: true },
+      { docName: "colophon.html", file: null, title: "奥付", role: "doc-colophon", slot: "colophon", isBody: false, isFrontMatter: false },
+    ];
+    const docs = (entries: { href: string }[]) =>
+      entries.map((e) => e.href.split("#")[0]).join(" ");
+    const printed = buildTocEntries(tocContext(parts), parts, "print");
+    const nav = buildTocEntries(tocContext(parts), parts, "nav");
+    check("the printed contents lists none of the covers and closers",
+      docs(printed) === "", docs(printed));
+    check("the navigation reaches the cover, the title page and the colophon",
+      docs(nav) === "cover.html titlepage.html colophon.html", docs(nav));
+    check("neither lists the contents itself",
+      !docs(printed).includes("toc.html") && !docs(nav).includes("toc.html"));
+    // The cover would otherwise carry the book's title, same as the title page.
+    check("the navigation names the cover as the cover",
+      nav[0].label !== "本の名" && nav[0].label.length > 0, nav[0].label);
+  }
 
   const choices = frontmatterKeyChoices();
   check(
