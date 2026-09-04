@@ -37,6 +37,11 @@
     "js-yaml": "^4.1.0",
     "jszip": "^3.10.1",
     "pdf-lib": "^1.17.1",
-    "valibot": "^1.0.0"
+    "valibot": "^1.4.2"
+  },
+  "overrides": {
+    "prismjs": "^1.30.0",
+    "trim": "0.0.3",
+    "valibot": "$valibot"
   }
 }

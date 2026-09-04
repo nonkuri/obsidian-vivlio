@@ -806,6 +806,28 @@ esbuild プラグインで `@vivliostyle/viewer/lib/**` と CC0 テーマを**�
 
 ビルドは Obsidian 標準の esbuild 構成。`obsidian` / `electron` / Node 組み込みは external。
 
+#### `overrides`【決定】: VFM の下の古い版を前に引く
+
+VFM が抱える推移的依存に、公開済みの脆弱性勧告が付いたものが 3 つあった。いずれも
+VFM の更新を待つ以外に上流の直し方が無いので、`package.json` の `overrides` で持ち上げる。
+
+| パッケージ | 入っていた版 | 勧告 | 上げた先 |
+|---|---|---|---|
+| `trim` | 0.0.1（`remark-parse@8` 経由） | ReDoS（High、`<0.0.3`） | `0.0.3` |
+| `prismjs` | 1.27.0（`refractor@3.6` 経由） | DOM Clobbering（Medium、`<1.30.0`） | `^1.30.0` |
+| `valibot` | 1.2.0（VFM が**完全固定**） | `flatten()` が throw（Medium、`<=1.4.1`） | `^1.4.2` |
+
+`valibot` は直接依存でもあるので、override は `$valibot` と書いて直接依存の版を指す
+（版を二重に書くと npm が `EOVERRIDE` で衝突を報告する）。同時に直接依存の範囲も
+`^1.4.2` に上げ、解決結果が勧告の範囲へ落ちないようにした。
+
+`prismjs` の DOM Clobbering は、Prism がブラウザの DOM から属性を読む経路の話である。
+このプラグインは refractor の `highlight()` を呼んで hast を受け取るだけで DOM を触らない
+ので、到達経路は無いと見ている。それでも版としては該当するので上げる。
+
+**バージョンを跨いだので、コード強調表示にテストを付けた。** それまで `test/sample.md` には
+コードブロックが 1 つも無く、文法定義が壊れても誰も気づかない状態だった。
+
 ### 5.8 画像の扱い
 
 #### (1) 参照の解決

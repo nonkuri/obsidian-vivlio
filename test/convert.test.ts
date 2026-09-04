@@ -293,6 +293,38 @@ async function main(): Promise<void> {
     ),
   );
 
+  // Code blocks are highlighted by refractor, which is Prism under a curated
+  // grammar set (src/vendor/refractor-lite.ts). Prism is pinned forward by an
+  // `overrides` entry, past a version with a published advisory, and nothing
+  // else here would notice if that bump broke the grammars.
+  const listing = makeContext();
+  const listingHtml = await convertChapter(
+    listing,
+    listing.chapters[0],
+    chapterOne,
+    ["```ts", "const книга: number = 1; // 本", "```", "", "```nosuchlang", "plain", "```"].join("\n"),
+  );
+  checks.push(
+    check("a code block says what language it is", listingHtml.includes("language-ts"), listingHtml),
+    check(
+      "and its keywords are marked up",
+      /<span class="token keyword">const<\/span>/.test(listingHtml),
+      listingHtml.slice(listingHtml.indexOf("language-ts"), listingHtml.indexOf("language-ts") + 400),
+    ),
+    check(
+      "and its comment too",
+      /<span class="token comment">\/\/ 本<\/span>/.test(listingHtml),
+      listingHtml.slice(listingHtml.indexOf("token comment"), listingHtml.indexOf("token comment") + 120),
+    ),
+    // An unregistered language is not an error: it falls back to a plain
+    // block, which is what VFM already does for `plaintext`.
+    check(
+      "an unknown language falls back rather than throwing",
+      listingHtml.includes("plain") && !listingHtml.includes("vivlio-missing"),
+      listingHtml.slice(-400),
+    ),
+  );
+
   // A manuscript reaches the document through `rehype-raw`, so the HTML in it
   // arrives as real elements. That is what makes an inline `<span>` work, and
   // it is also how a `<script>` would arrive. A book is a static object: none
