@@ -338,8 +338,19 @@ aside[role='doc-footnote']::footnote-marker {
    pandoc leaves at the end of an endnote and wrong here: in `dpub` the
    back-link is the number. */
 aside[role='doc-footnote'] [role='doc-backlink'] {
-  display: inline;
-  margin-inline-end: 0.5em;
+  /* The number is given the width of the hang itself, rather than a gap
+     tuned until it looked right: filling exactly the two em the hang
+     reserves is what puts the first line's text where the second line
+     starts, whatever the number's own advance turns out to be.
+
+     `text-indent` inherits, and this box is a block container of its own, so
+     the hang's negative indent would be applied a second time inside it and
+     carry the number up out of the line. The indent belongs to the note, not
+     to the number's box. */
+  display: inline-block;
+  inline-size: 2em;
+  margin: 0;
+  text-indent: 0;
 }
 
 /* The number hangs, the note lines up with itself --------------------------
