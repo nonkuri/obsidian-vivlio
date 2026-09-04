@@ -12,7 +12,7 @@ import { resolveVaultTheme, themeChoices, THEME_STYLESHEET } from "../src/build/
 import { BOOK_STYLESHEET } from "../src/build/vfm";
 import { buildTocEntries, tocDocument } from "../src/build/toc";
 import { colophonDocument, titlePageDocument } from "../src/build/sections";
-import { kanjiDate } from "../src/util/kanji";
+import { japaneseDate, kanjiDate } from "../src/util/kanji";
 import JSZip from "jszip";
 import { epubStylesheet } from "../src/export/epub";
 import type { BuildContext, Chapter } from "../src/build/context";
@@ -671,13 +671,31 @@ async function main(): Promise<void> {
     check("an absent part gets no line", !colophonHtml.includes("訳者")),
   );
 
+  // Both spellings are Japanese conventions: a vertical page cannot use digits
+  // at all, and a horizontal one keeps them but writes the delimiters a
+  // Japanese date has. `2026-09-02` is a machine's date, and a colophon is not
+  // written by one.
   const horizontal = makeContext();
   horizontal.config.writingMode = "horizontal-tb";
   horizontal.config.date = "2026-09-02";
   checks.push(
     check(
-      "a horizontal colophon leaves the date alone",
-      colophonDocument(horizontal).includes("2026-09-02"),
+      "a horizontal colophon keeps the digits and writes the delimiters",
+      colophonDocument(horizontal).includes("2026年9月2日"),
+      colophonDocument(horizontal),
+    ),
+  );
+
+  // Neither spelling is asked for by a book that is not in Japanese.
+  const english = makeContext();
+  english.config.writingMode = "horizontal-tb";
+  english.config.lang = "en";
+  english.config.date = "2026-09-02";
+  checks.push(
+    check(
+      "a book in another language keeps the date it wrote",
+      colophonDocument(english).includes("2026-09-02"),
+      colophonDocument(english),
     ),
   );
 
@@ -687,6 +705,9 @@ async function main(): Promise<void> {
     check("the tens are counted", kanjiDate("2026-10-21") === "二〇二六年十月二十一日", kanjiDate("2026-10-21")),
     // `date` is free text; a book that writes something else there means it.
     check("anything else is left alone", kanjiDate("令和八年 第三刷") === "令和八年 第三刷"),
+    check("horizontal keeps the digits", japaneseDate("2026-10-21") === "2026年10月21日", japaneseDate("2026-10-21")),
+    check("a year alone, horizontally", japaneseDate("2026") === "2026年"),
+    check("and anything else is left alone there too", japaneseDate("令和八年 第三刷") === "令和八年 第三刷"),
   );
 
   // The running head needs a chapter title even when the manuscript has no

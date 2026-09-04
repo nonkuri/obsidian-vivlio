@@ -56,3 +56,32 @@ export function kanjiDate(value: string): string {
   if (parts[3]) out += `${kanjiNumber(Number(parts[3]))}日`;
   return out;
 }
+
+/**
+ * A date as a horizontally set Japanese book writes one: `2026年9月4日`.
+ *
+ * The digits stay Western, because a horizontal line sets them upright and a
+ * reader takes them in faster than kanji; what has to change are the
+ * delimiters, since `2026-09-04` is a machine's date and a colophon is not
+ * written by one. Vertical writing needs the digits gone as well, which is
+ * what kanjiDate is for.
+ *
+ * Anything unrecognised is left exactly as it was, for the same reason
+ * kanjiDate leaves it: `date` is free text, and a book that writes 令和八年
+ * there means it.
+ */
+export function japaneseDate(value: string): string {
+  const text = String(value ?? "").trim();
+  if (!text) return text;
+
+  const yearOnly = YEAR_ONLY.exec(text);
+  if (yearOnly) return `${Number(yearOnly[1])}年`;
+
+  const parts = DATE.exec(text);
+  if (!parts) return text;
+
+  let out = `${Number(parts[1])}年`;
+  if (parts[2]) out += `${Number(parts[2])}月`;
+  if (parts[3]) out += `${Number(parts[3])}日`;
+  return out;
+}

@@ -4,12 +4,13 @@ import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
 import { DOCUMENT_ANCHOR } from "./toc";
 import { t } from "../i18n";
-import { kanjiDate } from "../util/kanji";
+import { japaneseDate, kanjiDate } from "../util/kanji";
 import {
   AUTO_CAPABLE_SLOTS,
   FRONT_MATTER_SLOTS,
   SECTION_SLOTS,
   type SectionSlot,
+  type BookConfig,
 } from "../config/types";
 
 /** DPUB-ARIA roles theme-base already gives a named page to (SPEC 5.11). */
@@ -158,6 +159,21 @@ export function titlePageDocument(context: BuildContext): string {
  * Only what the book actually says is printed: a novel with no translator and
  * no printer gets neither line, rather than an empty one.
  */
+/**
+ * The date a colophon prints (SPEC 5.11).
+ *
+ * Both spellings are Japanese conventions, so both are asked for by the
+ * language rather than by the writing mode alone: a vertical page cannot use
+ * digits at all, and a horizontal one writes them with the delimiters a
+ * Japanese date has. A book in another language keeps whatever it wrote.
+ */
+function colophonDate(config: BookConfig): string {
+  if (!config.lang.toLowerCase().startsWith("ja")) return config.date;
+  return config.writingMode === "vertical-rl"
+    ? kanjiDate(config.date)
+    : japaneseDate(config.date);
+}
+
 export function colophonDocument(context: BuildContext): string {
   const { config } = context;
 
@@ -189,8 +205,7 @@ export function colophonDocument(context: BuildContext): string {
   // tate-chu-yoko either. The edition belongs on that same line - "初版発行"
   // is one statement, and splitting it into 発行日 and 版 made two entries
   // out of a sentence every colophon writes in one.
-  const date =
-    config.writingMode === "vertical-rl" ? kanjiDate(config.date) : config.date;
+  const date = colophonDate(config);
   const published = group();
   if (date) {
     line(
