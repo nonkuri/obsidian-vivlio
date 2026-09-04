@@ -1,0 +1,54 @@
+# A tag is the whole release procedure. Obsidian's installer fetches the three
+# files below as loose release assets, so they are uploaded individually and
+# never as a zip.
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      # The tag names the version users will be offered; the manifest names the
+      # version they will get. A release where those disagree is worse than no
+      # release, so stop here rather than publish one.
+      - name: The tag and the manifest must agree
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          manifest="$(node -p "require('./manifest.json').version")"
+          if [ "$tag" != "$manifest" ]; then
+            echo "tag $tag but manifest.json says $manifest" >&2
+            exit 1
+          fi
+          if ! node -p "require('./versions.json')['$tag']" >/dev/null 2>&1; then
+            echo "versions.json has no entry for $tag" >&2
+            exit 1
+          fi
+
+      - run: npm test
+
+      - run: npm run build
+
+      - name: Publish the release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            main.js manifest.json styles.css

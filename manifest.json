@@ -5,5 +5,6 @@
   "minAppVersion": "1.7.0",
   "description": "Typeset your notes with Vivliostyle (CSS paged media) and export to PDF / EPUB with a live preview. Japanese vertical writing, ruby and emphasis dots supported.",
   "author": "nonkuri",
+  "authorUrl": "https://github.com/nonkuri",
   "isDesktopOnly": true
 }
