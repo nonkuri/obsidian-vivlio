@@ -55,7 +55,10 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
   fontFamily: DEFAULT_SERIF_STACK,
   headingFontFamily: DEFAULT_SANS_STACK,
   monospaceFontFamily: DEFAULT_MONO_STACK,
-  fontFolder: ".obsidian/fonts",
+  // A plain vault folder: the configuration folder is not always
+  // `.obsidian`, and a dotted one is not indexed, so `vault.getFiles()`
+  // would never find what was put there (SPEC, unimplemented).
+  fontFolder: "fonts",
   warnMissingFonts: true,
   embedFontsInEpub: false,
 

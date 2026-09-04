@@ -40,9 +40,7 @@ function convertCallouts(tree: UNode): void {
   visit(tree, (node, index, parent) => {
     if (!isElement(node, "blockquote") || !parent || !Array.isArray(parent.children)) return;
 
-    const paragraph = (node.children ?? []).find((child) => isElement(child, "p")) as
-      | UElement
-      | undefined;
+    const paragraph = (node.children ?? []).find((child) => isElement(child, "p"));
     if (!paragraph) return;
 
     // VFM pretty-prints the document before this runs, so the marker is not
@@ -95,7 +93,7 @@ function defaultTitle(type: string): string {
 function convertTaskLists(tree: UNode): void {
   visit(tree, (node) => {
     if (!isElement(node, "li")) return;
-    const item = node as UElement;
+    const item = node;
 
     const checkbox = findCheckbox(item);
     if (checkbox) {
@@ -109,7 +107,7 @@ function convertTaskLists(tree: UNode): void {
 
     // Fallback for parsers that leave the marker as text.
     const paragraph = isElement(item.children[0], "p")
-      ? (item.children[0] as UElement)
+      ? (item.children[0])
       : item;
     const first = paragraph.children[0];
     if (!isText(first)) return;
@@ -131,7 +129,7 @@ function findCheckbox(item: UElement): CheckboxHit | null {
   let hit: CheckboxHit | null = null;
   visit(item, (node, _index, parent) => {
     if (hit || !isElement(node, "input")) return;
-    const input = node as UElement;
+    const input = node;
     if (String(input.properties.type ?? "").toLowerCase() !== "checkbox") return;
     hit = {
       node,
@@ -156,9 +154,9 @@ function convertTags(context: BuildContext, tree: UNode): void {
 function markTaskListContainers(tree: UNode): void {
   visit(tree, (node) => {
     if (!isElement(node, "ul") && !isElement(node, "ol")) return;
-    const list = node as UElement;
+    const list = node;
     const hasTasks = (list.children ?? []).some(
-      (child) => isElement(child, "li") && "data-checked" in (child as UElement).properties,
+      (child) => isElement(child, "li") && "data-checked" in (child).properties,
     );
     if (hasTasks) addClass(list, "task-list");
   });

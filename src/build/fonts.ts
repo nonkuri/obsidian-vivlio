@@ -102,7 +102,7 @@ function measuresDifferently(family: string): boolean {
     if (typeof document.fonts?.check === "function" && document.fonts.check(`16px "${family}"`)) {
       return true;
     }
-    const canvas = document.createElement("canvas");
+    const canvas = createEl("canvas");
     const gc = canvas.getContext("2d");
     if (!gc) return false;
     const sample = "あ漢A0";

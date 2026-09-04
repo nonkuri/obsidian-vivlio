@@ -240,7 +240,7 @@ export function referenceYaml(settings: VivlioSettings): string {
       }
       continue;
     }
-    lines.push(emit(key, config[key] as unknown));
+    lines.push(emit(key, config[key]));
   }
 
   return `${lines.join("\n")}\n`;
@@ -271,7 +271,7 @@ export function configToYaml(
       currentGroup = doc.group;
       lines.push(`# ${GROUP_TITLES[currentGroup]?.[language] ?? currentGroup}`);
     }
-    lines.push(emit(key, value as unknown));
+    lines.push(emit(key, value));
   }
 
   return `${lines.join("\n")}\n`;

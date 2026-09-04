@@ -121,7 +121,7 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
       if (value && typeof value === "object") {
         for (const [slot, slotValue] of Object.entries(value as Record<string, unknown>)) {
           if (!SECTION_SLOTS.includes(slot as SectionSlot)) continue;
-          config.sections[slot as SectionSlot] = String(slotValue) as SectionValue;
+          config.sections[slot as SectionSlot] = String(slotValue);
         }
       }
       continue;

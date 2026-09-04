@@ -208,7 +208,7 @@ function liftPageBreaks(tree: UNode): void {
       if (!isPageBreakMark(children[index])) continue;
       children.splice(index, 1);
       const next = children.slice(index).find((child) => isElement(child));
-      if (next) addClass(next as UElement, PAGE_BREAK_CLASS);
+      if (next) addClass(next, PAGE_BREAK_CLASS);
     }
   });
 }
@@ -216,10 +216,10 @@ function liftPageBreaks(tree: UNode): void {
 /** A paragraph holding a page-break mark and nothing else. */
 function isPageBreakMark(node: UNode): boolean {
   if (!isElement(node, "p")) return false;
-  const children = (node as UElement).children ?? [];
+  const children = (node).children ?? [];
   let marks = 0;
   for (const child of children) {
-    if (isElement(child) && hasClass(child as UElement, PAGE_BREAK_CLASS)) {
+    if (isElement(child) && hasClass(child, PAGE_BREAK_CLASS)) {
       marks += 1;
       continue;
     }
@@ -238,7 +238,7 @@ function dropEmptyParagraphs(tree: UNode): void {
   visit(tree, (node, index, parent) => {
     if (!parent || !Array.isArray(parent.children)) return;
     if (!isElement(node, "p")) return;
-    const element = node as UElement;
+    const element = node;
     const hasContent = (element.children ?? []).some((child) =>
       child.type === "text"
         ? String((child as { value?: unknown }).value ?? "").trim() !== ""
@@ -283,9 +283,7 @@ function documentShapePlugin(chapter: Chapter, chapterLevel: number | null) {
       const body = findBody(tree);
       if (!body) return;
 
-      let host = (body.children ?? []).find((child) => isElement(child, "section")) as
-        | UElement
-        | undefined;
+      let host = (body.children ?? []).find((child) => isElement(child, "section"));
 
       if (!host) {
         host = element("section", {}, body.children ?? []);
@@ -302,7 +300,7 @@ function documentShapePlugin(chapter: Chapter, chapterLevel: number | null) {
       // or - for a document with no heading at all - the document itself.
       if (chapterLevel !== null) {
         visit(tree, (node) => {
-          if (isElement(node, `h${chapterLevel}`)) addClass(node as UElement, CHAPTER_TITLE_CLASS);
+          if (isElement(node, `h${chapterLevel}`)) addClass(node, CHAPTER_TITLE_CLASS);
         });
       } else if (chapter.isBody && chapter.title) {
         host.properties["data-vivlio-chapter"] = chapter.title;
@@ -322,7 +320,7 @@ function documentShapePlugin(chapter: Chapter, chapterLevel: number | null) {
 function findBody(tree: UNode): UElement | null {
   let body: UElement | null = null;
   visit(tree, (node) => {
-    if (!body && isElement(node, "body")) body = node as UElement;
+    if (!body && isElement(node, "body")) body = node;
   });
   return body;
 }

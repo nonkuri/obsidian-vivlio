@@ -61,7 +61,7 @@ export function dynamicRenderPlugin(context: BuildContext, sourcePath: string) {
         job.parent.children![job.index] = {
           type: "html",
           value: `<figure class="vivlio-rendered vivlio-${lang}">${html}</figure>`,
-        } as UNode;
+        };
       }
     };
   };
@@ -73,9 +73,7 @@ async function renderBlock(
   lang: string,
   source: string,
 ): Promise<string | null> {
-  const host = document.createElement("div");
-  host.addClass("vivlio-offscreen");
-  document.body.appendChild(host);
+  const host = document.body.createDiv({ cls: "vivlio-offscreen" });
   try {
     await MarkdownRenderer.render(
       context.app,

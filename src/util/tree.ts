@@ -80,7 +80,7 @@ export function text(value: string): UText {
 
 /** Raw HTML node (rehype-raw has already run by the time these are used). */
 export function raw(value: string): UNode {
-  return { type: "raw", value } as UNode;
+  return { type: "raw", value };
 }
 
 export function addClass(node: UElement, ...names: string[]): void {

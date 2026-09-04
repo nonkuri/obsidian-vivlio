@@ -31,9 +31,7 @@ export function isTocNote(app: App, file: TFile, folder: TFolder): boolean {
   const base = file.basename.toLowerCase();
   if (base === "index") return true;
   if (folder.name && file.basename === folder.name) return true;
-  const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter as
-    | Record<string, unknown>
-    | undefined;
+  const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter;
   if (!frontmatter) return false;
   if (frontmatter["vivlio-toc"] === true) return true;
   const nested = frontmatter["vivlio"];
@@ -44,9 +42,7 @@ export function isTocNote(app: App, file: TFile, folder: TFolder): boolean {
 }
 
 function orderOf(app: App, file: TFile): number | null {
-  const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter as
-    | Record<string, unknown>
-    | undefined;
+  const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter;
   if (!frontmatter) return null;
   const flat = frontmatter["vivlio-order"];
   const nested = (frontmatter["vivlio"] as Record<string, unknown> | undefined)?.["order"];
@@ -208,9 +204,7 @@ export function headingsOf(app: App, file: TFile): HeadingEntry[] {
 
 /** Title shown for a note in the table of contents and the spine. */
 export function titleOf(app: App, file: TFile): string {
-  const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter as
-    | Record<string, unknown>
-    | undefined;
+  const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter;
   const title = frontmatter?.["title"];
   if (typeof title === "string" && title.trim()) return title.trim();
   const headings = app.metadataCache.getFileCache(file)?.headings ?? [];

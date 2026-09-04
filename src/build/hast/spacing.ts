@@ -33,7 +33,7 @@ export function blankLinesPlugin() {
         let previous: UElement | null = null;
         for (const child of children) {
           if (!isElement(child)) continue;
-          const element = child as UElement;
+          const element = child;
           const blank = previous ? blankLinesBetween(previous, element) : 0;
           if (blank > FREE_BLANK_LINES) space(element, blank - FREE_BLANK_LINES);
           previous = element;

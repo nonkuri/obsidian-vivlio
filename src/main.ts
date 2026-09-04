@@ -76,10 +76,13 @@ export default class VivlioPlugin extends Plugin {
     this.addSettingTab(new VivlioSettingTab(this.app, this));
   }
 
-  async onunload(): Promise<void> {
+  onunload(): void {
     // Nothing may keep listening on loopback after the plugin is disabled.
+    //
+    // Obsidian calls this without waiting, so awaiting the stop here would
+    // only look like a guarantee. It is started and left to finish.
     this.serverUsers = 0;
-    await this.server.stop();
+    void this.server.stop();
   }
 
   async loadSettings(): Promise<void> {
@@ -134,7 +137,9 @@ export default class VivlioPlugin extends Plugin {
     }
     this.serverUsers = Math.max(0, this.serverUsers - 1);
     new Notice(t("notice.serverFailed"));
-    throw lastError ?? new Error("could not start the preview server");
+    throw lastError instanceof Error
+      ? lastError
+      : new Error(`could not start the preview server: ${String(lastError ?? "")}`.trim());
   }
 
   /** Release one hold on the server, stopping it when nothing is left. */
@@ -294,7 +299,7 @@ export default class VivlioPlugin extends Plugin {
     if (!leaf) return;
 
     if (leaves.length === 0) await leaf.setViewState({ type: VIEW_TYPE_PREVIEW, active: true });
-    this.app.workspace.revealLeaf(leaf);
+    await this.app.workspace.revealLeaf(leaf);
 
     const view = leaf.view as VivlioPreviewView;
     const resolved = target ?? this.activeTarget();

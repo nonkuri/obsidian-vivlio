@@ -31,7 +31,7 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 
 **手動で。** [リリース](https://github.com/nonkuri/obsidian-vivlio/releases) から `main.js`、`manifest.json`、`styles.css` を取得し、`VaultFolder/.obsidian/plugins/vivlio/` に置きます。Obsidian を再読み込みして、コミュニティプラグインから有効化してください。
 
-デスクトップ版の Obsidian 1.7.0 以降が必要です。PDF は Obsidian がすでに動かしている Chromium で刷るため、モバイル版はありません。
+デスクトップ版の Obsidian 1.8.7 以降が必要です。PDF は Obsidian がすでに動かしている Chromium で刷るため、モバイル版はありません。
 
 ## プレビューを表示する
 

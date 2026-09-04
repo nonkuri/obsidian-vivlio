@@ -72,7 +72,7 @@ function rewriteMarkdownLinks(
 ): void {
   visit(tree, (node) => {
     if (!isElement(node, "a")) return;
-    const link = node as UElement;
+    const link = node;
     const href = String(link.properties.href ?? "");
     if (!href || /^[a-z]+:/i.test(href) || href.startsWith("#")) return;
 

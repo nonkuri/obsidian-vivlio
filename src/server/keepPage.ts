@@ -40,8 +40,9 @@ export const KEEP_PAGE_SCRIPT = `
   var SETTLE_MS = 2500;
 
   function wanted() {
-    // [0-9] rather than \d: this lives in a template literal, where a
-    // backslash escape belongs to the literal before the regexp sees it.
+    // The digit class is spelt out rather than abbreviated: this lives in a
+    // template literal, where a backslash belongs to the literal before the
+    // regexp ever sees it.
     var match = new RegExp("[#&]" + PARAM + "=([0-9]+)").exec(location.hash);
     return match ? parseInt(match[1], 10) : 0;
   }

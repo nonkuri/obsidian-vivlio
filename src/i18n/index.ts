@@ -1,3 +1,4 @@
+import { getLanguage } from "obsidian";
 import { en, type StringKey } from "./en";
 import { ja } from "./ja";
 import type { Language } from "../config/types";
@@ -5,19 +6,23 @@ import type { Language } from "../config/types";
 let dictionary: Partial<Record<StringKey, string>> = en;
 
 /**
- * Obsidian exposes no i18n API, so the locale is read the way other community
- * plugins read it (SPEC 5.5). Fallback is English.
+ * The language Obsidian is set to, as `getLanguage()` reports it (SPEC 5.5).
+ * Fallback is English.
+ *
+ * This used to read `localStorage.language` the way community plugins did
+ * before there was an API for it. There is one now, and it answers the
+ * question directly rather than through the app's own storage.
+ *
+ * The tests run this outside Obsidian, where the call does not exist, so a
+ * missing one is English rather than a crash.
  */
 export function detectLocale(): "ja" | "en" {
-  if (typeof window === "undefined") return "en";
+  let locale = "";
   try {
-    const stored = window.localStorage.getItem("language");
-    if (stored) return stored.startsWith("ja") ? "ja" : "en";
+    locale = getLanguage();
   } catch {
-    // localStorage can be unavailable; fall through to moment / navigator.
+    return "en";
   }
-  const moment = (window as unknown as { moment?: { locale(): string } }).moment;
-  const locale = moment?.locale?.() ?? navigator?.language ?? "en";
   return locale.startsWith("ja") ? "ja" : "en";
 }
 

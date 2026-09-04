@@ -108,7 +108,7 @@ function rewriteImageElements(
 ): void {
   visit(tree, (node) => {
     if (!isElement(node, "img")) return;
-    const image = node as UElement;
+    const image = node;
     const rawSrc = String(image.properties.src ?? "");
     if (!rawSrc) return;
 

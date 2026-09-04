@@ -48,3 +48,8 @@ export class Setting {}
 export class PluginSettingTab {}
 export class ItemView {}
 export class Plugin {}
+
+/** The app's language. Outside Obsidian there is none, so English. */
+export function getLanguage(): string {
+  return "en";
+}

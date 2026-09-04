@@ -55,7 +55,7 @@ export function readManuscriptIndentPlugin() {
       visit(tree, (node) => {
         if (!isElement(node, "p")) return;
         if (!textContent(node).startsWith(IDEOGRAPHIC_SPACE)) return;
-        (node as UElement).properties[MANUSCRIPT_INDENT] = "";
+        (node).properties[MANUSCRIPT_INDENT] = "";
       });
     };
   };
@@ -75,7 +75,7 @@ export function applyIndentPlugin(mode: IndentMode) {
     return (tree: UNode): void => {
       const paragraphs: UElement[] = [];
       visit(tree, (node) => {
-        if (isElement(node, "p")) paragraphs.push(node as UElement);
+        if (isElement(node, "p")) paragraphs.push(node);
       });
 
       const followManuscript =

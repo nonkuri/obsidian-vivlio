@@ -16,12 +16,12 @@ export function isAbortError(error: unknown): boolean {
 
 export function delay(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       signal?.removeEventListener("abort", onAbort);
       resolve();
     }, ms);
     const onAbort = () => {
-      clearTimeout(timer);
+      window.clearTimeout(timer);
       reject(new AbortError());
     };
     signal?.addEventListener("abort", onAbort, { once: true });
@@ -37,19 +37,19 @@ export function debounce<T extends unknown[]>(
   fn: (...args: T) => void,
   ms: number,
 ): Debounced<T> {
-  let timer: ReturnType<typeof setTimeout> | null = null;
+  let timer: number | null = null;
   const debounced = (...args: T) => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
+    if (timer) window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
       timer = null;
       fn(...args);
     }, ms);
   };
   debounced.cancel = () => {
-    if (timer) clearTimeout(timer);
+    if (timer) window.clearTimeout(timer);
     timer = null;
   };
-  return debounced as Debounced<T>;
+  return debounced;
 }
 
 /** Poll `check` until it returns true, or reject after `timeoutMs`. */
@@ -80,19 +80,19 @@ export function waitForDomIdle(
 ): Promise<void> {
   const { timeoutMs = 5000, quietMs = 200 } = options;
   return new Promise((resolve) => {
-    let quietTimer: ReturnType<typeof setTimeout>;
+    let quietTimer: number;
     const observer = new MutationObserver(() => {
-      clearTimeout(quietTimer);
-      quietTimer = setTimeout(finish, quietMs);
+      window.clearTimeout(quietTimer);
+      quietTimer = window.setTimeout(finish, quietMs);
     });
     const finish = () => {
-      clearTimeout(quietTimer);
-      clearTimeout(hardTimer);
+      window.clearTimeout(quietTimer);
+      window.clearTimeout(hardTimer);
       observer.disconnect();
       resolve();
     };
-    const hardTimer = setTimeout(finish, timeoutMs);
-    quietTimer = setTimeout(finish, quietMs);
+    const hardTimer = window.setTimeout(finish, timeoutMs);
+    quietTimer = window.setTimeout(finish, quietMs);
     observer.observe(target, {
       childList: true,
       subtree: true,

@@ -62,8 +62,13 @@ export const FRONT_MATTER_SLOTS: SectionSlot[] = [
   "preface",
 ];
 
-/** `auto` | note path | `off` */
-export type SectionValue = "auto" | "off" | string;
+/**
+ * `auto`, `off`, or the path of a note.
+ *
+ * A string, in the end: the two names are values it may take, not a closed
+ * set, because any note path is also one.
+ */
+export type SectionValue = string;
 
 export interface EmbedFont {
   family: string;

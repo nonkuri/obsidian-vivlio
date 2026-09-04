@@ -108,7 +108,7 @@ function applyOutline(
         Title: PDFHexString.fromText(item.title ?? ""),
         Parent: parent,
         Dest: context.obj([pageRefFor(item.href), PDFName.of("XYZ"), null, null, null]),
-      }) as PDFDict;
+      });
 
       if (index > 0) dict.set(PDFName.of("Prev"), refs[index - 1]);
       if (index < refs.length - 1) dict.set(PDFName.of("Next"), refs[index + 1]);
@@ -135,7 +135,7 @@ function applyOutline(
       First: root.first,
       Last: root.last,
       Count: PDFNumber.of(root.count),
-    }) as PDFDict,
+    }),
   );
   document.catalog.set(PDFName.of("Outlines"), outlinesRef);
 }
@@ -164,13 +164,13 @@ function applyPageLabels(document: PDFDocument, classes: PageClass[]): void {
   const array = PDFArray.withContext(context);
   for (const entry of nums) array.push(entry);
 
-  const labels = context.obj({}) as PDFDict;
+  const labels = context.obj({});
   labels.set(PDFName.of("Nums"), array);
   document.catalog.set(PDFName.of("PageLabels"), context.register(labels));
 }
 
 function labelDict(context: PDFContext, kind: PageClass): PDFDict {
-  const dict = context.obj({}) as PDFDict;
+  const dict = context.obj({});
   if (kind === "cover") {
     // No numbering style: the cover is not a numbered page.
     dict.set(PDFName.of("P"), PDFHexString.fromText("Cover"));

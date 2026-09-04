@@ -107,7 +107,7 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   const primary = primaryNote(app, target);
   const frontmatter = primary
     ? extractFrontmatterConfig(
-        app.metadataCache.getFileCache(primary)?.frontmatter as Record<string, unknown>,
+        app.metadataCache.getFileCache(primary)?.frontmatter,
       )
     : null;
 

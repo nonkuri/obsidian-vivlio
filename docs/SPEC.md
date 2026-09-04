@@ -231,7 +231,7 @@ Vault の .md（1枚 / フォルダ / 目次ノート）
   "id": "vivlio",
   "name": "Vivlio",
   "version": "0.1.0",
-  "minAppVersion": "1.7.0",
+  "minAppVersion": "1.8.7",
   "description": "Typeset your notes with Vivliostyle (CSS paged media) and export to PDF / EPUB with a live preview. Japanese vertical writing, ruby and emphasis dots supported.",
   "author": "nonkuri",
   "isDesktopOnly": true

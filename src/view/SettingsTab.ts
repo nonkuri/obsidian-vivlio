@@ -404,7 +404,6 @@ export class VivlioSettingTab extends PluginSettingTab {
     new Setting(container).setName(t("settings.tocDepth")).addSlider((slider) =>
       slider
         .setLimits(1, 6, 1)
-        .setDynamicTooltip()
         .setValue(this.plugin.settings.tocDepth)
         .onChange(async (value) => {
           this.plugin.settings.tocDepth = value;

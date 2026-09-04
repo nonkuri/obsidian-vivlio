@@ -51,6 +51,8 @@ export async function renderPdf(
   options: { onProgress?: (message: string) => void } = {},
 ): Promise<RenderResult> {
   const signal = context.signal;
+  // `createEl` types only HTML tags, and `<webview>` is Electron's, not one
+  // of them (see the exception in eslint.config.mjs).
   const webview = document.createElement("webview") as WebviewTag;
   webview.addClass("vivlio-print-webview");
   webview.nodeintegration = false;
@@ -284,7 +286,7 @@ function once(
     const cleanup = () => {
       target.removeEventListener(event, onEvent);
       signal?.removeEventListener("abort", onAbort);
-      clearTimeout(timer);
+      window.clearTimeout(timer);
     };
     const onEvent = () => {
       cleanup();
@@ -294,7 +296,7 @@ function once(
       cleanup();
       reject(new AbortError());
     };
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       cleanup();
       reject(new Error(`timed out waiting for ${event}`));
     }, timeoutMs);

@@ -46,7 +46,7 @@ install and enable it.
 into `VaultFolder/.obsidian/plugins/vivlio/`, then reload Obsidian and enable
 the plugin under Community plugins.
 
-Desktop Obsidian 1.7.0 or later. The plugin prints through the Chromium that
+Desktop Obsidian 1.8.7 or later. The plugin prints through the Chromium that
 Obsidian is already running, which is why there is no mobile build.
 
 ## Opening the preview
