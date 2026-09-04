@@ -18,6 +18,11 @@ footnote: gcpm
 highlight: boten
 autoTcy: true
 
+# 表紙画像
+cover: images/cover.jpg
+coverFit: cover
+coverInPdf: true
+
 # 扉・目次・奥付は書誌情報と章見出しから自動生成する
 sections:
   titlePage: auto
@@ -28,4 +33,3 @@ tocDepth: 2
 
 # PDF 書き出し時の既定ファイル名
 output: 星を待つ郵便局.pdf
-
