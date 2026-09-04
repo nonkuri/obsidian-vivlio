@@ -17,6 +17,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
 
   "menu.exportFolder": "Vivlio: 本として書き出す",
   "menu.preview": "Vivlio: プレビュー",
+  "menu.previewFolder": "Vivlio: 本としてプレビュー",
 
   "view.title": "Vivlio プレビュー",
   "view.rebuild": "再ビルド",

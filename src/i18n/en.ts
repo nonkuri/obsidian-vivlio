@@ -17,6 +17,7 @@ export const en = {
 
   "menu.exportFolder": "Vivlio: export as a book",
   "menu.preview": "Vivlio: preview",
+  "menu.previewFolder": "Vivlio: preview as a book",
 
   "view.title": "Vivlio preview",
   "view.rebuild": "Rebuild",

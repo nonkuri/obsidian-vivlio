@@ -250,6 +250,15 @@ export default class VivlioPlugin extends Plugin {
     this.registerEvent(
       this.app.workspace.on("file-menu", (menu, file) => {
         if (file instanceof TFolder) {
+          // The preview takes a folder as readily as a note - the pipeline has
+          // always built all three kinds of target - so the menu that offers
+          // to export a folder as a book should offer to look at it first.
+          menu.addItem((item) =>
+            item
+              .setTitle(t("menu.previewFolder"))
+              .setIcon("book-open")
+              .onClick(() => void this.openPreview({ kind: "folder", folder: file })),
+          );
           menu.addItem((item) =>
             item
               .setTitle(t("menu.exportFolder"))
