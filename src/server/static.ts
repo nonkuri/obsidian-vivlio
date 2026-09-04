@@ -138,7 +138,12 @@ export class PreviewServer {
     // The viewer drops a `page` of its own from the fragment, so the page to
     // return to travels under a name of ours and is applied by the script in
     // keepPage.ts.
-    if (options.epage) params.push(`${EPAGE_PARAM}=${Math.floor(options.epage)}`);
+    //
+    // Rounded, not truncated. While the preview composes only as far as it
+    // has been asked to, the viewer reports the page as a fraction - 6.91 for
+    // the page it was told to call 7 - and taking the floor of that put the
+    // reader back one page short of where they were.
+    if (options.epage) params.push(`${EPAGE_PARAM}=${Math.round(options.epage)}`);
     if (options.cacheBust) params.push(`t=${Date.now()}`);
     return `${this.viewerUrl()}#${params.join("&")}`;
   }

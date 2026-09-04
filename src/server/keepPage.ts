@@ -35,9 +35,9 @@ export const KEEP_PAGE_SCRIPT = `
 (function () {
   var MESSAGE = ${JSON.stringify(PAGE_MESSAGE)};
   var PARAM = ${JSON.stringify(EPAGE_PARAM)};
-  // How long the book may go without growing before the page it has reached
-  // is taken as the whole of it.
-  var SETTLE_MS = 1500;
+  // How long the book may go without growing before the page it has
+  // reached is taken as the whole of it.
+  var SETTLE_MS = 2500;
 
   function wanted() {
     // [0-9] rather than \d: this lives in a template literal, where a
@@ -48,39 +48,40 @@ export const KEEP_PAGE_SCRIPT = `
 
   function start(viewer) {
     var target = wanted();
-    // Nothing to put back, so report from the first page onwards.
     var pending = target > 0;
     var known = 0;
     var settle = null;
 
-    function restore(page, epage) {
+    function go(page) {
       pending = false;
       if (settle) { clearTimeout(settle); settle = null; }
-      if (page > 0 && page !== epage) viewer.navigateToPage("epage", page);
+      if (page > 0) viewer.navigateToPage("epage", page);
     }
 
     viewer.addListener("nav", function (payload) {
       if (!payload) return;
-      var count = payload.epageCount;
 
-      if (pending && typeof count === "number" && count > 0) {
-        // The pages arrive as they are composed, so a count smaller than the
-        // page being looked for means the book has not got there yet, not
-        // that the page is gone. Wait, but not for ever: a rebuild can leave
-        // the book genuinely shorter, and then the last page is the answer.
-        if (count > known) {
-          known = count;
-          if (settle) clearTimeout(settle);
-          settle = setTimeout(function () {
-            restore(Math.min(target, known - 1), -1);
-          }, SETTLE_MS);
+      if (pending) {
+        var count = payload.epageCount;
+        if (typeof count === "number" && count > 0) {
+          // Wait for the book to reach the page before going to it. Going on
+          // the first word from the viewer lands on page one, because at that
+          // point one page is all there is.
+          if (target <= count - 1) { go(target); return; }
+
+          // The book is still growing. Only when it stops, and has genuinely
+          // ended short of the page, is the last page the answer. This runs
+          // with the whole book composed (see bookViewerUrl), so a count that
+          // has stopped growing is the count.
+          if (count > known) {
+            known = count;
+            if (settle) clearTimeout(settle);
+            settle = setTimeout(function () { go(known - 1); }, SETTLE_MS);
+          }
         }
-        if (target <= count - 1) restore(target, payload.epage);
+        return;
       }
 
-      // Saying "page one" while the page being restored is still on its way
-      // would overwrite the very thing being restored.
-      if (pending) return;
       if (typeof payload.epage === "number") {
         try {
           parent.postMessage({ type: MESSAGE, epage: payload.epage }, "*");
