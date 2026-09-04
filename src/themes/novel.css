@@ -250,6 +250,29 @@ ruby.boten > rt {
   letter-spacing: 0;
 }
 
+/* Footnotes ----------------------------------------------------------------
+ *
+ * theme-base writes the call as `*1` and the note as `1.`: the English
+ * convention, which leaves a reader matching two different marks. A Japanese
+ * book uses the same number in both places.
+ *
+ * The number is combined into one upright em, as a tate-chu-yoko, which is
+ * how a numeral is set inside vertical Japanese. No class guards this: a
+ * chapter document has no writing-mode class on its root, and
+ * `text-combine-upright` does nothing in horizontal writing anyway.
+ */
+:root {
+  --vs-footnote--call-content: counter(vs-counter-footnote, decimal);
+  --vs-footnote--marker-content: counter(vs-counter-footnote, decimal) '　';
+}
+
+.footnote::footnote-call,
+[role='doc-footnote']::footnote-call,
+.footnote::footnote-marker,
+[role='doc-footnote']::footnote-marker {
+  text-combine-upright: all;
+}
+
 /* Tate-chu-yoko ----------------------------------------------------------- */
 .tcy {
   text-combine-upright: all;
