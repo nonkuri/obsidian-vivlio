@@ -28,20 +28,45 @@ export interface TocEntry {
 }
 
 /**
+ * Who is reading the table of contents.
+ *
+ * A printed contents page and an EPUB's navigation answer different
+ * questions. The page lists what a reader would turn to: the chapters, and
+ * nothing they are already holding. The navigation is how a reader moves
+ * around the file at all, so it names every document in it - the cover and
+ * the title page included, which a printed contents page would never list,
+ * and the colophon, which it lists only because a reader may want to jump
+ * there.
+ */
+export type TocAudience = "print" | "nav";
+
+/** Parts a printed contents page leaves out; the navigation keeps them. */
+const PRINT_ONLY_OMITS = new Set(["halfTitle", "titlePage", "colophon"]);
+
+/**
  * The entries of a book's table of contents, nested by heading level.
  *
  * Both the printed table of contents and the EPUB's `nav.xhtml` are built
  * from this, so a reader's navigation shows the same structure - down to the
- * same `tocDepth` - as the page the book prints (SPEC 5.11).
+ * same `tocDepth` - as the page the book prints (SPEC 5.11), differing only
+ * in which parts each is asked to list.
  */
-export function buildTocEntries(context: BuildContext, chapters: Chapter[]): TocEntry[] {
+export function buildTocEntries(
+  context: BuildContext,
+  chapters: Chapter[],
+  audience: TocAudience = "print",
+): TocEntry[] {
   const depth = Math.max(1, Math.min(6, context.config.tocDepth || 2));
   const entries: TocEntry[] = [];
 
   for (const chapter of chapters) {
-    // The cover and the table of contents itself never appear in it.
-    if (chapter.slot === "toc" || chapter.role === "doc-cover") continue;
-    if (chapter.slot === "halfTitle" || chapter.slot === "titlePage") continue;
+    // The contents itself is never an entry in itself, in either audience:
+    // in print it is the page being read, in an EPUB it is the navigation.
+    if (chapter.slot === "toc") continue;
+    if (audience === "print") {
+      if (chapter.role === "doc-cover") continue;
+      if (chapter.slot && PRINT_ONLY_OMITS.has(chapter.slot)) continue;
+    }
 
     const headings = chapter.file ? (context.headings.get(chapter.file.path) ?? []) : [];
     const wanted = headings.filter(
@@ -56,7 +81,10 @@ export function buildTocEntries(context: BuildContext, chapters: Chapter[]): Toc
     if (wanted.length === 0) {
       entries.push({
         href: `${chapter.docName}#${DOCUMENT_ANCHOR}`,
-        label: chapter.title,
+        // The cover carries the book's title, which the title page carries
+        // too: in a navigation list those are two lines reading the same,
+        // and neither says which one goes to the picture.
+        label: chapter.role === "doc-cover" ? t("section.cover") : chapter.title,
         level: 1,
         children: [],
       });

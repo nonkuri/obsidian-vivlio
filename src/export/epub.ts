@@ -275,7 +275,10 @@ function navDocument(
   chapters: Chapter[],
   documents: { id: string; href: string; chapter: Chapter }[],
 ): string {
-  const items = renderNavList(buildTocEntries(context, chapters), 2);
+  // An EPUB's navigation is how a reader reaches any part of the file, so it
+  // names the cover, the title page and the colophon too - none of which a
+  // printed contents page would list.
+  const items = renderNavList(buildTocEntries(context, chapters, "nav"), 2);
 
   const landmarks = documents
     .map((entry) => {

@@ -143,7 +143,7 @@ export function titlePageDocument(context: BuildContext): string {
     lang: config.lang,
     title: config.title || t("book.untitled"),
     rootClass: "vivlio-front-matter",
-    body: `<section class="titlepage vivlio-front" epub:type="titlepage">\n${parts.join("\n")}\n</section>`,
+    body: `<section class="titlepage vivlio-front" epub:type="titlepage" id="${DOCUMENT_ANCHOR}">\n${parts.join("\n")}\n</section>`,
   });
 }
 

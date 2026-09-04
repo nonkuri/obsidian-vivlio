@@ -159,6 +159,8 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.autoRefresh": "プレビューを自動更新する",
   "settings.debounceMs": "更新のデバウンス（ミリ秒）",
   "settings.renderAllPages": "全ページを最初に描画する",
+  "settings.renderAllPages.desc":
+    "表示は遅くなりますが、目次のページ番号は全ページが組まれてはじめて確定します。",
   "settings.taggedPdf": "タグ付き PDF",
   "settings.pdfOutline": "PDF に栞を付ける",
   "settings.pdfMetadata": "PDF にメタデータを埋め込む",
@@ -205,6 +207,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "syntax.pageBreak": "［＃改ページ］で強制改ページ",
   "syntax.blankLines": "原稿の連続する空行を紙面の空きにする（3 行で 1 行アキ）",
 
+  "section.cover": "表紙",
   "section.halfTitle": "半扉",
   "section.titlePage": "扉",
   "section.dedication": "献辞",

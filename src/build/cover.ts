@@ -1,4 +1,5 @@
 import { warn, type BuildContext } from "./context";
+import { DOCUMENT_ANCHOR } from "./toc";
 import { htmlDocument } from "./document";
 import { registerVaultAsset, srcFor } from "./hast/assets";
 import { escapeHtml } from "./vfm";
@@ -30,7 +31,7 @@ export function buildCover(context: BuildContext): CoverResult | null {
   }
 
   const asset = registerVaultAsset(context, file);
-  const body = `<section class="cover" role="doc-cover">
+  const body = `<section class="cover" role="doc-cover" id="${DOCUMENT_ANCHOR}">
 <img src="${escapeHtml(srcFor(context, asset))}" alt="">
 </section>`;
 

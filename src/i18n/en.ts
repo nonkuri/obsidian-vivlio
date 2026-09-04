@@ -162,6 +162,8 @@ export const en = {
   "settings.autoRefresh": "Refresh the preview automatically",
   "settings.debounceMs": "Refresh delay (ms)",
   "settings.renderAllPages": "Render every page up front",
+  "settings.renderAllPages.desc":
+    "Slower to appear, but a contents page can only show its page numbers once every page has been composed.",
   "settings.taggedPdf": "Tagged PDF",
   "settings.pdfOutline": "PDF bookmarks",
   "settings.pdfMetadata": "PDF metadata",
@@ -209,6 +211,7 @@ export const en = {
   "syntax.blankLines":
     "Turn a run of blank lines in the manuscript into space on the page (three lines give one)",
 
+  "section.cover": "Cover",
   "section.halfTitle": "Half title",
   "section.titlePage": "Title page",
   "section.dedication": "Dedication",
