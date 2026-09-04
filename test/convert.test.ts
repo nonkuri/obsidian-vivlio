@@ -118,7 +118,7 @@ vivlio-theme: bunko
 
 # 第一章
 
-《《ここは傍点》》になり、｜漢字《かんじ》にルビが付く。標無《しるしなし》にも付く。^^10^^ 年と 42 冊。
+《《ここは傍点》》になり、｜漢字《かんじ》にルビが付く。標無《しるしなし》にも付く。^^10^^ 年と 42 冊、3 歳、2024 年。
 
 ==ハイライト== は傍点になる。%%この注記は消える%%
 
@@ -179,6 +179,11 @@ async function main(): Promise<void> {
     ),
     check("explicit tate-chu-yoko", html.includes('<span class="tcy">10</span>')),
     check("automatic tate-chu-yoko", html.includes('<span class="tcy">42</span>')),
+    // A lone digit is set upright too: left to `text-orientation: mixed` it
+    // would lie on its side in the middle of vertical text.
+    check("a single digit stands upright", html.includes('<span class="tcy">3</span>')),
+    // Three digits and more do not fit the em a combine gives them.
+    check("four digits are left alone", !html.includes('<span class="tcy">2024</span>')),
     check("highlight becomes emphasis dots", (html.match(/<ruby class="boten">/g) ?? []).length === 2),
     check("comment stripped", !html.includes("この注記は消える")),
     check("block id stripped", !html.includes("block-id")),

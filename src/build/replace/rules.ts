@@ -50,10 +50,20 @@ export function notationRules(config: BookConfig): TextRule[] {
     });
   }
 
-  // #6 Two-digit numbers become tate-chu-yoko in vertical writing.
+  // #6 One- and two-digit numbers stand upright in vertical writing.
+  //
+  // Two digits are the classic tate-chu-yoko: the pair is combined into one em
+  // so the line keeps its rhythm. A lone digit needs the same treatment for a
+  // different reason - left to `text-orientation: mixed` it is laid on its
+  // side, and a numeral lying down in the middle of vertical text is simply
+  // wrong (JIS X 4051 sets a single digit upright). `text-combine-upright` on
+  // a run of one is exactly that: one upright character in one em.
+  //
+  // Three digits and more are left alone. They do not fit the em a combine
+  // gives them, and a manuscript that wants those upright says so in kanji.
   if (syntax.autoTcy && config.autoTcy && config.writingMode === "vertical-rl") {
     rules.push({
-      test: /(?<![\p{Nd}A-Za-z.,:%-])(\d{2})(?![\p{Nd}A-Za-z.,:%-])/gu,
+      test: /(?<![\p{Nd}A-Za-z.,:%-])(\d{1,2})(?![\p{Nd}A-Za-z.,:%-])/gu,
       replace: (match) => [span("tcy", match[1])],
       // Numbers inside a ruby reading, a link URL or an already-converted span
       // must stay as they are.

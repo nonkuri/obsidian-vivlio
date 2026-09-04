@@ -147,7 +147,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.highlight.strong": "太字（<strong>）",
   "settings.highlight.mark": "蛍光ペンの地色（<mark>）",
   "settings.highlight.off": "装飾しない（== を外して素の文字にする）",
-  "settings.autoTcy": "2 桁の半角数字を自動で縦中横にする",
+  "settings.autoTcy": "1〜2 桁の半角数字を自動で正立させる",
   "settings.pageNumbering": "ノンブル",
   "settings.pageNumbering.desc": "ページ番号（ノンブル）の付け方。",
   "settings.pageNumbering.roman-then-arabic":
@@ -184,7 +184,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "syntax.boten": "《《テキスト》》 を傍点にする",
   "syntax.aozoraRuby": "｜漢字《かんじ》 をルビにする",
   "syntax.tcy": "^^10^^ を縦中横にする",
-  "syntax.autoTcy": "2 桁数字の自動縦中横",
+  "syntax.autoTcy": "1〜2 桁数字の自動正立",
   "syntax.highlight": "==ハイライト== を変換する",
   "syntax.highlight.desc": "オフにすると == 記号が本文にそのまま残ります。",
   "syntax.imageEmbed": "画像の埋め込みを解決する",

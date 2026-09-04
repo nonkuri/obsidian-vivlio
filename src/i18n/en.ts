@@ -150,7 +150,7 @@ export const en = {
   "settings.highlight.strong": "Bold (<strong>)",
   "settings.highlight.mark": "A highlighter ground (<mark>)",
   "settings.highlight.off": "Nothing — drop the == and keep the words plain",
-  "settings.autoTcy": "Automatic tate-chu-yoko for 2-digit numbers",
+  "settings.autoTcy": "Set one- and two-digit numbers upright",
   "settings.pageNumbering": "Page numbering",
   "settings.pageNumbering.desc": "How the folio is numbered through the book.",
   "settings.pageNumbering.roman-then-arabic":
