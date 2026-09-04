@@ -482,7 +482,15 @@ function sectionCss(context: BuildContext): string {
   page: halftitle;
 }
 
-@page titlepage, halftitle {
+[role='doc-colophon'] {
+  page: colophon;
+}
+
+/* A colophon is where the book says who made it, not a page anyone is
+   counting. Japanese books print no folio on it, and the contents page does
+   not list it either (see buildTocEntries). It joins the two parts that were
+   already unnumbered, through the one mechanism proven to do it. */
+@page titlepage, halftitle, colophon {
   --vs-page--mbox-visibility: hidden;
 }
 
