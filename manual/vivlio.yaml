@@ -1,0 +1,14 @@
+theme: manual
+writingMode: horizontal-tb
+size: A5
+fontFamily: "'Hiragino Sans', 'Noto Sans CJK JP', 'Yu Gothic', sans-serif"
+headingFontFamily: "'Hiragino Sans', 'Noto Sans CJK JP', 'Yu Gothic', sans-serif"
+
+title: Vivlio プラグイン詳細マニュアル
+subtitle: Obsidian のノートを Vivliostyle で組版する — 0.2.0 対応
+author: nonkuri
+version: 初版
+
+colophonExtra:
+  対応バージョン: 0.2.0
+date: 2026-09-04

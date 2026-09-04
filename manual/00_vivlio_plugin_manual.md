@@ -1,6 +1,6 @@
 # このマニュアルについて
 
-このマニュアルは **Vivlio 0.1.3**（デスクトップ版 Obsidian 1.8.7 以降）を対象にしています。Vivlio は、Obsidian の Markdown ノートを Vivliostyle で組版し PDF / EPUB 3 に書き出すプラグインです。ライブプレビューも可能となっているので、仕上がりを確認しながら修正できます。
+このマニュアルは **Vivlio 0.2.0**（デスクトップ版 Obsidian 1.8.7 以降）を対象にしています。Vivlio は、Obsidian の Markdown ノートを Vivliostyle で組版し PDF / EPUB 3 に書き出すプラグインです。ライブプレビューも可能となっているので、仕上がりを確認しながら修正できます。
 
 
 ![Obsidian のノートと Vivlio プレビュー](images/obsidian.png)

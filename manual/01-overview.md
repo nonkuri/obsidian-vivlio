@@ -64,9 +64,9 @@ Vivlio の設定は三層です。下ほど優先されます。
 
 ## テーマ
 
-既定の `novel` は Vivlio 用に調整した縦組み小説テーマです。Vault 内の任意の `.css` をテーマにでき、`@import url("vivlio:novel");` から少しずつ変更できます。
+既定の `novel` は Vivlio 用に調整した縦組み小説テーマ、`manual` は同じく Vivlio 用の横組みテーマで、マニュアルや技術書に向きます。このマニュアル自体が `manual` で組まれています。Vault 内の任意の `.css` をテーマにでき、`@import url("vivlio:novel");` から少しずつ変更できます。
 
-プラグインには Vivliostyle の `base`、`bunko`、`techbook`、`academic` も同梱されていますが、テーマ選択欄に標準表示されるのは動作確認済みの `novel` だけです。ほかの同梱テーマは自作 CSS から `vivlio:base` などとして読み込めます。
+プラグインには Vivliostyle の `base`、`bunko`、`techbook`、`academic` も同梱されていますが、テーマ選択欄に標準表示されるのは動作確認済みの `novel` と `manual` だけです。ほかの同梱テーマは自作 CSS から `vivlio:base` などとして読み込めます。
 
 詳しくは [自分でテーマを作ってみる](06-custom-theme.md) を参照してください。
 

@@ -21,13 +21,14 @@
 
 | URL | 内容 |
 |---|---|
-| `vivlio:novel` | Vivlio 用に調整した日本語小説テーマ。推奨の出発点 |
+| `vivlio:novel` | Vivlio 用に調整した日本語小説テーマ。縦組みの出発点 |
+| `vivlio:manual` | Vivlio 用の横組みテーマ。マニュアル・技術書の出発点 |
 | `vivlio:base` | Vivliostyle theme-base |
 | `vivlio:bunko` | Vivliostyle theme-bunko |
 | `vivlio:techbook` | Vivliostyle theme-techbook |
 | `vivlio:academic` | Vivliostyle theme-academic |
 
-テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel` だけです。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
+テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel`（縦組み）と `manual`（横組み）だけです。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
 
 ## 最初の自作テーマ
 
