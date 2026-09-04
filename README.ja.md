@@ -6,7 +6,7 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 
 デスクトップ専用です（`isDesktopOnly: true`）。初回起動時に何もダウンロードしません。組版エンジンはプラグインに同梱されていて、PDF は Obsidian がすでに動かしている Chromium が刷ります。
 
-仕様は [docs/SPEC.md](docs/SPEC.md) にあります。
+仕様は [docs/SPEC.md](docs/SPEC.md) にあります。設定タブから `vivlio.yaml`、原稿の書き方、テーマの自作、トラブルシューティングまでを扱った詳細マニュアルを [manual/](manual/00_vivlio_plugin_manual.md) にまとめています。
 
 ![左に Obsidian のノート、右に Vivlio のプレビュー。エディタに素のまま置かれた vivlio-* フロントマターと ｜遠雷《えんらい》・《《…》》 の記法が、隣のペインでは縦組みの本文になっている。](docs/images/obsidian.png)
 

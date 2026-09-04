@@ -10,7 +10,9 @@ Desktop only (`isDesktopOnly: true`). Nothing is downloaded on first run: the
 typesetting engine ships in the plugin and the PDF is printed by the Chromium
 Obsidian already runs.
 
-Implements [docs/SPEC.md](docs/SPEC.md).
+Implements [docs/SPEC.md](docs/SPEC.md). A full user manual in Japanese
+starts at [manual/](manual/00_vivlio_plugin_manual.md) — the settings tab,
+`vivlio.yaml`, writing, themes of your own, and troubleshooting.
 
 ![Obsidian with a note open on the left and the Vivlio preview on the right: the vivlio-* frontmatter and the ｜遠雷《えんらい》 and 《《…》》 notation sit plainly in the editor, and come out as vertical Japanese type in the pane beside it.](docs/images/obsidian.png)
 
