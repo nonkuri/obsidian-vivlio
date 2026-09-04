@@ -83,10 +83,11 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "wizard.destination.desc":
     "この本だけの設定ファイルです。どの判型で組むか、本が自分を何と名乗るか、どの部位を持つかを書きます。書き出すとこの場で開き、以後は原稿と並んでファイルエクスプローラーに出ます —— 設定の「.yaml / .css / .epub をファイルエクスプローラーに表示する」をオフにしている場合は Obsidian に出ないので、テキストエディタで開いてください。",
 
-  "preset.bunko": "文庫本（縦組み）",
+  "preset.bunko": "文庫（39字×15行）",
   "preset.techbook": "技術同人誌（A5 横組み）",
   "preset.academic": "論文（A4）",
-  "preset.webnovel": "Web 小説の書籍化",
+  "preset.webnovel": "文庫（40字×16行）",
+  "preset.manual": "マニュアル・技術書（A5 横組み）",
   "preset.custom": "カスタム",
 
   "settings.heading.general": "全般",

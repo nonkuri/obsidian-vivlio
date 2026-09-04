@@ -83,10 +83,11 @@ export const en = {
   "wizard.destination.desc":
     "This book's own configuration file: the page it is set on, what it calls itself, and which parts it has. It opens here when written, and stays in the file explorer beside the notes — unless you have turned off “Show .yaml / .css / .epub in the file explorer”, in which case Obsidian hides it and any text editor will open it.",
 
-  "preset.bunko": "Paperback novel (vertical)",
+  "preset.bunko": "Paperback (39 x 15)",
   "preset.techbook": "Tech book (A5, horizontal)",
   "preset.academic": "Paper (A4)",
-  "preset.webnovel": "Web novel in print",
+  "preset.webnovel": "Paperback (40 x 16)",
+  "preset.manual": "Manual or tech book (A5, horizontal)",
   "preset.custom": "Custom",
 
   "settings.heading.general": "General",
