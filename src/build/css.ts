@@ -304,9 +304,18 @@ ruby.boten > rt {
 }
 
 /* Blank lines the manuscript left, as whole lines of the grid so the text below
-   still sits on it (see blankLinesPlugin). */
+   still sits on it (see blankLinesPlugin).
+
+   Padding rather than margin. A margin here does not add to the one the block
+   already carries, it collapses with it - and a margin-laid theme sizes that
+   margin as one line, exactly what a three-blank-line run asks for, so the
+   space the manuscript wanted replaced the paragraph break instead of
+   following it and the page did not move at all. (theme-base: both
+   --vs--p-margin-block and --vs--figure-margin-block are --vs-spacing-rlh.)
+   Padding is added to whatever the theme spaces blocks by, which is what a
+   run of blank lines means: this much again, past the usual gap. */
 .vivlio-blank-lines {
-  margin-block-start: calc(
+  padding-block-start: calc(
     1rem * var(--vs-line-height, 1.5) * var(--vivlio-blank-lines, 1)
   );
 }
