@@ -1,0 +1,31 @@
+# 「複数の Markdown から一冊の本を作る」ためのサンプル設定
+title: 星を待つ郵便局
+subtitle: 海辺の町の小さな物語
+author: 架空 太郎
+publisher: 架空書房
+date: 2026-09-04
+version: 初版
+lang: ja
+
+# 縦組みの文庫本として組版する
+theme: novel
+writingMode: vertical-rl
+size: 文庫
+charsPerLine: 40
+linesPerPage: 16
+paragraphIndentMode: auto
+footnote: gcpm
+highlight: boten
+autoTcy: true
+
+# 扉・目次・奥付は書誌情報と章見出しから自動生成する
+sections:
+  titlePage: auto
+  toc: auto
+  colophon: auto
+pageNumbering: roman-then-arabic
+tocDepth: 2
+
+# PDF 書き出し時の既定ファイル名
+output: 星を待つ郵便局.pdf
+
