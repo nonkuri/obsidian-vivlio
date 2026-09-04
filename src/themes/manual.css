@@ -1,7 +1,7 @@
 /*
  * Vivlio — Japanese manual (horizontal)
  *
- * A page design for a horizontally set Japanese manual, built on
+ * A page design for a horizontally set Japanese manual or handbook, built on
  * theme-techbook (which is itself built on theme-base, so every `--vs-*`
  * variable the plugin generates still lands).
  *
@@ -193,13 +193,15 @@ figcaption {
  * where another book prints ten.
  */
 [role='doc-colophon'] {
-  /* A colophon sits at the foot of its page, and cannot be pushed there:
-     distributing free space needs a definite block extent, and a margin-laid
-     theme leaves --vs-page--height at `auto` (theme-base page.css), so
-     `margin-block-start: auto` would have nothing to work against. The offset
-     is measured instead: A5 less techbook's 25mm margins is a 160mm block,
-     near enough 50rem, and the record starts at 40 of them. */
-  padding-block-start: 36rem;
+  /* A colophon sits low on its page and cannot be pushed there: distributing
+     free space needs a definite block extent, and a margin-laid theme leaves
+     --vs-page--height at `auto` (theme-base page.css), so
+     `margin-block-start: auto` has nothing to work against.
+
+     The offset is stated instead, and against the page rather than against a
+     paper size: this theme is handed A5, B5 and A4 alike, and 36rem is the
+     lower half of one of them only. */
+  padding-block-start: 55vh;
   font-size: 0.85rem;
 }
 

@@ -24,6 +24,7 @@ export type { EmbeddedAsset };
  */
 export const BUNDLED_THEMES: Record<string, string> = {
   novel: "vivlio/novel.css",
+  manual: "vivlio/manual.css",
   bunko: "@vivliostyle/theme-bunko/theme.css",
   techbook: "@vivliostyle/theme-techbook/theme.css",
   academic: "@vivliostyle/theme-academic/theme.css",
@@ -33,13 +34,14 @@ export const BUNDLED_THEMES: Record<string, string> = {
 /**
  * The bundled themes the picker offers, in order.
  *
- * Only `novel` is finished: it is the one built for this plugin, and the one
- * the plugin's own page geometry, folio placement and heading spacing are
- * tuned against. The upstream themes still resolve - a book that names one
- * gets it - but offering them in a picker would promise a result nobody has
- * checked, so they are left out until each has been gone over.
+ * These two are finished: they are the ones built for this plugin, and the
+ * ones its own page geometry, folio placement and heading spacing are tuned
+ * against - `novel` vertically, `manual` horizontally. The upstream themes
+ * still resolve - a book that names one gets it - but offering them in a
+ * picker would promise a result nobody has checked, so they are left out
+ * until each has been gone over.
  */
-export const SELECTABLE_THEMES: string[] = ["novel"];
+export const SELECTABLE_THEMES: string[] = ["novel", "manual"];
 
 /**
  * The character grid a bundled theme builds its text block from.
