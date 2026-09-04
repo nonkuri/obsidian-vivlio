@@ -13,6 +13,7 @@ import { BOOK_STYLESHEET } from "../src/build/vfm";
 import { buildTocEntries, tocDocument } from "../src/build/toc";
 import { colophonDocument, titlePageDocument } from "../src/build/sections";
 import { kanjiDate } from "../src/util/kanji";
+import JSZip from "jszip";
 import { epubStylesheet } from "../src/export/epub";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
@@ -289,6 +290,57 @@ async function main(): Promise<void> {
       "a name of its own is still recognisable",
       assetPaths.some((path) => path.endsWith("-fig.png")),
       assetPaths.join(", "),
+    ),
+  );
+
+  // A manuscript reaches the document through `rehype-raw`, so the HTML in it
+  // arrives as real elements. That is what makes an inline `<span>` work, and
+  // it is also how a `<script>` would arrive. A book is a static object: none
+  // of this belongs in one, and an EPUB carries whatever it is given to a
+  // reader that makes its own decisions (see hast/sanitize.ts).
+  const hostile = makeContext();
+  const hostileHtml = await convertChapter(
+    hostile,
+    hostile.chapters[0],
+    chapterOne,
+    [
+      "<script>window.alert(1)</script>",
+      "",
+      '<img src="fig.png" onerror="window.alert(2)">',
+      "",
+      '<a href="javascript:window.alert(3)">link</a>',
+      "",
+      '<a href="java	script:window.alert(4)">split scheme</a>',
+      "",
+      '<iframe srcdoc="<script>window.alert(5)</script>"></iframe>',
+      "",
+      '<a href="notes/next.md">an ordinary link survives</a>',
+    ].join("\n"),
+  );
+  checks.push(
+    check("a script element is removed", !hostileHtml.includes("window.alert(1)"), hostileHtml),
+    check("and leaves no tag behind", !/<script/i.test(hostileHtml), hostileHtml),
+    check("an event handler is removed", !hostileHtml.includes("window.alert(2)"), hostileHtml),
+    check("and leaves no attribute behind", !/\bonerror=/i.test(hostileHtml), hostileHtml),
+    check("a javascript: url is removed", !hostileHtml.includes("window.alert(3)"), hostileHtml),
+    // A browser reads the scheme with its whitespace taken out, so a check
+    // that only compares the start of the string is not a check at all.
+    check(
+      "a scheme split by whitespace is still a scheme",
+      !hostileHtml.includes("window.alert(4)"),
+      hostileHtml,
+    ),
+    check("an iframe is removed", !hostileHtml.includes("window.alert(5)"), hostileHtml),
+    // The point is to remove what runs, not to flatten the manuscript.
+    check(
+      "an ordinary link is left alone",
+      hostileHtml.includes('href="notes/next.md"'),
+      hostileHtml,
+    ),
+    check(
+      "and the writer is told what was taken out",
+      hostile.warnings.some((warning) => warning.message.includes("does not run code")),
+      hostile.warnings.map((warning) => warning.message).join(" | "),
     ),
   );
 
@@ -655,6 +707,31 @@ async function main(): Promise<void> {
     check(
       "a theme without a grid is left alone",
       !bookStylesheet(margins, "x.css").includes("--vs--html-font-size"),
+    ),
+  );
+
+  // The build resolves JSZip from its source rather than from the prebundled
+  // copy its `browser` field points at, so that the two dead polyfills inside
+  // that copy can be replaced (see esbuild/shims.mjs). The library that comes
+  // out the other side still has to make a zip a reader can open, and the
+  // shims are the kind of thing a later change breaks quietly.
+  const zip = new JSZip();
+  zip.file("mimetype", "application/epub+zip");
+  zip.file("OEBPS/ch01.xhtml", `<html><body>${"縦組み".repeat(500)}</body></html>`);
+  const packedEpub = await zip.generateAsync({
+    type: "uint8array",
+    compression: "DEFLATE",
+    compressionOptions: { level: 6 },
+  });
+  const reopened = await JSZip.loadAsync(packedEpub);
+  const reread = await reopened.file("OEBPS/ch01.xhtml")?.async("string");
+  checks.push(
+    check("the zip writer still writes a zip", packedEpub[0] === 0x50 && packedEpub[1] === 0x4b, String(packedEpub.slice(0, 4))),
+    check("and deflates what it is given", packedEpub.byteLength < 1500, String(packedEpub.byteLength)),
+    check(
+      "and reads its own entries back intact",
+      reread === `<html><body>${"縦組み".repeat(500)}</body></html>`,
+      reread?.slice(0, 40),
     ),
   );
 

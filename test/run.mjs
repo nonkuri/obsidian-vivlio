@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { refractorPlugin, vivlioAssetsPlugin } from "../esbuild/assets.mjs";
+import { shimsPlugin } from "../esbuild/shims.mjs";
 import fs from "fs";
 import os from "os";
 
@@ -44,7 +45,9 @@ await esbuild.build({
   platform: "node",
   target: "node22",
   outfile,
-  plugins: [obsidianStub, refractorPlugin(root), vivlioAssetsPlugin(root)],
+  // The same substitutions the plugin bundle makes, so that a test which
+  // reaches JSZip is testing the library the plugin actually ships.
+  plugins: [obsidianStub, refractorPlugin(root), vivlioAssetsPlugin(root), shimsPlugin(root)],
   logLevel: "warning",
 });
 

@@ -134,6 +134,13 @@ export class PreviewServer {
       "bookMode=true",
       `renderAllPages=${options.renderAllPages}`,
       "spread=false",
+      // Vivliostyle runs the scripts it finds in a publication, and its
+      // default is to allow them. A book has no use for that: the documents
+      // served here are typeset from the vault, and `hast/sanitize.ts`
+      // already takes the executable parts out of them. This is the second
+      // lock on the same door, on the side the viewer answers to, and it
+      // covers the export webview as well as the preview.
+      "allowScripts=false",
     ];
     // The viewer drops a `page` of its own from the fragment, so the page to
     // return to travels under a name of ours and is applied by the script in

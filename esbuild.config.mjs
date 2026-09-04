@@ -4,6 +4,7 @@ import builtins from "builtin-modules";
 import path from "path";
 import { fileURLToPath } from "url";
 import { refractorPlugin, vivlioAssetsPlugin } from "./esbuild/assets.mjs";
+import { shimsPlugin } from "./esbuild/shims.mjs";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const prod = process.argv[2] === "production";
@@ -33,7 +34,7 @@ const context = await esbuild.context({
   treeShaking: true,
   minify: prod,
   outfile: "main.js",
-  plugins: [vivlioAssetsPlugin(dirname), refractorPlugin(dirname)],
+  plugins: [vivlioAssetsPlugin(dirname), refractorPlugin(dirname), shimsPlugin(dirname)],
   define: { "process.env.NODE_ENV": prod ? '"production"' : '"development"' },
   external: [
     "obsidian",

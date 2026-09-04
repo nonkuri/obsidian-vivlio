@@ -14,6 +14,7 @@ import { notationRules, PAGE_BREAK_CLASS } from "./replace/rules";
 import { assetsPlugin } from "./hast/assets";
 import { applyIndentPlugin, readManuscriptIndentPlugin } from "./hast/indent";
 import { linksPlugin } from "./hast/links";
+import { sanitizePlugin } from "./hast/sanitize";
 import { blankLinesPlugin } from "./hast/spacing";
 import { obsidianPlugin } from "./hast/obsidian";
 import {
@@ -101,6 +102,10 @@ export async function convertChapter(
           applyIndentPlugin(context.config.paragraphIndentMode),
           dropBookTitleHeadingPlugin(context),
           documentShapePlugin(chapter, chapterHeadingLevel(context, chapter, file)),
+          // Last, so that it sees the tree the document is actually built
+          // from: whatever the manuscript wrote, whatever `rehype-raw` let
+          // through, and whatever the stages above put there themselves.
+          sanitizePlugin(context, file.path),
         ],
       }) as unknown as ReturnType<NonNullable<StringifyMarkdownOptions["editPlugins"]>>,
     },

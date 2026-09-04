@@ -136,6 +136,14 @@ async function main(): Promise<void> {
     bookUrl,
   );
   check("viewer url asks for a book", bookUrl.includes("bookMode=true"), bookUrl);
+  // Vivliostyle runs the scripts it finds in a publication unless it is told
+  // not to, and its default is to allow them. The documents served here are
+  // typeset from the vault, and nothing in a book needs to run.
+  check(
+    "viewer url turns scripting off",
+    bookUrl.includes("allowScripts=false"),
+    bookUrl,
+  );
 
   // A rebuild replaces the frame's src, so the page the reader had reached
   // travels back in the fragment and is applied by the served script.

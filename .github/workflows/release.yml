@@ -10,6 +10,10 @@ on:
 
 permissions:
   contents: write
+  # Artifact attestations are signed against the workflow's own identity, so
+  # they need a token that can prove it and somewhere to record the claim.
+  id-token: write
+  attestations: write
 
 jobs:
   release:
@@ -43,6 +47,17 @@ jobs:
       - run: npm test
 
       - run: npm run build
+
+      # Sign what is about to be uploaded, so that a user - or a reviewer - can
+      # check that these three files were built by this workflow from this
+      # commit, rather than assembled by hand and attached.
+      - name: Attest the release assets
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: |
+            main.js
+            manifest.json
+            styles.css
 
       - name: Publish the release
         env:
