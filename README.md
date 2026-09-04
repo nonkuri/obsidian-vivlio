@@ -49,6 +49,24 @@ the plugin under Community plugins.
 Desktop Obsidian 1.7.0 or later. The plugin prints through the Chromium that
 Obsidian is already running, which is why there is no mobile build.
 
+## Opening the preview
+
+Three ways in, whichever is nearest to hand:
+
+- **The ribbon.** The book icon in the left ribbon typesets the note you are
+  looking at.
+- **The command palette.** `Vivlio: Open preview` does the same.
+- **The file explorer's context menu.** Right-click a Markdown note for
+  **Vivlio: preview**. Right-click a *folder* for **Vivlio: preview as a
+  book** — every `.md` in it, in chapter order — and **Vivlio: export as a
+  book** beside it.
+
+The pane opens on the right, with a toolbar across the top: **Rebuild**, a
+theme picker, and **PDF** and **EPUB** buttons that open the export dialog for
+whatever the pane is showing. It re-typesets as you edit the note; turn that
+off with **Refresh the preview automatically** in the settings, and rebuild by
+hand with the toolbar button or `Vivlio: Reload typeset result`.
+
 ## Commands
 
 | Command | What it does |
@@ -61,7 +79,8 @@ Obsidian is already running, which is why there is no mobile build.
 | `Vivlio: Add configuration to this note` | Inserts flat `vivlio-*` frontmatter |
 | `Vivlio: Write configuration reference` | Every key, with defaults and comments |
 
-The file explorer's context menu offers preview and export as well.
+The file explorer's context menu offers preview and export as well — see
+[Opening the preview](#opening-the-preview).
 
 ## Configuring a book
 
