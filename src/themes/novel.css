@@ -365,33 +365,41 @@ aside[role='doc-footnote'] [role='doc-backlink'] {
 
 /* Every number a note carries, whichever mode wrote it ----------------------
  *
- * Set at the text's own size, the number fills the same one em the characters
- * below it fill, and sits in the column without being told to. That is the
- * whole of it: `vertical-align: middle` was tried and pushed the number 5px
- * of a 29px column to the right, because `middle` measures from the baseline
- * and half an x-height, which is not the middle of a line of Japanese.
- *
- * The size matters for the same reason. A marker that opens a line is not an
- * annotation on it, and a smaller one cannot fill the column it is in.
+ * `vertical-align: middle` puts the number in the middle of the line: in
+ * vertical writing that axis is the width of the column. The size is the
+ * note's own, because a marker that opens a line is not an annotation on it
+ * and a smaller one cannot fill the column it is in.
  */
 .footnote::footnote-marker,
 [role='doc-footnote']::footnote-marker,
 .footnotes li::before,
 [role='doc-endnotes'] li::before,
-/* The number opening a `dpub` note is a real `<sup>`, and a raised inline box
-   is raised sideways in vertical writing: it stood 12px of a 29px column to
-   the right of the text it belongs to, which is what set this mode apart from
-   the other two. `vertical-align: baseline` does not bring it back - measured
-   - because the offset is the inline box's alignment within the line, not its
-   baseline. As an inline block it takes the line's own position, and the
-   measured offset is zero.
-   The reference in the body keeps its raise: a reference is a superscript.
-   The note's own number is the first character of a line. */
 aside[role='doc-footnote'] .footnote-back sup {
-  display: inline-block;
   font-size: 100%;
   text-combine-upright: all;
+  vertical-align: middle;
 }
+
+/* `dpub` alone needs a different answer ------------------------------------
+ *
+ * Its number is a real `<sup>` rather than content the viewer generates, and
+ * it does not land where the generated markers land: measured, the digit's
+ * ink sat 11.4px right of a 29.3px column, outside its own box.
+ *
+ * `vertical-align: baseline` does not move it, nor does dropping
+ * `text-combine-upright`, nor `display: inline-block` - that one collapses
+ * the box to zero width and leaves the ink where it was, which is what made
+ * an earlier attempt look fixed when it was not. A length does move it, and
+ * the zero is at half an em: -0.45em leaves the ink 1.1px right, -0.55em
+ * 1.1px left. The figure is empirical and font-relative.
+ *
+ * This is a fact about one mode. It was once written into the rule the three
+ * modes share, which is how a fix for `dpub` came to break the other two.
+ */
+aside[role='doc-footnote'] .footnote-back sup {
+  vertical-align: -0.5em;
+}
+
 
 /* Tate-chu-yoko ----------------------------------------------------------- */
 .tcy {
