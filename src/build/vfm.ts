@@ -6,6 +6,7 @@ import {
 } from "@vivliostyle/vfm";
 import type { TFile } from "obsidian";
 import { warn, type BuildContext, type Chapter } from "./context";
+import { writingModeClass } from "./document";
 import { vivlioFrontmatterKeys } from "../config/resolve";
 import { embedPlugin } from "./mdast/embed";
 import { dynamicRenderPlugin } from "./mdast/render";
@@ -167,6 +168,7 @@ function buildMetadata(
     // it from printing one of its own.
     chapter.slot === "toc" ? "vivlio-toc" : "",
     "vivlio-doc",
+    writingModeClass(context.config.writingMode),
   ]
     .filter(Boolean)
     .join(" ");

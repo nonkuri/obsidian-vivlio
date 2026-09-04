@@ -22,10 +22,23 @@ export interface DocumentOptions {
  * parts (cover, title page, table of contents, colophon) and converted
  * chapters are indistinguishable to the typesetter.
  */
+/**
+ * The class saying how the book is set.
+ *
+ * Both kinds of document carry it - the ones built here and the chapters VFM
+ * converts - so a stylesheet can select on it without having to know which
+ * path produced the page. Deriving it in one place is what keeps the two
+ * from disagreeing, which is how chapters came to carry no such class at all
+ * while everything else did.
+ */
+export function writingModeClass(writingMode: string | undefined): string {
+  return writingMode === "horizontal-tb" ? "vivlio-horizontal" : "vivlio-vertical";
+}
+
 export function htmlDocument(options: DocumentOptions): string {
-  const mode =
-    options.writingMode === "horizontal-tb" ? "vivlio-horizontal" : "vivlio-vertical";
-  const rootClass = ["vivlio-doc", mode, options.rootClass].filter(Boolean).join(" ");
+  const rootClass = ["vivlio-doc", writingModeClass(options.writingMode), options.rootClass]
+    .filter(Boolean)
+    .join(" ");
   return `<!doctype html>
 <html lang="${escapeHtml(options.lang)}" class="${escapeHtml(rootClass)}">
 <head>

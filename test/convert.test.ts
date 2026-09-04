@@ -177,6 +177,13 @@ async function main(): Promise<void> {
       /<ruby>標無<rp>\(<\/rp><rt>しるしなし<\/rt>/.test(html),
       html.slice(html.indexOf("しるしなし") - 90, html.indexOf("しるしなし") + 30),
     ),
+    // A chapter carries the writing-mode class too. It did not, so a theme
+    // keyed on `.vivlio-vertical` matched every generated part and no body.
+    check(
+      "a chapter says how the book is set",
+      /<html[^>]*class="[^"]*vivlio-vertical/.test(html),
+      html.slice(html.indexOf("<html"), html.indexOf(">", html.indexOf("<html")) + 1),
+    ),
     check("explicit tate-chu-yoko", html.includes('<span class="tcy">10</span>')),
     check("automatic tate-chu-yoko", html.includes('<span class="tcy">42</span>')),
     // A lone digit is set upright too: left to `text-orientation: mixed` it
