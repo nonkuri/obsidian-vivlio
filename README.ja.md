@@ -74,16 +74,19 @@ sections:
   preface: まえがき.md
   colophon: auto
 pageNumbering: roman-then-arabic
+startPage: 1             # 本文のノンブルを何番から始めるか
 output: 原稿/出力/猫.pdf
 ```
 
 ```yaml
 ---
-title: 第一章 猫である
+title: 吾輩は猫である
 vivlio-theme: bunko
 vivlio-size: 文庫
 ---
 ```
+
+ノート自身の `title` も読むので、1 つのノートを単独で書き出すぶんには `vivlio-title` は要りません。書名とノートのタイトルを分けたいときに `vivlio-title` を書きます（そちらが優先されます）。`Vivlio: このノートに設定を追加` が挿入するのはこの形です。このコマンドが提示するキーはすべて `vivlio-` を付けた名前になるためです。
 
 `Vivlio: 設定リファレンスを書き出す` を実行すると、すべてのキーを既定値とコメント付きで列挙した `vivlio.yaml` が得られます。
 
@@ -94,6 +97,8 @@ vivlio-size: 文庫
 3. `vivlio-order: 3` はどちらの場合も位置を固定します。
 
 目次ノート自身は、`includeToc: true` としない限り本には含まれません。
+
+`vivlio-order` と `vivlio-toc` は本ではなくノートに属する設定なので、`vivlio.yaml` には書けず、設定リファレンスにも出てきません。`Vivlio: このノートに設定を追加` が両方を提示します。
 
 ## 記法
 

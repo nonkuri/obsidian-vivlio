@@ -84,16 +84,22 @@ sections:
   preface: まえがき.md
   colophon: auto
 pageNumbering: roman-then-arabic
+startPage: 1             # the number the body starts counting from
 output: 原稿/出力/猫.pdf
 ```
 
 ```yaml
 ---
-title: 第一章 猫である
+title: 吾輩は猫である
 vivlio-theme: bunko
 vivlio-size: 文庫
 ---
 ```
+
+A note's own `title` is read as well, so a single note exported on its own
+needs no `vivlio-title` to name the book. Write `vivlio-title` when the two
+should differ — it wins — which is the form `Vivlio: Add configuration to this
+note` inserts, since every key it offers takes the `vivlio-` prefix.
 
 Run `Vivlio: Write configuration reference` for a `vivlio.yaml` listing every
 key with its default and a comment.
@@ -107,6 +113,10 @@ key with its default and a comment.
 
 The table-of-contents note itself stays out of the book unless
 `includeToc: true`.
+
+`vivlio-order` and `vivlio-toc` belong to a note rather than to the book, so
+`vivlio.yaml` has no use for them and the configuration reference leaves them
+out. `Vivlio: Add configuration to this note` offers both.
 
 ## Notation
 
