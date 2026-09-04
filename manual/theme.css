@@ -1,0 +1,397 @@
+/*
+ * Vivlio — Japanese manual (horizontal)
+ *
+ * A page design for a horizontally set Japanese manual, built on
+ * theme-techbook (which is itself built on theme-base, so every `--vs-*`
+ * variable the plugin generates still lands).
+ *
+ * This exists because the plugin generates the front matter — the half
+ * title, the title page, the colophon — as markup, but styles only its
+ * plumbing: `sectionCss` in src/build/css.ts names the pages, hides their
+ * folios and breaks after them, and stops there. The whole visual design
+ * lives in novel.css, which is vertical. Any theme that is not novel gets
+ * the generated markup as a stack of body-size paragraphs, which is why an
+ * untouched techbook title page reads as an accident rather than a page.
+ *
+ * Sizes are in rem so the design follows the body size techbook derives from
+ * the paper. Nothing here asks for a definite block extent: novel.css can
+ * use `--vs-page--width` because theme-bunko sets the text block, but a
+ * margin-laid theme leaves `--vs-page--height` at `auto` (theme-base
+ * page.css), so `margin-block-start: auto` would have nothing to push
+ * against. The spacing is stated instead of distributed.
+ */
+
+@import url("vivlio:techbook");
+
+:root {
+  /* One ink below the body's, for the parts of a book that annotate rather
+     than speak: a series name, a role, an address, a label. */
+  --vs-manual--secondary-ink: #4a4a4a;
+  --vs-manual--rule-ink: #c8c8c8;
+}
+
+/* Figures ------------------------------------------------------------------
+ *
+ * theme-base makes every figure a `display: flex` column purely to centre the
+ * picture over its caption. Vivliostyle does not fragment a flex container,
+ * and `--vs--figure-break-inside: avoid` on top of that appears to send a
+ * figure to the next page while the current one still has room for it. A
+ * block box with centred contents is the same design without the fragile
+ * layout mode, and theme-base opens the knob as a variable.
+ */
+:root {
+  --vs--figure-display: block;
+
+  /* The caption belongs to the picture above it. theme-base spaces it a whole
+     line away, which once the figure is a block box reads as a separate
+     paragraph rather than a label; the space below keeps it off the text that
+     follows. */
+  --vs--figcaption-margin-block: 0.4rem 0;
+}
+
+figure {
+  text-align: center;
+}
+
+/* An image is a block of the figure, not a line of text in it. Left inline it
+   sits on a baseline and carries the descender space beneath it, which reads
+   as a gap between the picture and the caption that belongs to it. */
+figure img {
+  display: block;
+  margin-inline: auto;
+}
+
+figcaption {
+  text-align: center;
+}
+
+/* Front matter -------------------------------------------------------------
+ *
+ * A line of front matter is a label, not a paragraph of prose: it takes
+ * neither the body's first-line indent nor its justification.
+ */
+.titlepage p,
+.halftitle p {
+  text-indent: 0;
+  text-align: inherit;
+}
+
+.titlepage,
+.halftitle {
+  text-align: center;
+}
+
+/* The title sits below the head of the page rather than on it. A manual's
+   title page is read once, in the hand, and a block that starts a third of
+   the way down reads as composed; starting at the top reads as the first
+   page of the text. */
+.titlepage {
+  padding-block-start: 10rem;
+}
+
+.halftitle {
+  padding-block-start: 12rem;
+}
+
+/* The series stands above the title, smaller and lighter: it is the shelf the
+   book belongs to, not the book. */
+.titlepage .series {
+  font-size: 0.85rem;
+  color: var(--vs-manual--secondary-ink);
+  letter-spacing: 0.15em;
+  margin-block: 0 1.2rem;
+}
+
+/* The title carries the page, so it is given the room to. The weight and the
+   letter-spacing are what make it read as a title rather than as a large line
+   of text.
+
+   The half title is the same statement made quietly on its own page, so it
+   shares the rule but not the size. */
+.titlepage .title,
+.halftitle .title {
+  font-size: 1.7rem;
+  font-weight: var(--vs-font-weight-bold);
+  letter-spacing: 0.08em;
+  line-height: 1.45;
+  margin-block: 0;
+  /* A title is read as a shape before it is read as a sentence, so it must not
+     turn one character onto a line of its own. The size and the tracking are
+     set to hold this book's title on a single line of an A5 block; balance is
+     what keeps a longer one from breaking badly rather than merely late. */
+  text-wrap: balance;
+}
+
+.halftitle .title {
+  font-size: 1.2rem;
+  font-weight: normal;
+  letter-spacing: 0.1em;
+}
+
+/* The subtitle hangs off the title rather than standing beside it: near
+   enough to belong to it, small enough not to compete. A rule between them
+   would divide what is one statement, so the space does the work. */
+.titlepage .subtitle {
+  font-size: 1rem;
+  color: var(--vs-manual--secondary-ink);
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  margin-block: 1.4rem 0;
+}
+
+/* The people who made the book are one group, the house that issued it is
+   another. Keeping the names well clear of the title and the publisher
+   further still is what separates "who wrote this" from "who published it". */
+.titlepage .imprint {
+  margin-block-start: 6rem;
+}
+
+.titlepage .byline {
+  display: flex;
+  flex-direction: column;
+}
+
+.titlepage .author,
+.titlepage .translator {
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  margin-block: 0;
+}
+
+.titlepage .translator {
+  margin-block-start: 0.8rem;
+}
+
+/* The role is an annotation on the name, not part of it: smaller, set away
+   from the name by a space of its own, and never bold. */
+.titlepage .role {
+  font-size: 0.7em;
+  font-weight: normal;
+  color: var(--vs-manual--secondary-ink);
+  margin-inline-start: 0.6em;
+  display: inline-block;
+}
+
+.titlepage .publisher {
+  font-size: 0.9rem;
+  color: var(--vs-manual--secondary-ink);
+  letter-spacing: 0.1em;
+  margin-block-start: 2.5rem;
+}
+
+/* The colophon -------------------------------------------------------------
+ *
+ * The plugin writes the colophon as groups of labelled rows - when it was
+ * published, who made it, who issued it - each group answering a different
+ * question, and it drops any group the book gave nothing for.
+ *
+ * That last part is what the design has to survive. A manual names a date and
+ * an author and nothing else, so a layout built around a fixed label column
+ * puts one lonely pair on a page, the label stranded an inch from its answer,
+ * under a centred title. Everything is centred here instead, and a label sits
+ * against its answer rather than in a column of its own: one pair reads as a
+ * line, and six read as a block, without the design changing shape.
+ */
+[role='doc-colophon'] {
+  padding-block-start: 9rem;
+  font-size: 0.9rem;
+}
+
+.colophon {
+  max-inline-size: 26em;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.colophon-series {
+  font-size: 0.85em;
+  color: var(--vs-manual--secondary-ink);
+  letter-spacing: 0.12em;
+  margin-block: 0 0.6rem;
+}
+
+.colophon-title {
+  font-size: 1.25em;
+  font-weight: var(--vs-font-weight-bold);
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+  margin-block: 0 1.5rem;
+  padding-block-end: 1.1rem;
+  border-block-end: 1px solid var(--vs-manual--rule-ink);
+}
+
+.colophon-rows {
+  margin-block: 0;
+}
+
+/* A group is one answer. The space between groups is what keeps the whole
+   from reading as a single list of unrelated lines. */
+.colophon-group {
+  margin-block-end: 1.2rem;
+}
+
+.colophon-group:last-child {
+  margin-block-end: 0;
+}
+
+/* Label and answer are one centred line. `inline-flex` keeps the pair
+   together so it centres as a unit and the label cannot drift away from what
+   it names. */
+.colophon-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.9em;
+  margin-block: 0.35rem;
+}
+
+.colophon-row dt {
+  color: var(--vs-manual--secondary-ink);
+  font-weight: normal;
+}
+
+.colophon-row dd {
+  margin-inline-start: 0;
+}
+
+/* An address or a website belongs to the publisher named above it, so it is
+   set quieter and without a label rather than given one of its own. */
+.colophon-detail dd {
+  color: var(--vs-manual--secondary-ink);
+  font-size: 0.9em;
+}
+
+/* A line that is a sentence, not an entry: "2026年9月4日 初版発行" is one
+   statement, and a label in front of it would make two. */
+.colophon-line {
+  margin-block: 0.35rem;
+}
+
+/* The type scale -----------------------------------------------------------
+ *
+ * techbook's scale is a Western tech book's: an h1 at 2.4em sets a heading
+ * nearly two and a half times the body, which on an A5 page of Japanese reads
+ * as a poster rather than as a manual. Japanese headings already carry a full
+ * em square and a heavier face, so they separate from the text on less size,
+ * and the steps between the levels can close up with them.
+ */
+:root {
+  --vs--h1-font-size: 1.8em;
+  --vs--h2-font-size: 1.4em;
+  --vs--h3-font-size: 1.15em;
+  --vs--h4-font-size: 1.05em;
+}
+
+/* The contents -------------------------------------------------------------
+ *
+ * techbook sets the whole contents at 120%. On A5 that is a page holding
+ * eleven lines, when the point of a contents page is to put the chapters
+ * where a reader can compare them at a glance.
+ */
+#toc,
+nav[role='doc-toc'] {
+  font-size: 100%;
+}
+
+/* A chapter and every section beneath it are one `li`, and theme-base tells
+   an `li` not to break. A chapter whose sections run longer than the page has
+   left then moves in one piece and leaves the page half empty. Only the entry
+   itself - a title and the folio it leads to - has to stay together. */
+:is(#toc, [role='doc-toc']) li {
+  break-inside: auto;
+  line-height: 1.45;
+}
+
+:is(#toc, [role='doc-toc']) li > a {
+  break-inside: avoid;
+}
+
+/* The folio ----------------------------------------------------------------
+ *
+ * techbook prints the folio itself, in the outer bottom corner (see its
+ * `@page :left` / `:right`). The plugin cannot know that, so its centred
+ * fallback for front matter printed a second one: "2" in the corner and "ii"
+ * in the middle of the same page.
+ *
+ * `--vivlio-folio-own-box` is how a theme says it places the folio itself -
+ * it turns the fallback off - and `--vivlio-folio` is the numbering the
+ * plugin worked out, here handed to the box techbook already uses so the
+ * front matter counts in roman where the body counts in arabic.
+ */
+:root {
+  --vivlio-folio-own-box: none;
+}
+
+:root.vivlio-front-matter {
+  --vs-theme--page-bottom-content: var(--vivlio-folio);
+}
+
+/* Headings and the blocks they introduce ------------------------------------
+ *
+ * theme-base spaces a heading by one line on both sides
+ * (--vs--heading-margin-block is --vs-spacing-rlh). Equal space above and
+ * below leaves the heading floating between two blocks instead of belonging
+ * to the one it introduces, and the sections of a page stop reading as
+ * sections at all.
+ *
+ * A heading takes clearly more space above than below: the space above closes
+ * the section that ended, the space below is small enough that the heading
+ * and its first block read as one thing.
+ */
+:root {
+  --vs--h1-margin-block: 0 1.4rem;
+  --vs--h2-margin-block: 2.8rem 0.9rem;
+  --vs--h3-margin-block: 2.2rem 0.7rem;
+  --vs--h4-margin-block: 1.8rem 0.6rem;
+}
+
+/* The gap under a heading has to be the heading's to set. Without this the
+   block that follows brings its own paragraph margin, that margin collapses
+   against the heading's smaller one and the larger of the two wins - so the
+   heading would sit equally far from what it introduces and from what it
+   closed however small its own bottom margin was made. */
+:is(h1, h2, h3, h4, h5, h6) + * {
+  margin-block-start: 0;
+}
+
+/* Tables -------------------------------------------------------------------
+ *
+ * theme-base centres a table (--vs--table-margin-inline: auto). The left edge
+ * of the text block is the strongest vertical line on the page - every
+ * heading, paragraph and list starts there - and a centred table cuts it on
+ * both sides to put two edges of its own nowhere in particular. A table is
+ * type on the same grid as the text, so it belongs on the text's edge.
+ *
+ * A picture is the other case, and is centred above: its edges are not type.
+ */
+:root {
+  --vs--table-margin-inline: 0;
+}
+
+/* A table longer than the page has left ------------------------------------
+ *
+ * theme-base tells a table not to break, which is the third time the same
+ * shape of rule has cost a page: a table taller than the space remaining
+ * moves whole and leaves that space empty. A row is the unit that must not
+ * split; the table itself may run over a page boundary, and the head repeats
+ * at the top of each piece so the second half is still readable.
+ */
+:root {
+  --vs--table-break-inside: auto;
+}
+
+tr {
+  break-inside: avoid;
+}
+
+thead {
+  display: table-header-group;
+}
+
+/* A head names its column - it is a label, not prose, and breaking it reads
+   as damage. Japanese gives the layout algorithm no unbreakable word to size
+   a column against, since a line may break between any two characters, so an
+   auto-laid table will fold a three-character head onto two lines to hand the
+   width to a column of running text. */
+th {
+  white-space: nowrap;
+}
