@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { hardenViewer } from "./viewer-patch.mjs";
 
 const TEXT_EXT = new Set([".html", ".js", ".css", ".svg", ".json", ".txt"]);
 
@@ -48,6 +49,13 @@ export function vivlioAssetsPlugin(root) {
           path.join(scope, "viewer", "lib"),
           (rel) => !rel.endsWith(".map"),
         );
+
+        // The viewer is served, not run, but it is still shipped inside
+        // main.js and read as part of it. Two of its code paths build script
+        // elements and neither can be reached here; they come out before the
+        // file is embedded (see viewer-patch.mjs).
+        const viewerScript = "js/vivliostyle-viewer.js";
+        viewer[viewerScript] = { text: hardenViewer(viewer[viewerScript].text) };
 
         const themes = {};
 

@@ -21,6 +21,16 @@ Vivliostyle.js — @vivliostyle/core, @vivliostyle/viewer
     These components are the reason this plugin as a whole is licensed under
     the AGPL-3.0: they are bundled into main.js and distributed with it.
 
+    MODIFIED. The prebuilt viewer is patched before it is embedded, by
+    esbuild/viewer-patch.mjs, which removes two code paths that build script
+    elements: the Internet Explorer branch of the bundled Knockout task
+    scheduler, which Chromium never takes, and the executor for scripts found
+    in a publication, which this plugin already disables by asking the viewer
+    for `allowScripts=false`. A book does not run code, and a capability that
+    is absent is worth more than one that is merely switched off. The patch is
+    in the source repository and the result is reproducible from `npm run
+    build`; no other part of Vivliostyle.js is altered.
+
 --------------------------------------------------------------------------------
 Vivliostyle Flavored Markdown — @vivliostyle/vfm
     Copyright Vivliostyle Foundation
