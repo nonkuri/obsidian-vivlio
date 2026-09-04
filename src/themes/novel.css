@@ -261,16 +261,105 @@ ruby.boten > rt {
  * chapter document has no writing-mode class on its root, and
  * `text-combine-upright` does nothing in horizontal writing anyway.
  */
+/* One counter style for all three modes, so a note is numbered the same way
+   whichever of them wrote it. `suffix: ''` is what drops the full stop: a
+   Japanese note takes the number and a space, not `1.`. */
 :root {
   --vs-footnote--call-content: counter(vs-counter-footnote, decimal);
-  --vs-footnote--marker-content: counter(vs-counter-footnote, decimal) '　';
+  --vs-footnote--marker-content: counter(vs-counter-footnote, decimal);
+  --vs-footnote--marker-margin-inline: 0 1em;
 }
 
 .footnote::footnote-call,
-[role='doc-footnote']::footnote-call,
-.footnote::footnote-marker,
-[role='doc-footnote']::footnote-marker {
+[role='doc-footnote']::footnote-call {
   text-combine-upright: all;
+}
+
+/* The other two footnote modes -----------------------------------------------
+ *
+ * `gcpm` puts the note at the foot of the page and lets CSS draw both marks.
+ * `pandoc` and `dpub` write the reference as a real `<sup>` in the text, so
+ * that one is a element rather than generated content - and, being Latin,
+ * it lies on its side unless told otherwise.
+ */
+.footnote-ref sup,
+[role='doc-noteref'] sup {
+  text-combine-upright: all;
+}
+
+/* `pandoc` collects the notes at the end of the document rather than the
+   foot of the page, and left them running straight on from the last line of
+   the story. An endnote section that is not set apart is not a section. */
+.footnotes,
+[role='doc-endnotes'] {
+  margin-block-start: 1rem;
+  font-size: 0.9em;
+}
+
+.footnotes > hr,
+[role='doc-endnotes'] > hr {
+  inline-size: 8rem;
+  margin-inline: 0;
+  border: 0;
+  border-block-start: 1px solid var(--vs-novel--rule-ink);
+}
+
+/* The endnote list numbers itself rather than leaning on `::marker`, whose
+   suffix would not hold a space and whose margin does not answer. Written as
+   content, the number takes the same margin as the other two modes and the
+   same rules below. */
+.footnotes ol,
+[role='doc-endnotes'] ol {
+  list-style: none;
+  padding-inline-start: 0;
+  counter-reset: vivlio-endnote;
+}
+
+.footnotes li,
+[role='doc-endnotes'] li {
+  counter-increment: vivlio-endnote;
+}
+
+.footnotes li::before,
+[role='doc-endnotes'] li::before {
+  content: counter(vivlio-endnote, decimal);
+  margin-inline-end: 1em;
+}
+
+/* `dpub` writes the note as an `<aside>` carrying its own number, and the
+   counter behind the generated marker comes out as 0 beside it. The number
+   the document already holds is the true one, so that is the one kept. An
+   `<aside>` is what tells this mode apart from `gcpm`, whose note is a span. */
+aside[role='doc-footnote']::footnote-marker {
+  content: none;
+}
+
+/* theme-base hides every back-link when printing, which is right for the `↩`
+   pandoc leaves at the end of an endnote and wrong here: in `dpub` the
+   back-link is the number. */
+aside[role='doc-footnote'] [role='doc-backlink'] {
+  display: inline;
+  margin-inline-end: 0.5em;
+}
+
+/* Every number a note carries, whichever mode wrote it ----------------------
+ *
+ * `vertical-align: middle` is what puts it in the middle of the line. In
+ * vertical writing that axis is the width of the column, and a numeral set
+ * smaller than the text sits against one edge of it otherwise - which is
+ * what all three modes were doing.
+ *
+ * The size is the note's own: a marker that opens a line is not an
+ * annotation on it, and shrinking it only moved it further off centre.
+ */
+.footnote::footnote-marker,
+[role='doc-footnote']::footnote-marker,
+.footnotes li::before,
+[role='doc-endnotes'] li::before,
+aside[role='doc-footnote'] .footnote-back sup {
+  font-size: 100%;
+  text-combine-upright: all;
+  vertical-align: middle;
 }
 
 /* Tate-chu-yoko ----------------------------------------------------------- */
