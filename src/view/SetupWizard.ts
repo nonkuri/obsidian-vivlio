@@ -51,7 +51,7 @@ export class SetupWizard extends Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.addClass("vivlio-wizard");
-    contentEl.createEl("h2", { text: t("wizard.title") });
+    this.setTitle(t("wizard.title"));
 
     const index = STEPS.indexOf(this.step);
     contentEl.createEl("p", {

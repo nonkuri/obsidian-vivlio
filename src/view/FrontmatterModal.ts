@@ -46,7 +46,7 @@ export class FrontmatterModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.addClass("vivlio-frontmatter-modal");
-    contentEl.createEl("h2", { text: t("frontmatter.title") });
+    this.setTitle(t("frontmatter.title"));
     contentEl.createEl("p", {
       cls: "setting-item-description",
       text: t("frontmatter.desc"),

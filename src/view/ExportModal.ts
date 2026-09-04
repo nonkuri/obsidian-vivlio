@@ -37,7 +37,7 @@ export class ExportModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
     contentEl.addClass("vivlio-export-modal");
-    contentEl.createEl("h2", { text: t("export.title") });
+    this.setTitle(t("export.title"));
 
     // Only seeded once: re-rendering the dialog must not discard a path the
     // user typed or picked.
@@ -190,7 +190,7 @@ export class ExportModal extends Modal {
     return new Promise((resolve) => {
       const { contentEl } = this;
       contentEl.empty();
-      contentEl.createEl("h2", { text: t("export.preflight") });
+      this.setTitle(t("export.preflight"));
 
       const list = contentEl.createEl("ul", { cls: "vivlio-preflight" });
       for (const issue of issues) {

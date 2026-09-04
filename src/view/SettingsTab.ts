@@ -80,7 +80,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private general(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.general") });
+    new Setting(container).setName(t("settings.heading.general")).setHeading();
 
     new Setting(container)
       .setName(t("settings.defaultPreset"))
@@ -110,7 +110,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private typesetting(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.typesetting") });
+    new Setting(container).setName(t("settings.heading.typesetting")).setHeading();
 
     new Setting(container)
       .setName(t("settings.theme"))
@@ -203,7 +203,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private fonts(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.fonts") });
+    new Setting(container).setName(t("settings.heading.fonts")).setHeading();
 
     const picker = (
       label: StringKey,
@@ -266,7 +266,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private output(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.output") });
+    new Setting(container).setName(t("settings.heading.output")).setHeading();
 
     new Setting(container)
       .setName(t("settings.outputFolder"))
@@ -314,7 +314,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private syntax(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.syntax") });
+    new Setting(container).setName(t("settings.heading.syntax")).setHeading();
 
     // Two settings are shown against the switch they qualify rather than in a
     // section of their own: what a highlight becomes says nothing without the
@@ -359,7 +359,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private structure(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.structure") });
+    new Setting(container).setName(t("settings.heading.structure")).setHeading();
     // Said once, above the rows: seven parts point at vivlio.yaml, and
     // repeating what that file is on each of them would drown the section.
     container.createEl("p", {
@@ -414,7 +414,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private preview(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.preview") });
+    new Setting(container).setName(t("settings.heading.preview")).setHeading();
 
     new Setting(container).setName(t("settings.autoRefresh")).addToggle((toggle) =>
       toggle.setValue(this.plugin.settings.autoRefresh).onChange(async (value) => {
@@ -442,7 +442,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private pdf(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.pdf") });
+    new Setting(container).setName(t("settings.heading.pdf")).setHeading();
 
     const toggle = (label: StringKey, key: "taggedPdf" | "pdfOutline" | "pdfMetadata" | "coverInPdf" | "downloadRemoteImages" | "allowOutsideVaultPaths") => {
       new Setting(container).setName(t(label)).addToggle((control) =>
@@ -487,7 +487,7 @@ export class VivlioSettingTab extends PluginSettingTab {
   }
 
   private advanced(container: HTMLElement): void {
-    container.createEl("h3", { text: t("settings.heading.advanced") });
+    new Setting(container).setName(t("settings.heading.advanced")).setHeading();
 
     new Setting(container)
       .setName(t("settings.fixedPort"))
