@@ -17,6 +17,14 @@ Implements [docs/SPEC.md](docs/SPEC.md).
 *The note on the left, the page on the right. The preview uses the same engine
 and the same stylesheet the PDF will.*
 
+One thing the preview cannot do on its own: the page numbers on a contents
+page read `??` until every page has been laid out, because the number comes
+from `target-counter`, which has nothing to count against a page that has not
+been composed yet. An export always composes the whole book, so the PDF and
+the EPUB are correct. To see the real numbers on screen, turn on **Render
+every page up front** in the settings — the preview then takes longer to
+appear and is right from the first frame.
+
 ## What it does
 
 | | |

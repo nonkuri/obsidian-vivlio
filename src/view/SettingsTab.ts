@@ -433,7 +433,10 @@ export class VivlioSettingTab extends PluginSettingTab {
       }),
     );
 
-    new Setting(container).setName(t("settings.renderAllPages")).addToggle((toggle) =>
+    new Setting(container)
+      .setName(t("settings.renderAllPages"))
+      .setDesc(t("settings.renderAllPages.desc"))
+      .addToggle((toggle) =>
       toggle.setValue(this.plugin.settings.renderAllPages).onChange(async (value) => {
         this.plugin.settings.renderAllPages = value;
         await this.save();
