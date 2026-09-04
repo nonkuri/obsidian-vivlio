@@ -30,7 +30,7 @@ appear and is right from the first frame.
 | | |
 |---|---|
 | **Preview** | A pane showing the real page composition — the same engine and stylesheet the PDF will use. Vertical writing, hanging punctuation and Japanese/Latin spacing included, none of which Obsidian's own PDF export can produce. |
-| **Books, not just notes** | A single note, a whole folder, or the `[[links]]` of a table-of-contents note, in that order. |
+| **A book is one note or many** | One note is a book on its own. Point at a folder and the notes directly in it are the book; point at a table-of-contents note and the notes it links to are. |
 | **Obsidian syntax** | Embeds, wikilinks, callouts, task lists, tags, highlights, plus Aozora/Kakuyomu ruby, emphasis dots and tate-chu-yoko. |
 | **PDF** | Tagged, searchable, with bookmarks, metadata and `i, ii, iii, 1, 2 …` page labels. Fonts are embedded and subset by Chromium, so the file is printable elsewhere. |
 | **EPUB 3** | Reflowable, with the theme's CSS, a cover and landmarks. |
