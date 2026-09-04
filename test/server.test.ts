@@ -10,6 +10,7 @@ import * as os from "os";
 import * as path from "path";
 import { PreviewServer } from "../src/server/static";
 import { Workspace } from "../src/build/workspace";
+import { EPAGE_PARAM, PAGE_MESSAGE } from "../src/server/keepPage";
 
 interface Result {
   status: number;
@@ -135,6 +136,43 @@ async function main(): Promise<void> {
     bookUrl,
   );
   check("viewer url asks for a book", bookUrl.includes("bookMode=true"), bookUrl);
+
+  // A rebuild replaces the frame's src, so the page the reader had reached
+  // travels back in the fragment and is applied by the served script.
+  check(
+    "the viewer url carries no page when there is none to return to",
+    !server
+      .bookViewerUrl(`${base}/w/book/publication.json`, { renderAllPages: true, epage: 0 })
+      .includes(EPAGE_PARAM),
+  );
+  const resumed = server.bookViewerUrl(`${base}/w/book/publication.json`, {
+    renderAllPages: true,
+    epage: 7,
+  });
+  check("the viewer url carries the page to return to", resumed.includes(`${EPAGE_PARAM}=7`), resumed);
+
+  // What the frame's messages have to be checked against. `base` carries the
+  // session path too, and a MessageEvent's origin never does, so comparing
+  // against it silently discards every message the frame sends.
+  check(
+    "the origin is an origin",
+    /^http:\/\/127\.0\.0\.1:\d+$/.test(server.origin),
+    server.origin,
+  );
+  check("and the base is not", server.base !== server.origin && server.base.startsWith(server.origin));
+
+  // The script rides with the viewer the plugin serves; the app itself is on
+  // another origin and cannot reach into the frame to ask.
+  const viewerPage = await get(`${base}/viewer/index.html`);
+  check(
+    "the served viewer carries the script that keeps the page",
+    viewerPage.body.includes(PAGE_MESSAGE) && viewerPage.body.includes("navigateToPage"),
+    String(viewerPage.status),
+  );
+  check(
+    "the script is inside the document it was put in",
+    viewerPage.body.lastIndexOf(PAGE_MESSAGE) < viewerPage.body.lastIndexOf("</body>"),
+  );
 
   await server.stop();
   const afterStop = await get(`${base}/w/book/index.html`).catch(() => null);
