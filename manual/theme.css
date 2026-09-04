@@ -181,70 +181,81 @@ figcaption {
 
 /* The colophon -------------------------------------------------------------
  *
- * The plugin writes the colophon as groups of labelled rows - when it was
- * published, who made it, who issued it - each group answering a different
- * question, and it drops any group the book gave nothing for.
+ * Not a second title page. The centred title over a rule is the title page's
+ * gesture, and repeating it at the back of the book made the colophon read as
+ * one - which is what was wrong with it, more than any measurement. A colophon
+ * is a record: it is set flush with the text like everything else on the page,
+ * the rule goes above the whole block to close the book rather than under the
+ * title to display it, and the book is named at reading size.
  *
- * That last part is what the design has to survive. A manual names a date and
- * an author and nothing else, so a layout built around a fixed label column
- * puts one lonely pair on a page, the label stranded an inch from its answer,
- * under a centred title. Everything is centred here instead, and a label sits
- * against its answer rather than in a column of its own: one pair reads as a
- * line, and six read as a block, without the design changing shape.
+ * It also has to survive its own content. The plugin drops any group the book
+ * gave nothing for, so a manual naming a date and an author prints two lines
+ * where another book prints ten.
  */
 [role='doc-colophon'] {
-  padding-block-start: 9rem;
-  font-size: 0.9rem;
+  /* A colophon sits at the foot of its page, and cannot be pushed there:
+     distributing free space needs a definite block extent, and a margin-laid
+     theme leaves --vs-page--height at `auto` (theme-base page.css), so
+     `margin-block-start: auto` would have nothing to work against. The offset
+     is measured instead: A5 less techbook's 25mm margins is a 160mm block,
+     near enough 50rem, and the record starts at 40 of them. */
+  padding-block-start: 36rem;
+  font-size: 0.85rem;
 }
 
 .colophon {
-  max-inline-size: 26em;
-  margin-inline: auto;
-  text-align: center;
+  max-inline-size: 28em;
+  border-block-start: 1px solid var(--vs-manual--rule-ink);
+  padding-block-start: 1rem;
 }
 
 .colophon-series {
   font-size: 0.85em;
   color: var(--vs-manual--secondary-ink);
-  letter-spacing: 0.12em;
-  margin-block: 0 0.6rem;
+  letter-spacing: 0.1em;
+  margin-block: 0 0.3rem;
 }
 
 .colophon-title {
-  font-size: 1.25em;
+  font-size: 1.05em;
   font-weight: var(--vs-font-weight-bold);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   line-height: 1.5;
-  margin-block: 0 1.5rem;
-  padding-block-end: 1.1rem;
-  border-block-end: 1px solid var(--vs-manual--rule-ink);
+  margin-block: 0 1rem;
 }
 
 .colophon-rows {
   margin-block: 0;
 }
 
-/* A group is one answer. The space between groups is what keeps the whole
-   from reading as a single list of unrelated lines. */
+/* A group is one answer - when it was published, who made it, who issued it -
+   and the space between groups is what keeps the whole from reading as a
+   single list of unrelated lines. */
 .colophon-group {
-  margin-block-end: 1.2rem;
+  margin-block-end: 0.9rem;
 }
 
 .colophon-group:last-child {
   margin-block-end: 0;
 }
 
-/* Label and answer are one centred line. `inline-flex` keeps the pair
-   together so it centres as a unit and the label cannot drift away from what
-   it names. */
 .colophon-row {
   display: flex;
-  justify-content: center;
-  gap: 0.9em;
-  margin-block: 0.35rem;
+  gap: 1em;
+  margin-block: 0.25rem;
 }
 
+/* The label column is fixed, so the answers line up down the block whatever
+   they are labelled - that column of answers is what makes a colophon read as
+   a record rather than as a list of sentences.
+
+   Fixed means wide enough for the longest label the book uses, and a label
+   never breaks: it names the line, and a name folded onto two lines reads as
+   damage. 7.5em holds 対応バージョン; a longer one wants a longer column, not a
+   second line. */
 .colophon-row dt {
+  flex: 0 0 7.5em;
+  white-space: nowrap;
   color: var(--vs-manual--secondary-ink);
   font-weight: normal;
 }
@@ -253,17 +264,19 @@ figcaption {
   margin-inline-start: 0;
 }
 
-/* An address or a website belongs to the publisher named above it, so it is
-   set quieter and without a label rather than given one of its own. */
+/* An address or a website belongs to the publisher named above it, so it hangs
+   under that answer rather than taking a label of its own. */
 .colophon-detail dd {
+  margin-inline-start: calc(7.5em + 1em);
   color: var(--vs-manual--secondary-ink);
-  font-size: 0.9em;
+  font-size: 0.95em;
 }
 
-/* A line that is a sentence, not an entry: "2026年9月4日 初版発行" is one
-   statement, and a label in front of it would make two. */
+/* A line that is a sentence, not an entry: "2026年9月4日　初版発行" is one
+   statement, and a label in front of it would make two. It starts at the
+   block's edge for that reason, not at the answers' column. */
 .colophon-line {
-  margin-block: 0.35rem;
+  margin-block: 0.25rem;
 }
 
 /* The type scale -----------------------------------------------------------
