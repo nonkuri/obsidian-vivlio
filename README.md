@@ -1,5 +1,7 @@
 # Vivlio
 
+**English** | [日本語](README.ja.md)
+
 Typeset Obsidian notes with [Vivliostyle](https://vivliostyle.org/) — CSS paged
 media, Japanese vertical writing, ruby and emphasis dots — with a live preview,
 and export to PDF and EPUB.
@@ -9,6 +11,11 @@ typesetting engine ships in the plugin and the PDF is printed by the Chromium
 Obsidian already runs.
 
 Implements [docs/SPEC.md](docs/SPEC.md).
+
+![Obsidian with a note open on the left and the Vivlio preview on the right: the vivlio-* frontmatter and the ｜遠雷《えんらい》 and 《《…》》 notation sit plainly in the editor, and come out as vertical Japanese type in the pane beside it.](docs/images/obsidian.png)
+
+*The note on the left, the page on the right. The preview uses the same engine
+and the same stylesheet the PDF will.*
 
 ## What it does
 
@@ -20,6 +27,19 @@ Implements [docs/SPEC.md](docs/SPEC.md).
 | **PDF** | Tagged, searchable, with bookmarks, metadata and `i, ii, iii, 1, 2 …` page labels. Fonts are embedded and subset by Chromium, so the file is printable elsewhere. |
 | **EPUB 3** | Reflowable, with the theme's CSS, a cover and landmarks. |
 | **Pre-export checks** | Images that will print below 300 dpi, fonts this machine does not have, a cover whose aspect ratio does not match the page. |
+
+## Installing
+
+**From Obsidian.** Settings → Community plugins → Browse, search for *Vivlio*,
+install and enable it.
+
+**By hand.** Take `main.js`, `manifest.json` and `styles.css` from a
+[release](https://github.com/nonkuri/obsidian-vivlio/releases) and drop them
+into `VaultFolder/.obsidian/plugins/vivlio/`, then reload Obsidian and enable
+the plugin under Community plugins.
+
+Desktop Obsidian 1.7.0 or later. The plugin prints through the Chromium that
+Obsidian is already running, which is why there is no mobile build.
 
 ## Commands
 
@@ -50,7 +70,7 @@ Three layers; a lower one overrides the one above it.
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: bunko              # bunko | techbook | academic | base | a CSS path in the vault
+theme: novel              # novel, or a CSS path in the vault — see “A theme of your own”
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -93,18 +113,68 @@ The table-of-contents note itself stays out of the book unless
 | You write | You get |
 |---|---|
 | `《《テキスト》》` | emphasis dots (Kakuyomu style) |
-| `｜漢字《かんじ》` | ruby (Aozora / Kakuyomu style) |
+| `漢字《かんじ》` | ruby over the run of kanji in front of it — the shorthand a manuscript actually uses |
+| `｜任意《よみ》` | ruby over anything; `｜` says where the base begins (a halfwidth `\|` does too) |
 | `{漢字\|かんじ}` | ruby (VFM's own syntax) |
-| `^^10^^` | tate-chu-yoko |
-| `42` in vertical writing | tate-chu-yoko, automatically |
+| `^^1/2^^` | tate-chu-yoko, up to four characters |
+| a one- or two-digit number, in vertical writing | set upright automatically — a pair combined into one em, a lone digit stood up rather than laid on its side. Only when no digit, letter or `. , : % -` adjoins it |
 | `==highlight==` | emphasis dots, bold, `<mark>` or plain text — your choice |
-| `> [!note]` | a framed callout |
+| `［＃改ページ］` | a forced page break, written the way Aozora Bunko writes one |
+| three or more blank lines | space on the page: `n` blank lines give `n - 2` blank lines of it |
+| an ideographic space starting a line | that paragraph is indented, and the character itself goes |
+| `> [!anything]` | a framed callout. Any type; it survives as `callout-<type>` for a theme to style |
+| `![[fig.png\|300]]` | a picture at a stated width — `300`, `300x200`, `60%`, `80mm`, `300px` |
+| `![caption](fig.png)` | a `<figure>` with the caption under it. The wiki form takes a width, this one a caption |
+| `![[Note]]`, `![[Note#Heading]]` | the note's text, set in place (three deep; a cycle is refused) |
+| `[[Note]]`, `[[Note\|shown]]` | a link when the note is in the book, plain text when it is not |
 | `- [ ]` | ☐ / ☑, drawn as text rather than as a form control |
+| a `mermaid` or `dataview` block | drawn by Obsidian's own renderer, then placed as a figure |
 | `#tag`, `%%comment%%`, `^block-id` | removed |
 
 Every stage can be switched off in the settings tab, and none of them can reach
 inside a code block: the conversions run over the document tree, not over the
 Markdown source.
+
+![A spread from the sample book at full size: ruby over 遠雷, emphasis dots beside 「その手袋は、もう戻らない」, 10 and 42 turned upright, the gap a run of blank lines opens, running heads and folios.](docs/images/spread.png)
+
+## A theme of your own
+
+`theme:` also takes the vault-relative path of a stylesheet, and that stylesheet
+can start from a bundled one:
+
+```css
+/* 装丁/私の本.css */
+@import url("vivlio:novel");
+
+:root {
+  --vs-novel--chars-per-line: 42;
+  --vs-novel--lines-per-page: 17;
+  --vs-novel--boten-font-size: 0.32rem;
+  --vs-novel--secondary-ink: #4a4a4a;
+}
+
+.callout-warning { border-color: #b00; }
+```
+
+```yaml
+# vivlio.yaml
+theme: 装丁/私の本.css
+```
+
+`vivlio:novel` is the theme this plugin is built around and the one its page
+geometry is tuned against. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and
+`vivlio:academic` — the CC0 Vivliostyle themes — resolve too, but only `novel`
+is offered in the picker: the others have not been gone over against this
+plugin's folios and headings yet.
+
+Any other `@import` is an ordinary one, relative to the file doing the
+importing and read from the vault. Each is followed once, so a ring of imports
+is safe. The whole thing is flattened into a single stylesheet before use, which
+is why the preview and the EPUB read exactly the same text.
+
+The classes worth knowing when writing one: `.boten`, `.tcy`, `.callout` and
+`.callout-<type>`, `.task-list`, `.vivlio-page-break`, `.vivlio-blank-lines`,
+`.vivlio-no-indent`, `.vivlio-rendered`.
 
 ## Building
 
@@ -123,6 +193,19 @@ npm test
 
 The tests run the real conversion pipeline, the configuration layers and the
 local server outside Obsidian, against a small stub of the app's API.
+
+## Releasing
+
+`npm version patch` (or `minor` / `major`) writes the new number into
+`package.json`, `manifest.json` and `versions.json` in one go. Pushing the tag
+it creates is the whole release: the workflow builds the bundle, checks that
+the tag and the manifest agree, and uploads the three files as loose assets —
+which is the shape Obsidian's installer expects.
+
+```bash
+npm version patch
+git push --follow-tags
+```
 
 ## How it works
 
