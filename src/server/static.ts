@@ -6,6 +6,7 @@ import { Workspace } from "../build/workspace";
 import { isInside, joinPosix, mimeType, normalizeAbsolute } from "../util/paths";
 import { log } from "../util/log";
 import { themeAssets, viewerAssets } from "../vendor/assets";
+import { EPAGE_PARAM, withKeepPageScript } from "./keepPage";
 
 const HOST = "127.0.0.1";
 
@@ -45,11 +46,12 @@ export class PreviewServer {
     return this.server !== null;
   }
 
-  /** `http://127.0.0.1:<port>/s/<token>` — never write this to the log. */
+  /** `http://127.0.0.1:<port>` — scheme, host and port, and nothing else. */
   get origin(): string {
     return `http://${HOST}:${this.port}`;
   }
 
+  /** `http://127.0.0.1:<port>/s/<token>` — never write this to the log. */
   get base(): string {
     return `${this.origin}/s/${this.token}`;
   }
@@ -123,7 +125,9 @@ export class PreviewServer {
    */
   bookViewerUrl(
     publicationUrl: string,
-    options: { renderAllPages: boolean; cacheBust?: boolean } = { renderAllPages: true },
+    options: { renderAllPages: boolean; cacheBust?: boolean; epage?: number } = {
+      renderAllPages: true,
+    },
   ): string {
     const params = [
       `src=${publicationUrl}`,
@@ -131,6 +135,10 @@ export class PreviewServer {
       `renderAllPages=${options.renderAllPages}`,
       "spread=false",
     ];
+    // The viewer drops a `page` of its own from the fragment, so the page to
+    // return to travels under a name of ours and is applied by the script in
+    // keepPage.ts.
+    if (options.epage) params.push(`${EPAGE_PARAM}=${Math.floor(options.epage)}`);
     if (options.cacheBust) params.push(`t=${Date.now()}`);
     return `${this.viewerUrl()}#${params.join("&")}`;
   }
@@ -201,9 +209,13 @@ export class PreviewServer {
       notFound(res);
       return;
     }
+    const text =
+      entry.text !== undefined && table === viewerAssets && key === "index.html"
+        ? withKeepPageScript(entry.text)
+        : entry.text;
     const body =
-      entry.text !== undefined
-        ? Buffer.from(entry.text, "utf8")
+      text !== undefined
+        ? Buffer.from(text, "utf8")
         : Buffer.from(entry.base64 ?? "", "base64");
     send(res, req, body, mimeType(key));
   }

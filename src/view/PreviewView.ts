@@ -15,6 +15,7 @@ import { themeChoices } from "../build/theme";
 import { debounce, isAbortError, type Debounced } from "../util/async";
 import { t } from "../i18n";
 import { writeDiagnostics } from "../util/diagnostics";
+import { PAGE_MESSAGE } from "../server/keepPage";
 import { log } from "../util/log";
 
 export const VIEW_TYPE_PREVIEW = "vivlio-preview";
@@ -38,6 +39,15 @@ export class VivlioPreviewView extends ItemView {
   private scheduleRebuild: Debounced<[]>;
   /** The view holds one reference to the server, not one per rebuild. */
   private holdsServer = false;
+  /**
+   * Where the reader had got to, zero-based over the whole publication.
+   *
+   * A rebuild reloads the frame, which would otherwise land back on the
+   * cover; the frame reports this as the reader turns pages, and gets it back
+   * in the URL. It is cleared whenever the book being shown changes, because
+   * a page number means nothing in a different book.
+   */
+  private epage = 0;
 
   constructor(leaf: WorkspaceLeaf, plugin: VivlioPlugin) {
     super(leaf);
@@ -66,6 +76,18 @@ export class VivlioPreviewView extends ItemView {
 
     this.frame = container.createEl("iframe", { cls: "vivlio-preview-frame" });
     this.frame.setAttribute("sandbox", "allow-scripts allow-same-origin");
+
+    // The frame is served from loopback and the app is not, so the page it is
+    // on cannot be read from here; it says so instead.
+    this.registerDomEvent(window, "message", (event: MessageEvent) => {
+      if (event.source !== this.frame?.contentWindow) return;
+      // `origin`, not `base`: base carries the session path as well, and a
+      // MessageEvent's origin is only ever scheme, host and port.
+      if (event.origin !== this.plugin.server.origin) return;
+      const data = event.data as { type?: string; epage?: number } | null;
+      if (!data || data.type !== PAGE_MESSAGE) return;
+      if (typeof data.epage === "number" && data.epage >= 0) this.epage = data.epage;
+    });
 
     // A note being edited elsewhere should show up here (SPEC decision 19).
     this.registerEvent(
@@ -98,6 +120,9 @@ export class VivlioPreviewView extends ItemView {
 
   /** Typeset a note, a folder, or a table-of-contents note. */
   async show(target: BuildTarget): Promise<void> {
+    // Another book starts at its own beginning: the page held here belongs to
+    // the one being left.
+    if (!sameTarget(this.target, target)) this.epage = 0;
     this.target = target;
     await this.rebuild();
   }
@@ -183,6 +208,7 @@ export class VivlioPreviewView extends ItemView {
       this.frame.src = this.plugin.server.bookViewerUrl(result.publicationUrl, {
         renderAllPages: this.plugin.settings.renderAllPages,
         cacheBust: true,
+        epage: this.epage,
       });
       this.setStatus(
         this.plugin.settings.autoRefresh ? "" : t("view.autoRefreshOff"),
@@ -220,4 +246,18 @@ export function targetFor(file: TFile | TFolder | null): BuildTarget | null {
   if (file instanceof TFolder) return { kind: "folder", folder: file };
   if (file instanceof TFile && file.extension === "md") return { kind: "note", file };
   return null;
+}
+
+/**
+ * Whether two targets name the same book.
+ *
+ * A note is the same note, a folder the same folder; a note and a folder are
+ * never the same even where one holds the other, because the book built from
+ * each is a different length.
+ */
+function sameTarget(a: BuildTarget | null, b: BuildTarget): boolean {
+  if (!a || a.kind !== b.kind) return false;
+  if (a.kind === "folder" && b.kind === "folder") return a.folder.path === b.folder.path;
+  if (a.kind !== "folder" && b.kind !== "folder") return a.file.path === b.file.path;
+  return false;
 }
