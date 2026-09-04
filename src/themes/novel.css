@@ -342,24 +342,55 @@ aside[role='doc-footnote'] [role='doc-backlink'] {
   margin-inline-end: 0.5em;
 }
 
+/* The number hangs, the note lines up with itself --------------------------
+ *
+ * Without this the number is simply the first character of the note, so the
+ * second line starts level with it and the note has no left edge of its own.
+ * A printed note hangs its number outside the block and sets every line of
+ * the text against the same start - the number sticking out past the top of
+ * the column, in vertical writing.
+ *
+ * Logical properties, so the same two lines do it in either writing mode:
+ * `padding-inline-start` moves the whole block off the line's start edge and
+ * the negative `text-indent` pulls the first line - the one carrying the
+ * number - back out to it.
+ */
+.footnote,
+[role='doc-footnote'],
+.footnotes li,
+[role='doc-endnotes'] li {
+  padding-inline-start: 2em;
+  text-indent: -2em;
+}
+
 /* Every number a note carries, whichever mode wrote it ----------------------
  *
- * `vertical-align: middle` is what puts it in the middle of the line. In
- * vertical writing that axis is the width of the column, and a numeral set
- * smaller than the text sits against one edge of it otherwise - which is
- * what all three modes were doing.
+ * Set at the text's own size, the number fills the same one em the characters
+ * below it fill, and sits in the column without being told to. That is the
+ * whole of it: `vertical-align: middle` was tried and pushed the number 5px
+ * of a 29px column to the right, because `middle` measures from the baseline
+ * and half an x-height, which is not the middle of a line of Japanese.
  *
- * The size is the note's own: a marker that opens a line is not an
- * annotation on it, and shrinking it only moved it further off centre.
+ * The size matters for the same reason. A marker that opens a line is not an
+ * annotation on it, and a smaller one cannot fill the column it is in.
  */
 .footnote::footnote-marker,
 [role='doc-footnote']::footnote-marker,
 .footnotes li::before,
 [role='doc-endnotes'] li::before,
+/* The number opening a `dpub` note is a real `<sup>`, and a raised inline box
+   is raised sideways in vertical writing: it stood 12px of a 29px column to
+   the right of the text it belongs to, which is what set this mode apart from
+   the other two. `vertical-align: baseline` does not bring it back - measured
+   - because the offset is the inline box's alignment within the line, not its
+   baseline. As an inline block it takes the line's own position, and the
+   measured offset is zero.
+   The reference in the body keeps its raise: a reference is a superscript.
+   The note's own number is the first character of a line. */
 aside[role='doc-footnote'] .footnote-back sup {
+  display: inline-block;
   font-size: 100%;
   text-combine-upright: all;
-  vertical-align: middle;
 }
 
 /* Tate-chu-yoko ----------------------------------------------------------- */
