@@ -5,8 +5,8 @@ import {
   frontmatterSnippetFor,
   STANDARD_KEYS,
   type FrontmatterKeyChoice,
+  type NoteKey,
 } from "../config/yaml";
-import type { BookConfig } from "../config/types";
 import { t } from "../i18n";
 
 /**
@@ -29,7 +29,7 @@ export class FrontmatterModal extends Modal {
   private editor: Editor;
   /** Properties the note already carries; offered, but not touched. */
   private present: Set<string>;
-  private chosen = new Set<keyof BookConfig>();
+  private chosen = new Set<NoteKey>();
 
   constructor(app: App, plugin: VivlioPlugin, editor: Editor) {
     super(app);

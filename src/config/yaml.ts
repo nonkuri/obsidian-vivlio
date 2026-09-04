@@ -11,8 +11,20 @@ interface KeyDoc {
   en: string;
   /** Keys that need nesting are only valid in vivlio.yaml (SPEC 5.4). */
   yamlOnly?: boolean;
+  /**
+   * Keys that say where a note sits in the book rather than how the book is
+   * set: they belong in a note and nowhere else, so the vivlio.yaml reference
+   * leaves them out. The mirror of `yamlOnly`.
+   */
+  noteOnly?: boolean;
   group: string;
 }
+
+/**
+ * A key a note may carry: the book's own keys, plus the two that only ever
+ * describe one note's place in the running order.
+ */
+export type NoteKey = keyof BookConfig | "order" | "toc";
 
 /**
  * Documentation for every configuration key.
@@ -20,7 +32,7 @@ interface KeyDoc {
  * `vivlio.yaml` can carry comments, which makes a generated file the reference
  * itself - nobody has to go looking for documentation (SPEC 5.4).
  */
-const KEY_DOCS: Partial<Record<keyof BookConfig, KeyDoc>> = {
+const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   title: { group: "book", ja: "書名", en: "Book title" },
   subtitle: { group: "book", ja: "副題", en: "Subtitle" },
   series: { group: "book", ja: "シリーズ名（奥付・扉に出る）", en: "Series name" },
@@ -128,10 +140,28 @@ const KEY_DOCS: Partial<Record<keyof BookConfig, KeyDoc>> = {
     en: "roman-then-arabic | continuous | none",
   },
   tocDepth: { group: "structure", ja: "目次に拾う見出しの深さ", en: "Table of contents depth" },
+  startPage: {
+    group: "structure",
+    ja: "本文のノンブルを何番から始めるか",
+    en: "Page number the body starts counting from",
+  },
   includeToc: {
     group: "structure",
     ja: "目次ノート自身を本文に含める",
     en: "Include the table-of-contents note in the body",
+  },
+
+  order: {
+    group: "structure",
+    noteOnly: true,
+    ja: "このノートの並び順を固定する（ファイル名順より優先）",
+    en: "Pin this note's place in the running order (beats the file-name order)",
+  },
+  toc: {
+    group: "structure",
+    noteOnly: true,
+    ja: "このノートを目次ノートとして扱う",
+    en: "Treat this note as the table-of-contents note",
   },
 
   output: {
@@ -195,6 +225,8 @@ export function referenceYaml(settings: VivlioSettings): string {
 
   let currentGroup = "";
   for (const [key, doc] of Object.entries(KEY_DOCS) as [keyof BookConfig, KeyDoc][]) {
+    // A note key describes one note's place in the book, not the book.
+    if (doc.noteOnly) continue;
     if (doc.group !== currentGroup) {
       currentGroup = doc.group;
       lines.push("", `# --- ${GROUP_TITLES[currentGroup]?.[language] ?? currentGroup} ---`);
@@ -258,7 +290,7 @@ export const STANDARD_KEYS: (keyof BookConfig)[] = [
 
 /** One key the frontmatter picker can offer, with its group and its text. */
 export interface FrontmatterKeyChoice {
-  key: keyof BookConfig;
+  key: NoteKey;
   /** `vivlio-writing-mode` - what actually goes in the note. */
   property: string;
   group: string;
@@ -276,7 +308,7 @@ export interface FrontmatterKeyChoice {
 export function frontmatterKeyChoices(): FrontmatterKeyChoice[] {
   const language = locale();
   const choices: FrontmatterKeyChoice[] = [];
-  for (const [key, doc] of Object.entries(KEY_DOCS) as [keyof BookConfig, KeyDoc][]) {
+  for (const [key, doc] of Object.entries(KEY_DOCS) as [NoteKey, KeyDoc][]) {
     if (doc.yamlOnly) continue;
     choices.push({
       key,
@@ -302,13 +334,15 @@ export function frontmatterKeyChoices(): FrontmatterKeyChoice[] {
  */
 export function frontmatterSnippetFor(
   settings: VivlioSettings,
-  keys: (keyof BookConfig)[],
+  keys: NoteKey[],
   keepEmpty = true,
 ): string {
   const config = configFromSettings(settings);
   const lines: string[] = [];
   for (const key of keys) {
-    const value = config[key];
+    // A note key has no book-level default to offer, which is what an empty
+    // value already means here: a row in the property panel to be filled in.
+    const value = (config as Partial<Record<NoteKey, unknown>>)[key];
     const empty = value === "" || value === null || value === undefined;
     if (empty && !keepEmpty) continue;
     lines.push(`vivlio-${camelToKebab(key)}:${empty ? "" : ` ${scalar(value)}`}`);

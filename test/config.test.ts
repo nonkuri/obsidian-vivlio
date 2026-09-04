@@ -153,6 +153,16 @@ async function main(): Promise<void> {
   const reference = referenceYaml(DEFAULT_SETTINGS);
   check("the reference lists every part", reference.includes("colophon:"));
   check("the reference is commented", reference.includes("# "));
+  // startPage is resolved and used; it was simply named nowhere the writer
+  // could find it.
+  check("the reference names startPage", reference.includes("startPage:"), reference);
+  // `order` and `toc` say where one note sits, so the book's own file has no
+  // business offering them.
+  check(
+    "the reference leaves out the note-only keys",
+    !/^order:/m.test(reference) && !/^toc:/m.test(reference),
+    reference,
+  );
 
   const snippet = frontmatterSnippetFor(DEFAULT_SETTINGS, ["theme", "cover"]);
   check("the snippet is flat", snippet.startsWith("vivlio-theme: novel"), snippet);
@@ -170,6 +180,20 @@ async function main(): Promise<void> {
   check(
     "the picker offers a flat key",
     choices.some((choice) => choice.property === "vivlio-writing-mode"),
+  );
+  // The command for putting settings on a note is where someone looks for the
+  // keys that only work on a note.
+  check(
+    "the picker offers the note-only keys",
+    ["vivlio-order", "vivlio-toc"].every((property) =>
+      choices.some((choice) => choice.property === property),
+    ),
+    choices.map((choice) => choice.property).join(" "),
+  );
+  check(
+    "a note-only key is written as a row waiting to be filled in",
+    frontmatterSnippetFor(DEFAULT_SETTINGS, ["order"]) === "vivlio-order:",
+    frontmatterSnippetFor(DEFAULT_SETTINGS, ["order"]),
   );
   check(
     "the picker leaves out the keys that need nesting",
