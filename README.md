@@ -171,7 +171,7 @@ out. `Vivlio: Add configuration to this note` offers both.
 | `^^1/2^^` | tate-chu-yoko, up to four characters |
 | a one- or two-digit number, in vertical writing | set upright automatically — a pair combined into one em, a lone digit stood up rather than laid on its side. Only when no digit, letter or `. , : % -` adjoins it |
 | `==highlight==` | emphasis dots, bold, `<mark>` or plain text — your choice |
-| `［＃改ページ］` | a forced page break, written the way Aozora Bunko writes one |
+| `［＃改ページ］`, or a line of `===` | a forced page break, written either the way Aozora Bunko writes one or the way Den-Den Markdown does. Leave a blank line above the equals signs, or Markdown reads them as a heading underline |
 | three or more blank lines | space on the page: `n` blank lines give `n - 2` blank lines of it |
 | an ideographic space starting a line | that paragraph is indented, and the character itself goes |
 | `> [!anything]` | a framed callout. Any type; it survives as `callout-<type>` for a theme to style |

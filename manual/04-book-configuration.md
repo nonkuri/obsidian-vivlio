@@ -130,7 +130,7 @@ colophonExtra:
 |---|---|---|
 | `theme` | `novel`、`manual`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`manual`（横組みのマニュアル・技術書）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
 | `writingMode` | `vertical-rl` / `horizontal-tb` | 縦組み / 横組み。 |
-| `size` | `文庫`、`A5`、`128mm 188mm` | 判型。`文庫` と `A6` は同じ `105mm 148mm` なので、選択欄には `文庫・A6（105×148mm）` として一つだけ出ます。任意の CSS `size` 値も可。 |
+| `size` | `文庫`、`四六判`、`A5`、`128mm 188mm` | 判型。`文庫`・`新書`・`JIS-B6`・`四六判`（127×188mm）・`A5`・`JIS-B5`・`B5`・`A4`・`letter`。`文庫` と `A6` は同じ `105mm 148mm` なので、選択欄には `文庫・A6（105×148mm）` として一つだけ出ます。任意の CSS `size` 値も可。 |
 | `charsPerLine` | 数値 / `null` | 1 行の字数。`linesPerPage` と組で指定します。 |
 | `linesPerPage` | 数値 / `null` | 1 ページの行数。 |
 | `baseFontSize` | `3mm`、`10pt` | 基準文字サイズ。指定すると自動計算より優先。 |
