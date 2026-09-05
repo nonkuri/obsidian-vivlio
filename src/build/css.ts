@@ -6,14 +6,16 @@ import { THEME_STYLESHEET } from "./theme";
 import { DOCUMENT_ANCHOR } from "./toc";
 import { TOC_FRONT_MATTER_CLASS } from "./toc";
 import { fontFaceRules } from "./fonts";
+import { effectiveColumnCount, explicitColumnCount } from "./columns";
 
 /**
  * The stylesheet the plugin generates for a book.
  *
- * Every setting lands as an override of a theme CSS variable rather than as a
- * rule of its own (SPEC 5.10): theme-base drives page size, margins, fonts and
- * margin boxes through variables, so overriding them keeps the theme's own
- * design decisions intact.
+ * Theme-facing settings land as CSS variables (SPEC 5.10): theme-base drives
+ * page size, margins, fonts and margin boxes through them, so overriding the
+ * variables keeps the theme's own design decisions intact. An explicit
+ * column count additionally emits a body rule because margin-laid and custom
+ * themes are not required to consume the variable themselves.
  */
 export function bookStylesheet(context: BuildContext, themeUrl: string): string {
   const { config } = context;
@@ -46,6 +48,12 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
     root.push(`--vs-theme--num-of-character: ${grid.chars};`);
     root.push(`--vs-theme--num-of-line: ${grid.lines};`);
     root.push(`--vs-theme--num-of-column: ${grid.columns};`);
+  } else {
+    // A margin-laid theme has no character grid, but an explicit column
+    // count is still a complete instruction: CSS can divide the theme's
+    // existing text area without changing its type size or page geometry.
+    const columns = explicitColumnCount(config);
+    if (columns !== null) root.push(`--vs-theme--num-of-column: ${columns};`);
   }
 
   if (config.fontFamily) root.push(`--vs-font-family: ${config.fontFamily};`);
@@ -98,6 +106,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   const faces = fontFaceRules(context);
   if (faces) blocks.push(faces);
 
+  blocks.push(columnFlowCss(config));
   blocks.push(NOTATION_CSS);
   blocks.push(imageBackstop(textBlockMm(config)));
   blocks.push(bleedCss());
@@ -109,6 +118,30 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
 
   return blocks.filter(Boolean).join("\n\n");
+}
+
+/**
+ * Apply an explicitly requested column count independently of the theme.
+ *
+ * A grid theme such as novel also reads `--vs-theme--num-of-column` to size
+ * its text block, but a margin-laid theme needs no geometry from us: its
+ * existing page area is already the multicol container's fragmentainer. The
+ * rule therefore owns only the flow. Keeping it on body documents leaves the
+ * cover, title pages, contents and colophon as full-page compositions.
+ *
+ * `column-fill: auto` consumes the first column before continuing in the
+ * next. The initial `balance` value would leave ordinary pages short while it
+ * tried to make each fragment's columns the same length. The theme still
+ * owns `column-gap`; a novel's two-character gap and a manual theme's normal
+ * horizontal gap are different design decisions.
+ */
+function columnFlowCss(config: BookConfig): string {
+  if (explicitColumnCount(config) === null) return "";
+  return `
+:root.vivlio-body body {
+  column-count: var(--vs-theme--num-of-column);
+  column-fill: auto;
+}`.trim();
 }
 
 /**
@@ -395,7 +428,7 @@ function resolveGrid(config: BookConfig): Grid | null {
   // A book that says nothing takes the theme's own count, and a theme that is
   // not laid on a grid has none to take: one column, which is what every rule
   // here reduces to.
-  const columns = Math.max(1, Math.round(config.columns || themeGrid?.columns || 1));
+  const columns = effectiveColumnCount(config);
   return chars > 0 && lines > 0 ? { chars, lines, columns } : null;
 }
 

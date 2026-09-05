@@ -13,6 +13,7 @@ export type WarningKind =
   | "no-cover"
   | "config"
   | "unsupported"
+  | "multicol-table"
   | "chapter-error";
 
 export interface BuildWarning {

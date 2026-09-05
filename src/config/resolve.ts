@@ -123,6 +123,7 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
     // below - a blank `vivlio-theme:` means "not decided here", not "no theme".
     if (value === undefined || value === null) continue;
     if (key === "startPage" && !Number.isSafeInteger(value)) continue;
+    if (key === "columns" && (!Number.isSafeInteger(value) || Number(value) < 1)) continue;
 
     if (key === "sections") {
       if (value && typeof value === "object") {

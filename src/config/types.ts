@@ -186,8 +186,10 @@ export interface BookConfig {
    * column's line and `linesPerPage` is what one column holds - every column
    * is as long as the page is wide, so the page carries `columns x lines`.
    *
-   * Null takes the theme's own count, which is one for every theme but
-   * `novel-2col`. Only a theme that lays columns out acts on it.
+   * A positive integer applies to body documents independently of the theme;
+   * margin-laid themes divide their existing text area without becoming
+   * grid themes. Null leaves the flow to the theme (`novel-2col` defaults to
+   * two, while the other bundled themes default to one).
    */
   columns: number | null;
   baseFontSize: string;

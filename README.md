@@ -203,7 +203,7 @@ Markdown source.
 
 ![A spread from the sample book at full size: ruby over 遠雷, emphasis dots beside 「その手袋は、もう戻らない」, 10 and 42 turned upright, the gap a run of blank lines opens, running heads and folios.](docs/images/spread.png)
 
-## Two columns
+## Columns
 
 B6 and A5 — the sheets a 同人誌 is usually printed on — and the 新書 are
 commonly set vertically in two columns. The `novel-2col` theme sets them:
@@ -222,9 +222,11 @@ page carries twice `linesPerPage` lines. A line runs down its own band and the
 lines march leftwards; when the upper band is full the text continues at the
 top right of the one below.
 
-To change only the count, write `columns:`. The `novel` theme reads it too, so
-`theme: novel` with `columns: 2` also sets two columns — at the single-column
-leading, which leaves each band a few lines shorter.
+To change only the count, write `columns:`. An explicit count applies to the
+body regardless of theme, so it can split not only a vertical `novel` page but
+also horizontal `manual` pages and custom themes. `columns: 1` returns
+`novel-2col` to one column. Themes without a grid simply split their existing
+body area; the font size and margins are left alone.
 
 The setup wizard offers Shinsho, B6 and A5 two-column presets. The body size is
 derived from the sheet and the grid, so rewriting the two figures moves the
@@ -233,6 +235,12 @@ whole page with them.
 The cover, title page, contents and colophon stay in one column — a colophon
 split across two bands is not a colophon. Footnotes (`gcpm`) sit at the foot of
 the page, spanning both.
+
+Vivlio warns when a multi-column body contains a table. A narrow column can
+force extreme wrapping inside cells or push a table beyond the page. The
+warning does not stop export: check the preview and use one column for that
+manuscript when the table does not fit. EPUB removes columns and therefore
+does not show this warning.
 
 ## A theme of your own
 

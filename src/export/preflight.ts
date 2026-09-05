@@ -26,6 +26,9 @@ export async function preflight(
   const issues: PreflightIssue[] = [];
 
   for (const warning of context.warnings) {
+    // Page columns are deliberately removed from reflowable EPUB output, so
+    // a table that was risky in the paged preview is not an EPUB finding.
+    if (options.forEpub && warning.kind === "multicol-table") continue;
     if (warning.kind === "broken-link") {
       issues.push({ level: "warning", message: t("preflight.brokenLink", { link: warning.message }) });
     } else if (warning.kind === "missing-asset") {

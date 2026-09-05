@@ -63,6 +63,8 @@ export const en = {
   "preflight.coverAspect":
     "The cover image aspect ratio differs from the page by {percent}% ({mm} mm will be cropped)",
   "preflight.noCover": "No cover is set; EPUB readers will show a blank shelf thumbnail.",
+  "warning.multicolTable":
+    "{path}: The multi-column body contains a table. A wide table may wrap excessively or overflow its column and the page; check the preview and use columns: 1 if it does not fit.",
 
   "wizard.title": "Create book configuration",
   "wizard.step.preset": "Preset",

@@ -145,7 +145,7 @@ theme: 装丁/遠雷.css
 | `--vs--h1-margin-block` | `0 4rem` | H1 前後の空き |
 | `--vs-page--mbox-font-family` | 本文を継承 | 柱・ノンブルのフォント |
 
-`charsPerLine` / `linesPerPage` / `columns` が本に設定されている場合、Vivlio は `--vs-theme--num-of-character` / `--vs-theme--num-of-line` / `--vs-theme--num-of-column` を生成します。テーマ側の `--vs-novel--chars-per-line` などを変えてもそちらが優先される点に注意してください。
+`charsPerLine` と `linesPerPage` が本に設定されている場合、Vivlio は `--vs-theme--num-of-character` と `--vs-theme--num-of-line` を生成します。`columns` を明示した場合は、グリッドの有無にかかわらず `--vs-theme--num-of-column` を生成し、本文の `body` をその段数へ分割します。`columns: null` ならテーマ自身の段組規則を変更しません。テーマ側の `--vs-novel--chars-per-line` などを変えても、本設定の値が優先される点に注意してください。
 
 ## Vivlio が付けるクラスと属性
 

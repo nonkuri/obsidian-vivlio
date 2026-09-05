@@ -63,6 +63,8 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "preflight.coverAspect":
     "表紙画像の縦横比が判型と {percent}% ずれています（{mm} mm がトリミングされます）",
   "preflight.noCover": "表紙が未指定です。EPUB の本棚サムネイルが空になります。",
+  "warning.multicolTable":
+    "{path}: 段組の本文に表があります。幅の広い表は文字が極端に折り返されたり、段や紙面からはみ出したりします。プレビューを確認し、収まらない場合は columns: 1 にしてください。",
 
   "wizard.title": "本の設定を作成",
   "wizard.step.preset": "プリセット",

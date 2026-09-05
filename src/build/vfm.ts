@@ -17,6 +17,7 @@ import { linksPlugin } from "./hast/links";
 import { sanitizePlugin } from "./hast/sanitize";
 import { blankLinesPlugin } from "./hast/spacing";
 import { obsidianPlugin } from "./hast/obsidian";
+import { multicolTableWarningPlugin } from "./hast/tables";
 import {
   addClass,
   element,
@@ -106,10 +107,15 @@ export async function convertChapter(
             chapterHeadingLevel(context, chapter, file),
             context.config.pageNumbering === "roman-then-arabic",
           ),
-          // Last, so that it sees the tree the document is actually built
+          // Last mutation, so that it sees the tree the document is actually built
           // from: whatever the manuscript wrote, whatever `rehype-raw` let
           // through, and whatever the stages above put there themselves.
           sanitizePlugin(context, file.path),
+          // A table's intrinsic width may not fit the narrower measure of a
+          // column. Inspect the sanitized structure once per source note; the
+          // warning is useful in the paged preview and PDF, but not in the
+          // reflowable EPUB where page columns are removed.
+          ...(chapter.isBody ? [multicolTableWarningPlugin(context, file.path)] : []),
         ],
       }) as unknown as ReturnType<NonNullable<StringifyMarkdownOptions["editPlugins"]>>,
     },

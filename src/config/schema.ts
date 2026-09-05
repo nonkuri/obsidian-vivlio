@@ -18,6 +18,7 @@ const ImageWidthUnitSchema = v.picklist(["px", "percent", "mm"]);
 const PageNumberingSchema = v.picklist(["roman-then-arabic", "continuous", "none"]);
 const CoverFitSchema = v.picklist(["cover", "contain"]);
 const IndentModeSchema = v.picklist([...INDENT_MODES]);
+const ColumnCountSchema = v.pipe(v.number(), v.integer(), v.safeInteger(), v.minValue(1));
 
 /**
  * Extra colophon lines, in either of the two shapes YAML makes natural: a list
@@ -70,7 +71,7 @@ export const BookConfigInputSchema = v.object({
   size: v.optional(v.string()),
   charsPerLine: v.optional(v.union([v.number(), v.null()])),
   linesPerPage: v.optional(v.union([v.number(), v.null()])),
-  columns: v.optional(v.union([v.number(), v.null()])),
+  columns: v.optional(v.union([ColumnCountSchema, v.null()])),
   startSide: v.optional(v.picklist(PAGE_SIDES)),
   baseFontSize: v.optional(v.string()),
   paragraphIndent: v.optional(v.union([v.string(), v.number()])),

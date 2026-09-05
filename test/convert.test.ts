@@ -1116,14 +1116,67 @@ async function main(): Promise<void> {
     ),
   );
 
-  // The theme's own count fills in the same way its grid does, and a book that
-  // asks for columns gets them from a theme that lays them out.
+  // The theme's own count fills in the same way its grid does. An explicit
+  // count is also a theme-independent layout instruction: a margin-laid
+  // horizontal theme keeps its type size and page geometry, while the
+  // generated stylesheet divides its existing body area into columns.
   const themeColumns = makeContext();
   themeColumns.config.theme = "novel-2col";
   themeColumns.config.charsPerLine = null;
   themeColumns.config.linesPerPage = null;
   const asked = makeContext();
   asked.config.columns = 2;
+  const horizontalColumns = makeContext();
+  horizontalColumns.config.theme = "manual";
+  horizontalColumns.config.writingMode = "horizontal-tb";
+  horizontalColumns.config.charsPerLine = null;
+  horizontalColumns.config.linesPerPage = null;
+  horizontalColumns.config.columns = 2;
+  const horizontalCss = bookStylesheet(horizontalColumns, "x.css");
+  const themeDefault = makeContext();
+  themeDefault.config.theme = "manual";
+  themeDefault.config.writingMode = "horizontal-tb";
+  themeDefault.config.charsPerLine = null;
+  themeDefault.config.linesPerPage = null;
+  themeDefault.config.columns = null;
+  const oneColumn = makeContext();
+  oneColumn.config.theme = "novel-2col";
+  oneColumn.config.columns = 1;
+  const oneColumnCss = bookStylesheet(oneColumn, "x.css");
+  const tables = `| Setting | Behaviour |
+|---|---|
+| columns | Splits the body |
+
+| Value | Output |
+|---|---|
+| 2 | Two columns |`;
+  await convertChapter(
+    horizontalColumns,
+    horizontalColumns.chapters[0],
+    chapterOne,
+    tables,
+  );
+  horizontalColumns.settings = {
+    ...horizontalColumns.settings,
+    dpiWarnThreshold: 0,
+    warnMissingFonts: false,
+  };
+  const pdfTableIssues = await preflight(horizontalColumns, { forEpub: false });
+  const epubTableIssues = await preflight(horizontalColumns, { forEpub: true });
+  const themeTable = makeContext();
+  themeTable.config.theme = "novel-2col";
+  themeTable.config.columns = null;
+  await convertChapter(themeTable, themeTable.chapters[0], chapterOne, tables);
+  const singleTable = makeContext();
+  singleTable.config.theme = "manual";
+  singleTable.config.writingMode = "horizontal-tb";
+  singleTable.config.columns = 1;
+  await convertChapter(singleTable, singleTable.chapters[0], chapterOne, tables);
+  const epubTable = makeContext({ mode: "epub" });
+  epubTable.config.theme = "manual";
+  epubTable.config.writingMode = "horizontal-tb";
+  epubTable.config.columns = 2;
+  await convertChapter(epubTable, epubTable.chapters[0], chapterOne, tables);
   checks.push(
     check(
       "the theme's own column count fills in",
@@ -1132,6 +1185,62 @@ async function main(): Promise<void> {
     check(
       "and a book can ask for columns itself",
       bookStylesheet(asked, "x.css").includes("--vs-theme--num-of-column: 2;"),
+    ),
+    check(
+      "a horizontal margin-laid theme receives the explicit count",
+      horizontalCss.includes("--vs-theme--num-of-column: 2;") &&
+        horizontalCss.includes("column-count: var(--vs-theme--num-of-column);") &&
+        horizontalCss.includes("column-fill: auto;"),
+      horizontalCss.slice(0, 700),
+    ),
+    check(
+      "columns do not turn a margin-laid theme into a grid",
+      !horizontalCss.includes("--vs--html-font-size") &&
+        !horizontalCss.includes("--vs-theme--num-of-character") &&
+        !horizontalCss.includes("--vs-theme--num-of-line"),
+      horizontalCss.slice(0, 500),
+    ),
+    check(
+      "null leaves a margin-laid theme's column flow alone",
+      !bookStylesheet(themeDefault, "x.css").includes(
+        "column-count: var(--vs-theme--num-of-column);",
+      ),
+    ),
+    check(
+      "an explicit one column overrides a multi-column theme",
+      oneColumnCss.includes("--vs-theme--num-of-column: 1;") &&
+        oneColumnCss.includes("column-count: var(--vs-theme--num-of-column);"),
+      oneColumnCss.slice(0, 700),
+    ),
+    check(
+      "a multi-column horizontal body warns once when it contains tables",
+      horizontalColumns.warnings.filter((warning) => warning.kind === "multicol-table")
+        .length === 1 &&
+        horizontalColumns.warnings.some(
+          (warning) => warning.source === chapterOne.path && warning.message.includes(chapterOne.path),
+        ),
+      horizontalColumns.warnings.map((warning) => warning.message).join(" | "),
+    ),
+    check(
+      "the table warning reaches PDF preflight but not EPUB preflight",
+      pdfTableIssues.some((issue) => issue.message.includes(chapterOne.path)) &&
+        !epubTableIssues.some((issue) => issue.message.includes(chapterOne.path)),
+      `PDF: ${pdfTableIssues.map((issue) => issue.message).join(" | ")}; EPUB: ${epubTableIssues.map((issue) => issue.message).join(" | ")}`,
+    ),
+    check(
+      "a bundled theme's default column count triggers the same warning",
+      themeTable.warnings.some((warning) => warning.kind === "multicol-table"),
+      themeTable.warnings.map((warning) => warning.message).join(" | "),
+    ),
+    check(
+      "a one-column body does not warn about tables",
+      !singleTable.warnings.some((warning) => warning.kind === "multicol-table"),
+      singleTable.warnings.map((warning) => warning.message).join(" | "),
+    ),
+    check(
+      "a reflowable EPUB does not warn about paged columns",
+      !epubTable.warnings.some((warning) => warning.kind === "multicol-table"),
+      epubTable.warnings.map((warning) => warning.message).join(" | "),
     ),
     check(
       "one column is what everything else gets",

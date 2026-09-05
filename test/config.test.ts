@@ -171,6 +171,18 @@ async function main(): Promise<void> {
     issues.some((issue) => issue.key === "sections.preface" && issue.level === "error"),
     JSON.stringify(issues),
   );
+  for (const columns of [0, -1, 1.5]) {
+    const columnIssues = validateConfig({ columns }, "test");
+    check(
+      `columns rejects ${columns}`,
+      columnIssues.some((issue) => issue.key === "columns" && issue.level === "error"),
+      JSON.stringify(columnIssues),
+    );
+  }
+  check(
+    "columns accepts a positive integer",
+    validateConfig({ columns: 2 }, "test").length === 0,
+  );
 
   // --- generated YAML ----------------------------------------------------
   const yaml = configToYaml(
@@ -412,6 +424,17 @@ async function main(): Promise<void> {
   for (const value of [1.5]) {
     const result = resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { startPage: 5 }, frontmatter: { startPage: value } });
     check(`invalid startPage ${value} leaves the previous layer intact`, result.config.startPage === 5 && result.issues.some((issue) => issue.key === "startPage"));
+  }
+  for (const value of [0, -1, 1.5]) {
+    const result = resolveConfig({
+      settings: DEFAULT_SETTINGS,
+      yaml: { columns: 2 },
+      frontmatter: { columns: value },
+    });
+    check(
+      `invalid columns ${value} leaves the previous layer intact`,
+      result.config.columns === 2 && result.issues.some((issue) => issue.key === "columns"),
+    );
   }
 
   let failed = 0;

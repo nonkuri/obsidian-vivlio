@@ -96,8 +96,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   },
   columns: {
     group: "layout",
-    ja: "段数。novel-2col テーマは 2。字詰めと行数は1段あたりの数になる",
-    en: "Columns (段). The novel-2col theme sets 2; the two figures above are then per column",
+    ja: "本文の段数（1以上の整数）。空はテーマ任せ。横組み・縦組みとも有効で、字詰めと行数は1段あたりの数になる",
+    en: "Body columns (a positive integer); empty leaves them to the theme. Works in horizontal and vertical writing; the two figures above are per column",
   },
   startSide: {
     group: "layout",
