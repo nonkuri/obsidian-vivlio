@@ -654,13 +654,23 @@ async function main(): Promise<void> {
   );
 
   // A Latin digit lies on its side in vertical writing, so an ordered list's
-  // own marker has to be combined upright the way every other number in the
-  // theme is.
+  // number has to be combined upright the way every other number in the theme
+  // is - and written as content in a box of its own, because the marker box is
+  // laid out beside the line rather than in it.
+  const novelTheme = flattenBundledTheme(bundledThemePath("novel")!);
   checks.push(
     check(
-      "an ordered list's number is set upright, without its full stop",
-      /ol > li::marker \{\s*content: counter\(list-item[^)]*\)[^;]*;\s*text-combine-upright: all;/.test(
-        flattenBundledTheme(bundledThemePath("novel")!),
+      "an ordered list's number is set upright, in a box of its own",
+      /ol > li::before \{\s*content: counter\(list-item[^;]*;\s*display: inline-block;\s*inline-size: 2em;[^}]*text-combine-upright: all;/.test(
+        novelTheme,
+      ),
+      novelTheme.slice(novelTheme.indexOf("ol > li::before")),
+    ),
+    // The contents page is an ordered list too, and none of that is for it.
+    check(
+      "and the contents page is left out of it",
+      /:is\(#toc, \[role='doc-toc'\]\) li \{\s*padding-inline-start: 0;\s*text-indent: 0;/.test(
+        novelTheme,
       ),
     ),
   );

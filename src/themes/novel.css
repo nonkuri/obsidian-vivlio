@@ -510,26 +510,45 @@ aside[role='doc-footnote'] .footnote-back sup {
    its side in vertical writing: 1. through 7. came out rotated beside upright
    Japanese, which is what a numeral in vertical Japanese must not do.
 
-   The number is set upright the way every other number in this theme is - the
-   folio, the footnote's mark, the page number on the contents page - and the
-   full stop after it is dropped first. Combining `1.` puts two characters in
-   the em that the body sets one character in, so the marker came out narrower
-   than the line it belonged to and sat off the grid, half a character to the
-   side of its own text. Without the stop there is one character in one em and
-   the marker lands where a character lands. A Japanese list is numbered that
-   way in any case: the number, a space, the item.
+   `::marker` cannot be made to do it. `content` and `text-combine-upright` are
+   both among the few properties it takes, and the typesetter acts on both, but
+   the marker box is laid out beside the line rather than in it: the number
+   came out half a character to the side of its own text and pressed against
+   it, whether or not the full stop went with it.
 
-   `::marker` takes few properties, but `content` and `text-combine-upright`
-   are both among them and the typesetter acts on both (measured, 1 through 11
-   - two digits still combine into the one em). The style comes from the same
-   variable theme-base gives the list, so a book that asks for another one is
-   numbered in it here too.
+   So the marker is turned off and the number written as content, in a box of a
+   definite inline size - the same answer the endnote list and the dpub
+   back-link already needed in this theme, and for the same reason. Two em: one
+   for the number, one for the space after it. The hang puts every line of a
+   wrapping item against the same start, with the number outside it.
 
-   Ordered lists only. A bullet is centred in its em box already, and the lists
-   that number themselves through generated content - the contents page, the
-   endnotes, a task list - set `list-style: none` and never reach the marker. */
-ol > li::marker {
+   The full stop is dropped. A Japanese list is numbered `1` and a space, not
+   `1.`, and combining two characters into the em the body sets one character
+   in is what took the number off the grid to begin with.
+
+   `counter(list-item)` rather than a counter of this theme's own: it is the
+   counter the list already keeps, so `<ol start>` and nesting go on working.
+   The style comes from the variable theme-base gives the list, so a book that
+   asks for another one is numbered in it here too.
+
+   Ordered lists only, and not the ones that already number themselves through
+   generated content - the contents page and the endnotes both set their own
+   `li::before`, and reach it through a more specific selector than this. */
+ol {
+  --vs--ol-padding-inline-start: 0;
+  list-style: none;
+}
+
+ol > li {
+  padding-inline-start: 2em;
+  text-indent: -2em;
+}
+
+ol > li::before {
   content: counter(list-item, var(--vs--ol-list-style-type, decimal));
+  display: inline-block;
+  inline-size: 2em;
+  text-indent: 0;
   text-combine-upright: all;
 }
 
@@ -800,6 +819,15 @@ ol > li::marker {
 
 :is(#toc, [role='doc-toc']) ol ol {
   --vs--ol-padding-inline-start: var(--vs-toc--ol-indent-size);
+}
+
+/* The contents is an ordered list as well, and the numbering the body's lists
+   get is not for it: theme-base already hides its marker and draws the leader
+   and the page number instead, so an entry neither carries a number nor hangs
+   one outside itself. */
+:is(#toc, [role='doc-toc']) li {
+  padding-inline-start: 0;
+  text-indent: 0;
 }
 
 /* Entries keep the body's line height and nothing else, so the list lands on
