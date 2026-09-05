@@ -1,6 +1,6 @@
 {
   "name": "obsidian-vivlio",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Typeset your Obsidian notes with Vivliostyle (CSS paged media) and export to PDF / EPUB.",
   "main": "main.js",
   "license": "AGPL-3.0-or-later",
