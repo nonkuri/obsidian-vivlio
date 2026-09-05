@@ -506,6 +506,22 @@ aside[role='doc-footnote'] .footnote-back sup {
   text-combine-upright: all;
 }
 
+/* An ordered list numbers itself in Latin digits, and a Latin digit lies on
+   its side in vertical writing: `1.` through `7.` came out rotated beside
+   upright Japanese, which is what a numeral in vertical Japanese must not do.
+   Combining the marker sets it upright in one em, the same answer the folio,
+   the footnote number and the contents page all take.
+   `::marker` takes few properties, but `text-combine-upright` is one of them,
+   and the typesetter acts on it (measured, 1. through 11.). A marker of three
+   characters - `10.` - is condensed into the em rather than overflowing it,
+   which is what tate-chu-yoko does and what a printed book does with it.
+   Only ordered lists: a bullet is centred in its em box already, and the
+   lists that number themselves through generated content - the contents page,
+   the endnotes, a task list - set `list-style: none` and never reach here. */
+ol > li::marker {
+  text-combine-upright: all;
+}
+
 .upright {
   text-orientation: upright;
 }

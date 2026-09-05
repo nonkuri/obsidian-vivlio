@@ -653,6 +653,18 @@ async function main(): Promise<void> {
     ),
   );
 
+  // A Latin digit lies on its side in vertical writing, so an ordered list's
+  // own marker has to be combined upright the way every other number in the
+  // theme is.
+  checks.push(
+    check(
+      "an ordered list's number is set upright",
+      /ol > li::marker \{\s*text-combine-upright: all;/.test(
+        flattenBundledTheme(bundledThemePath("novel")!),
+      ),
+    ),
+  );
+
   // theme-base turns every external link into a page-bottom footnote when
   // printing. The vertical theme switches that off - the number and the URL
   // arrive as one run of generated content, so the number cannot be set
