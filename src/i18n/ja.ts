@@ -116,6 +116,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "preset.b6": "B6 縦組み（43字×17行）",
   "preset.shiroku": "四六判 縦組み（44字×17行）",
   "preset.a5": "A5 縦組み（45字×18行）",
+  "preset.shinsho2": "新書 縦組み二段組（1段 24字×14行）",
+  "preset.b62col": "B6 縦組み二段組（1段 23字×17行）",
+  "preset.a52col": "A5 縦組み二段組（1段 26字×19行）",
   "preset.manual": "マニュアル・技術書（A5 横組み）",
   "preset.custom": "カスタム",
 
@@ -140,8 +143,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.writingMode": "既定書字方向",
   "settings.writingMode.vertical-rl": "縦組み・右から左へ読み進む（vertical-rl）",
   "settings.writingMode.horizontal-tb": "横組み・上から下へ読み進む（horizontal-tb）",
-  "settings.charsPerLine": "行あたりの文字数",
-  "settings.linesPerPage": "ページあたりの行数",
+  "settings.charsPerLine": "1行あたりの文字数",
+  "settings.linesPerPage": "1段あたりの行数",
+  "settings.columns": "段数",
   "settings.baseFontSize": "基準の文字サイズ",
   "settings.imageWidthUnit": "画像に付けた単位なしの数字の意味",
   "settings.imageWidthUnit.px": "ピクセル（px）",
@@ -300,6 +304,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
 
   "book.untitled": "無題",
   "theme.novel": "novel —— 小説を縦組みで",
+  "theme.novel-2col": "novel-2col —— 小説を縦組み二段組で",
   "theme.manual": "manual —— マニュアル・技術書を横組みで",
 
   "book.theme": "テーマ",

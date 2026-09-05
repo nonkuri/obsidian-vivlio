@@ -128,11 +128,12 @@ colophonExtra:
 
 | キー | 値・例 | 説明 |
 |---|---|---|
-| `theme` | `novel`、`manual`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`manual`（横組みのマニュアル・技術書）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
+| `theme` | `novel`、`novel-2col`、`manual`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`novel-2col`（縦組み二段組の小説）、`manual`（横組みのマニュアル・技術書）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
 | `writingMode` | `vertical-rl` / `horizontal-tb` | 縦組み / 横組み。 |
 | `size` | `文庫`、`四六判`、`A5`、`128mm 188mm` | 判型。`文庫`・`新書`・`JIS-B6`・`四六判`（127×188mm）・`A5`・`JIS-B5`・`B5`・`A4`・`letter`。`文庫` と `A6` は同じ `105mm 148mm` なので、選択欄には `文庫・A6（105×148mm）` として一つだけ出ます。任意の CSS `size` 値も可。 |
-| `charsPerLine` | 数値 / `null` | 1 行の字数。`linesPerPage` と組で指定します。 |
-| `linesPerPage` | 数値 / `null` | 1 ページの行数。 |
+| `charsPerLine` | 数値 / `null` | 1 行の字数（二段組なら 1 段の字詰め）。`linesPerPage` と組で指定します。 |
+| `linesPerPage` | 数値 / `null` | 1 段の行数（一段組なら 1 ページの行数）。 |
+| `columns` | 数値 / `null` | 段数。空はテーマ任せ（`novel-2col` は 2）。上の 2 つは 1 段あたりの数になります。 |
 | `baseFontSize` | `3mm`、`10pt` | 基準文字サイズ。指定すると自動計算より優先。 |
 | `paragraphIndent` | 空、`0`、`1em` | 段落の字下げ。空はテーマ任せ。 |
 | `paragraphIndentMode` | `auto` / `manuscript` / `brackets` / `all` | 字下げ対象を決定。 |
@@ -140,6 +141,8 @@ colophonExtra:
 | `highlight` | `boten` / `strong` / `mark` / `off` | `==...==` の変換先。 |
 | `autoTcy` | 真偽値 | 1〜2 桁の数字を自動正立。 |
 | `imageWidthUnit` | `px` / `percent` / `mm` | `![[画像.png\|300]]` のような単位なし幅の解釈。画像側の `%`、`mm`、`px` が優先。 |
+
+`columns` は段数です。既定は `null` で、テーマ自身の段数（`novel-2col` は 2、それ以外は 1）に従います。段組を組むのは `novel` 系のテーマだけなので、`manual` や自作の余白組みテーマでは効きません。縦組みの二段組では段が上下に並び、どちらの段も紙面の幅いっぱいに行を並べるので、`linesPerPage` は 1 段の行数、1 ページの行数はその 2 倍になります。
 
 `charsPerLine` と `linesPerPage` は片方だけでなく両方を指定してください。グリッド系テーマでは、用紙と字数・行数から収まる本文サイズを Vivlio が計算します。`baseFontSize` を指定するとその値を使うため、版面からはみ出さないかプレビューで確認します。
 
@@ -268,7 +271,7 @@ syntax:
 ## 空の値と型
 
 - 空欄または `null` は「この層では決めない」として上位層の値を継承します。値を書かずにキーだけ置いても警告にはなりません（`sections:` だけ書いて中身を全部コメントにしてある状態が、まさにこれです）。
-- `charsPerLine`、`linesPerPage`、`tocDepth`、`startPage` は数値として扱われます。
+- `charsPerLine`、`linesPerPage`、`columns`、`tocDepth`、`startPage` は数値として扱われます。
 - `autoTcy`、`coverInPdf`、`cropMarks`、`includeToc` は YAML の `true` / `false` を使います。
 - 不明なキーや不正な値は組版時の警告対象になります。綴りとインデントを確認してください。
 
@@ -280,11 +283,11 @@ syntax:
 
 ```yaml
 # --- 組版 ---
-# テーマ: novel（縦組みの小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス
+# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス
 # theme: novel
 # 判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | ...
 # size: 文庫
-# 行あたりの文字数。空ならテーマが判型と文字サイズから決める
+# 1行あたりの文字数（二段組なら1段の字詰め）。空ならテーマが判型と文字サイズから決める
 charsPerLine: 39
 ```
 

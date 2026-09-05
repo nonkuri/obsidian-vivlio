@@ -1,7 +1,7 @@
 import type { BuildContext } from "./context";
 import type { BookConfig } from "../config/types";
 import { pageHeightMm, pageWidthMm, resolvePaperSize } from "../config/defaults";
-import { BUNDLED_THEME_GRIDS, bundledThemePath } from "../vendor/assets";
+import { BUNDLED_THEME_GRIDS, bundledThemePath, type ThemeGrid } from "../vendor/assets";
 import { THEME_STYLESHEET } from "./theme";
 import { fontFaceRules } from "./fonts";
 
@@ -43,6 +43,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (grid) {
     root.push(`--vs-theme--num-of-character: ${grid.chars};`);
     root.push(`--vs-theme--num-of-line: ${grid.lines};`);
+    root.push(`--vs-theme--num-of-column: ${grid.columns};`);
   }
 
   if (config.fontFamily) root.push(`--vs-font-family: ${config.fontFamily};`);
@@ -150,6 +151,16 @@ const TEXT_BLOCK_FILL = 0.85;
 const GRID_LINE_HEIGHT = 2;
 
 /**
+ * The gap between two columns, in characters.
+ *
+ * Mirrors `--vs-novel--column-gap` in the two-column theme, the way the
+ * constant above mirrors `--vs-line-height`: the theme lays the gap out and
+ * the size derived here has to have paid for it, or the block is wider than
+ * the sheet by exactly the gaps.
+ */
+const COLUMN_GAP_CHARS = 2;
+
+/**
  * Body size derived from the paper and the character grid.
  *
  * A grid theme sizes the text block from the type: theme-bunko makes it
@@ -178,15 +189,17 @@ function gridFontSize(config: BookConfig, grid: Grid | null): string | null {
   const alongChars = vertical ? height : width;
   const alongLines = vertical ? width : height;
 
-  const byChars = (alongChars * TEXT_BLOCK_FILL) / chars;
+  // Columns divide the character axis and nothing else: each one is a full
+  // line's worth of characters, and every column is as long as the page is
+  // wide, so the line count is per column and does not multiply.
+  const charsAcross = grid.columns * chars + (grid.columns - 1) * COLUMN_GAP_CHARS;
+  const byChars = (alongChars * TEXT_BLOCK_FILL) / charsAcross;
   const byLines = (alongLines * TEXT_BLOCK_FILL) / (lines * GRID_LINE_HEIGHT);
   return `${Math.min(byChars, byLines).toFixed(3)}mm`;
 }
 
-interface Grid {
-  chars: number;
-  lines: number;
-}
+/** One column's grid, and how many columns of it the page carries. */
+type Grid = ThemeGrid;
 
 /** The printed text block: physical, so a picture can be measured against it. */
 export interface TextBlockMm {
@@ -246,7 +259,11 @@ function resolveGrid(config: BookConfig): Grid | null {
   const themeGrid = BUNDLED_THEME_GRIDS[config.theme] ?? null;
   const chars = config.charsPerLine || themeGrid?.chars || 0;
   const lines = config.linesPerPage || themeGrid?.lines || 0;
-  return chars > 0 && lines > 0 ? { chars, lines } : null;
+  // A book that says nothing takes the theme's own count, and a theme that is
+  // not laid on a grid has none to take: one column, which is what every rule
+  // here reduces to.
+  const columns = Math.max(1, Math.round(config.columns || themeGrid?.columns || 1));
+  return chars > 0 && lines > 0 ? { chars, lines, columns } : null;
 }
 
 /**

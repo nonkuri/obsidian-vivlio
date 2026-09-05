@@ -255,6 +255,16 @@ svg {
   margin-block-start: 4rem;
 }
 
+/* Columns are a decision about a page, and this book no longer has one. Two
+   bands are laid across a sheet of known proportions; a reader's viewport is
+   any shape at all, and it paginates the flow itself - so a two-column theme
+   would hand it a container it has to fill in bands of its own choosing.
+   The reader's column is the only one that means anything here. */
+:root.vivlio-body body {
+  column-count: 1;
+  column-fill: balance;
+}
+
 /* Belt and braces: a paragraph opening with a bracket carries its own indent
    in the glyph, and readers are quick to add one of their own. */
 p.vivlio-no-indent {

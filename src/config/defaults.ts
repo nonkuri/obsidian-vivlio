@@ -127,6 +127,7 @@ export function baseBookConfig(): BookConfig {
     size: "文庫",
     charsPerLine: null,
     linesPerPage: null,
+    columns: null,
     baseFontSize: "",
     paragraphIndent: "",
     paragraphIndentMode: "auto",

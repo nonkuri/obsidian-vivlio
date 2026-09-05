@@ -1,0 +1,64 @@
+/*
+ * Vivlio — Japanese novel, two columns
+ *
+ * The novel theme with the page divided into two 段: the same vertical
+ * setting, the same folios and running heads, the same front and back matter,
+ * only the text block split into an upper and a lower band.
+ *
+ * This is the shape a 同人誌 in B6 or A5 usually takes, and the one a 新書
+ * novel almost always takes. It is a theme of its own rather than a switch
+ * because the grid that suits it is a different grid: a 段 of 40 characters
+ * would be a page of 80. The numbers below are what anyone who chooses it and
+ * writes nothing else gets, and the plugin reads the same pair when it sizes
+ * the type to the sheet (BUNDLED_THEME_GRIDS in src/vendor/assets.ts).
+ *
+ * The character grid is per 段, not per page: `charsPerLine` is the length of
+ * one column's line, `linesPerPage` how many lines one 段 holds. Both bands
+ * are as long as the page is wide, so the page carries twice that many lines
+ * and the second number does not double.
+ *
+ * The leading stays at the novel theme's two full characters. A printed 二段組
+ * is usually tighter, but ruby is set at half the body size and only fits in
+ * the half-leading a line height of 2 leaves; tightening it here would buy a
+ * few lines a page and put every reading into the line beside it.
+ */
+
+/* By path, not `vivlio:novel`: a bundled theme is also served as a file, and
+   the preview's browser has to be able to fetch what it imports. The scheme
+   is for a theme kept in the vault, which the plugin flattens before serving
+   (see resolveVaultTheme). */
+@import url(novel.css);
+
+:root {
+  --vs-novel--columns-per-page: 2;
+
+  /* A 段 of 23 characters and 17 lines composes at around 9 point on B6 and
+     四六判, which is where this theme is aimed; on 新書 and A5 the plugin
+     resizes the type to the sheet from the same pair, so one grid serves all
+     four. A book that wants its own writes `charsPerLine` and `linesPerPage`,
+     both per 段. */
+  --vs-novel--chars-per-line: 23;
+  --vs-novel--lines-per-page: 17;
+
+  /* Headings ------------------------------------------------------------
+   *
+   * A 段 is a little over half a single-column line, so the same heading reads
+   * larger against it and the same gap below it takes a larger share of the
+   * band. Both come down by a line. The gaps stay whole multiples of the line
+   * height, so a heading still lands the text under it back on the grid.
+   */
+  --vs--h1-font-size: 1.3rem;
+  --vs--h1-margin-block: 0 2rem;
+  --vs--h2-font-size: 1.15rem;
+  --vs--h2-margin-block: 0 2rem;
+  --vs--h3-margin-block: 2rem 2rem;
+}
+
+/* A chapter still opens a page rather than a band - `h2 { break-before: page }`
+   in the novel theme - and a heading still keeps the line under it. What is
+   new is that a picture can now be broken across the two bands, where before
+   there was only the page to fall to. A figure that wants the whole page
+   instead of its own band writes `column-span: all`. */
+figure {
+  break-inside: avoid;
+}

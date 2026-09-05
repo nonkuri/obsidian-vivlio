@@ -769,6 +769,64 @@ async function main(): Promise<void> {
     ),
   );
 
+  // Two columns divide the character axis, so the body size has to be derived
+  // from twice the characters plus the gap between the bands - not from one
+  // column's worth, which would come out twice as large as the sheet holds.
+  const twoCol = makeContext();
+  twoCol.config.theme = "novel-2col";
+  twoCol.config.size = "JIS-B6";
+  twoCol.config.charsPerLine = 23;
+  twoCol.config.linesPerPage = 17;
+  const twoColCss = bookStylesheet(twoCol, "x.css");
+  const twoColSize = Number(twoColCss.match(/--vs--html-font-size: ([\d.]+)mm;/)?.[1] ?? 0);
+  checks.push(
+    check(
+      "the column count reaches the theme",
+      twoColCss.includes("--vs-theme--num-of-column: 2;"),
+      twoColCss.slice(0, 400),
+    ),
+    check(
+      "both bands and the gap fit the sheet",
+      twoColSize > 0 && twoColSize * (2 * 23 + 2) < 182,
+      `${twoColSize}mm x 48 = ${(twoColSize * 48).toFixed(1)}mm of 182mm`,
+    ),
+    check(
+      "and one band's lines fit its width",
+      twoColSize * 17 * 2 < 128,
+      `${(twoColSize * 34).toFixed(1)}mm of 128mm`,
+    ),
+    // A column of 23 characters is what an image is set inside, not the 48 the
+    // page carries: the cap has to be one band.
+    check(
+      "an unmeasured image is capped at one band",
+      twoColCss.includes(`max-height: ${(twoColSize * 23).toFixed(2)}mm;`),
+      twoColCss.slice(twoColCss.indexOf("img,"), twoColCss.indexOf("img,") + 120),
+    ),
+  );
+
+  // The theme's own count fills in the same way its grid does, and a book that
+  // asks for columns gets them from a theme that lays them out.
+  const themeColumns = makeContext();
+  themeColumns.config.theme = "novel-2col";
+  themeColumns.config.charsPerLine = null;
+  themeColumns.config.linesPerPage = null;
+  const asked = makeContext();
+  asked.config.columns = 2;
+  checks.push(
+    check(
+      "the theme's own column count fills in",
+      bookStylesheet(themeColumns, "x.css").includes("--vs-theme--num-of-column: 2;"),
+    ),
+    check(
+      "and a book can ask for columns itself",
+      bookStylesheet(asked, "x.css").includes("--vs-theme--num-of-column: 2;"),
+    ),
+    check(
+      "one column is what everything else gets",
+      bookStylesheet(makeContext(), "x.css").includes("--vs-theme--num-of-column: 1;"),
+    ),
+  );
+
   // A theme that lays out from margins keeps its own body size.
   const margins = makeContext();
   margins.config.theme = "techbook";

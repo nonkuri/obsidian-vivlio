@@ -59,11 +59,30 @@
    *
    * Vertical writing: a line's characters run down the page, so the height is
    * the character count and the width is the line count times the leading.
+   *
+   * Columns divide the character axis, so the height carries all of them and
+   * the gaps between them; the width is one column's worth of lines, because
+   * every column is as long as the page is wide.
    */
   --vs-novel--chars-per-line: 40;
   --vs-novel--lines-per-page: 16;
+  --vs-novel--columns-per-page: 1;
+  /* The gap between two columns, in characters. The plugin derives the body
+     size from the same figure (see COLUMN_GAP_CHARS in src/build/css.ts); the
+     two must agree, the way the line height and GRID_LINE_HEIGHT do. */
+  --vs-novel--column-gap: 2;
+  /* Resolved once: the page geometry, the flow and the gap all need the same
+     answer, and the book's own count outranks the theme's. */
+  --vs-novel--column-count: var(
+    --vs-theme--num-of-column,
+    var(--vs-novel--columns-per-page)
+  );
   --vs-page--height: calc(
-    1rem * var(--vs-theme--num-of-character, var(--vs-novel--chars-per-line))
+    1rem * (
+      var(--vs-novel--column-count) *
+        var(--vs-theme--num-of-character, var(--vs-novel--chars-per-line)) +
+      (var(--vs-novel--column-count) - 1) * var(--vs-novel--column-gap)
+    )
   );
   /* One extra pixel, so rounding cannot force a spurious page break. */
   --vs-page--width: calc(
@@ -215,6 +234,29 @@ h3 {
 }
 
 /* Body -------------------------------------------------------------------- */
+
+/* Columns (二段組) -------------------------------------------------------
+ *
+ * Column boxes are laid out along the inline axis, which in vertical writing
+ * runs down the page: two columns are an upper band and a lower band, a line
+ * runs down its own band, and the lines march leftwards until the band is
+ * full and the text continues at the top right of the one below. That is
+ * exactly how a Japanese book sets two columns, so `column-count` alone says
+ * it - no rule has to know which way round the bands go.
+ *
+ * The chapters only. The cover, the title page, the contents and the colophon
+ * are pages that fill themselves, and a colophon split across two bands is
+ * not a colophon.
+ *
+ * `column-fill: auto` fills each band before starting the next, which is what
+ * a page of prose does; `balance`, the initial value, would even out the two
+ * bands of every fragment and leave the foot of each page short.
+ */
+:root.vivlio-body body {
+  column-count: var(--vs-novel--column-count);
+  column-gap: calc(1rem * var(--vs-novel--column-gap));
+  column-fill: auto;
+}
 
 figure {
   margin-block: unset;

@@ -80,7 +80,13 @@ export function configFromSettings(settings: VivlioSettings): BookConfig {
   return config;
 }
 
-const NUMBER_KEYS = new Set(["charsPerLine", "linesPerPage", "tocDepth", "startPage"]);
+const NUMBER_KEYS = new Set([
+  "charsPerLine",
+  "linesPerPage",
+  "columns",
+  "tocDepth",
+  "startPage",
+]);
 const BOOLEAN_KEYS = new Set([
   "autoTcy",
   "coverInPdf",

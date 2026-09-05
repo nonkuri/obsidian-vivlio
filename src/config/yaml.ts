@@ -71,8 +71,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
 
   theme: {
     group: "layout",
-    ja: "テーマ: novel（縦組みの小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス",
-    en: "Theme: novel (a vertical novel) | manual (a horizontal manual or tech book) | the path of a .css file in the vault",
+    ja: "テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス",
+    en: "Theme: novel (a vertical novel) | novel-2col (a vertical novel in two columns) | manual (a horizontal manual or tech book) | the path of a .css file in the vault",
   },
   writingMode: {
     group: "layout",
@@ -86,13 +86,18 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   },
   charsPerLine: {
     group: "layout",
-    ja: "行あたりの文字数。空ならテーマが判型と文字サイズから決める",
-    en: "Characters per line; empty lets the theme size the text block from the page",
+    ja: "1行あたりの文字数（二段組なら1段の字詰め）。空ならテーマが判型と文字サイズから決める",
+    en: "Characters per line - of one column, in a two-column book; empty lets the theme size the text block from the page",
   },
   linesPerPage: {
     group: "layout",
-    ja: "ページあたりの行数。空ならテーマが判型と文字サイズから決める",
-    en: "Lines per page; empty lets the theme size the text block from the page",
+    ja: "1段あたりの行数。空ならテーマが判型と文字サイズから決める",
+    en: "Lines per column; empty lets the theme size the text block from the page",
+  },
+  columns: {
+    group: "layout",
+    ja: "段数。novel-2col テーマは 2。字詰めと行数は1段あたりの数になる",
+    en: "Columns (段). The novel-2col theme sets 2; the two figures above are then per column",
   },
   baseFontSize: {
     group: "layout",

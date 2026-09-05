@@ -99,7 +99,7 @@ Three layers; a lower one overrides the one above it.
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel or manual, or a CSS path in the vault — see “A theme of your own”
+theme: novel              # novel, novel-2col or manual, or a CSS path in the vault — see “A theme of your own”
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -189,6 +189,37 @@ Markdown source.
 
 ![A spread from the sample book at full size: ruby over 遠雷, emphasis dots beside 「その手袋は、もう戻らない」, 10 and 42 turned upright, the gap a run of blank lines opens, running heads and folios.](docs/images/spread.png)
 
+## Two columns
+
+B6 and A5 — the sheets a 同人誌 is usually printed on — and the 新書 are
+commonly set vertically in two columns. The `novel-2col` theme sets them:
+
+```yaml
+# vivlio.yaml
+theme: novel-2col
+size: JIS-B6
+charsPerLine: 23   # characters in one column's line
+linesPerPage: 17   # lines one column holds
+```
+
+**Both figures are per column.** In vertical writing the two columns are an
+upper and a lower band, and each band is as long as the page is wide, so the
+page carries twice `linesPerPage` lines. A line runs down its own band and the
+lines march leftwards; when the upper band is full the text continues at the
+top right of the one below.
+
+To change only the count, write `columns:`. The `novel` theme reads it too, so
+`theme: novel` with `columns: 2` also sets two columns — at the single-column
+leading, which leaves each band a few lines shorter.
+
+The setup wizard offers Shinsho, B6 and A5 two-column presets. The body size is
+derived from the sheet and the grid, so rewriting the two figures moves the
+whole page with them.
+
+The cover, title page, contents and colophon stay in one column — a colophon
+split across two bands is not a colophon. Footnotes (`gcpm`) sit at the foot of
+the page, spanning both.
+
 ## A theme of your own
 
 `theme:` also takes the vault-relative path of a stylesheet, and that stylesheet
@@ -213,9 +244,9 @@ can start from a bundled one:
 theme: 装丁/私の本.css
 ```
 
-The theme picker offers the two themes built for this plugin — `novel`, for a
-novel set vertically, and `manual`, for a manual or tech book set across the
-page — followed by **every `.css` file in the vault, listed by its path**. Put
+The theme picker offers the three themes built for this plugin — `novel`, for a
+novel set vertically, `novel-2col`, for one set vertically in two columns, and
+`manual`, for a manual or tech book set across the page — followed by **every `.css` file in the vault, listed by its path**. Put
 a stylesheet anywhere in the vault and it is in the list; there is nothing to
 register. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and `vivlio:academic`
 — the CC0 Vivliostyle themes — resolve when a book names one, but are left out

@@ -22,13 +22,14 @@
 | URL | 内容 |
 |---|---|
 | `vivlio:novel` | Vivlio 用に調整した日本語小説テーマ。縦組みの出発点 |
+| `vivlio:novel-2col` | 上を二段組にしたもの。B6・A5・新書の出発点 |
 | `vivlio:manual` | Vivlio 用の横組みテーマ。マニュアル・技術書の出発点 |
 | `vivlio:base` | Vivliostyle theme-base |
 | `vivlio:bunko` | Vivliostyle theme-bunko |
 | `vivlio:techbook` | Vivliostyle theme-techbook |
 | `vivlio:academic` | Vivliostyle theme-academic |
 
-テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel`（縦組み）と `manual`（横組み）だけです。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
+テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel`（縦組み）、`novel-2col`（縦組み二段組）、`manual`（横組み）だけです。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
 
 ## 最初の自作テーマ
 
@@ -135,14 +136,16 @@ theme: 装丁/遠雷.css
 | `--vs--rt-font-size` | `0.5rem` | ルビサイズ |
 | `--vs-novel--boten-font-size` | `0.35rem` | 傍点サイズ |
 | `--vs-novel--chars-per-line` | `40` | 本設定に字数がない場合のフォールバック |
-| `--vs-novel--lines-per-page` | `16` | 本設定に行数がない場合のフォールバック |
+| `--vs-novel--lines-per-page` | `16` | 本設定に行数がない場合のフォールバック（1 段あたり） |
+| `--vs-novel--columns-per-page` | `1` | 段数。`novel-2col` は `2`。本設定の `columns` があればそちらが優先 |
+| `--vs-novel--column-gap` | `2` | 段間の広さ。文字数で数えます |
 | `--vs-novel--secondary-ink` | `#3a3a3a` | シリーズ名、役割、連絡先など補助文字 |
 | `--vs-novel--rule-ink` | `#bdbdbd` | 奥付などの罫線 |
 | `--vs--h1-font-size` | `1.4rem` | H1 の大きさ |
 | `--vs--h1-margin-block` | `0 4rem` | H1 前後の空き |
 | `--vs-page--mbox-font-family` | 本文を継承 | 柱・ノンブルのフォント |
 
-`charsPerLine` / `linesPerPage` が本に設定されている場合、Vivlio は `--vs-theme--num-of-character` / `--vs-theme--num-of-line` を生成します。テーマ側の `--vs-novel--chars-per-line` を変えてもそちらが優先される点に注意してください。
+`charsPerLine` / `linesPerPage` / `columns` が本に設定されている場合、Vivlio は `--vs-theme--num-of-character` / `--vs-theme--num-of-line` / `--vs-theme--num-of-column` を生成します。テーマ側の `--vs-novel--chars-per-line` などを変えてもそちらが優先される点に注意してください。
 
 ## Vivlio が付けるクラスと属性
 

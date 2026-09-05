@@ -167,6 +167,17 @@ export interface BookConfig {
   size: string;
   charsPerLine: number | null;
   linesPerPage: number | null;
+  /**
+   * 段: how many columns the page is divided into.
+   *
+   * Columns divide the character axis, so `charsPerLine` is the length of one
+   * column's line and `linesPerPage` is what one column holds - every column
+   * is as long as the page is wide, so the page carries `columns x lines`.
+   *
+   * Null takes the theme's own count, which is one for every theme but
+   * `novel-2col`. Only a theme that lays columns out acts on it.
+   */
+  columns: number | null;
   baseFontSize: string;
   /**
    * `--vs--p-text-indent`. Empty leaves the theme's own value alone.

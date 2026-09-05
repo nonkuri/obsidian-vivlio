@@ -531,11 +531,12 @@ colophonExtra:            # 奥付に足す任意の項目 → 5.11
   装丁: 山田花子
 
 # 組版
-theme: novel              # novel | manual | <vault内のcssパス>（bunko / techbook / academic / base も解決はする）
+theme: novel              # novel | novel-2col | manual | <vault内のcssパス>（bunko / techbook / academic / base も解決はする）
 writingMode: vertical-rl  # vertical-rl | horizontal-tb
 size: 文庫                # 文庫（=A6）| 新書 | JIS-B6 | 四六判 | A5 | JIS-B5 | B5 | A4 | letter | "128mm 188mm"
-charsPerLine: 40          # 省略するとテーマの既定グリッド → 5.10
-linesPerPage: 16
+charsPerLine: 40          # 1段の字詰め。省略するとテーマの既定グリッド → 5.10
+linesPerPage: 16          # 1段の行数
+columns: null             # 段数。空はテーマ任せ（novel-2col は 2）→ 5.10
 baseFontSize: ""          # 空なら用紙と字詰めから算出
 paragraphIndent: ""       # 字下げの幅。空ならテーマ任せ
 paragraphIndentMode: auto # auto | manuscript | brackets | all → 5.3 #16
@@ -798,7 +799,7 @@ src/
   export/epub.ts            JSZip で EPUB 3 梱包（Phase 2）
   i18n/{index,ja,en}.ts   ＋ 文言辞書（5.5）
   util/                   ＋ tree（木の走査と置換）/ kanji（漢数字）/ paths / async / imageSize / electron / log
-  themes/novel.css        ＋ 独自テーマ（決定 37）
+  themes/novel.css        ＋ 独自テーマ（決定 37）。novel-2col.css は novel を二段組にしたもの
   vendor/assets.ts        ＋ 埋め込みアセットへの入口（下記）
 test/                     ＋ Obsidian API のスタブと、Node 上で走る検証
   test/sample.md            記法と奥付の項目を一通り含む検証用の原稿
@@ -1222,12 +1223,45 @@ EPUB 側は結局同梱できず（`@import` の連鎖が Vault の中にある�
 プリセット経由なら値が入るので表に出にくいが、素の既定値では確実に壊れる。
 
 **テーマごとの既定グリッドを 1 箇所（`BUNDLED_THEME_GRIDS`）に持ち、書籍が指定しなければそれで埋める。**
-埋めた値は `--vs-theme--num-of-character` / `--vs-theme--num-of-line` として書き出すので、
-テーマが組む版面と文字サイズの算出根拠が必ず一致する。
+埋めた値は `--vs-theme--num-of-character` / `--vs-theme--num-of-line` / `--vs-theme--num-of-column`
+として書き出すので、テーマが組む版面と文字サイズの算出根拠が必ず一致する。
 
 グリッドを持たないテーマ（`techbook` / `academic`）は表に載せない。
 それらは余白から版面を作るので、**書籍が明示的にグリッドを指定したときだけ**文字サイズを算出する
 （勝手に算出するとテーマ自身の設計を上書きしてしまう）。
+
+#### 二段組【決定】: 段は字の軸を割る。行数は割らない
+
+同人誌の B6・A5、そして新書は縦組みでも二段組が多い。`novel-2col` テーマがそれを組む
+（`novel` に段数と段組向けのグリッドだけを足したもの）。
+
+**CSS の段は inline 軸に並ぶ。** 縦組みの inline 軸は上から下なので、`column-count: 2` は
+そのまま「上下 2 段、字は段の中を下へ流れ、行は左へ進み、上の段を使い切ると下の段の右上へ続く」
+——日本語の二段組そのものになる。段の向きを指示する規則は要らない。
+
+**字詰めと行数は 1 段あたりの数**（`charsPerLine` / `linesPerPage`）。両方の段は紙面の幅いっぱいを
+使うので、行数は段で割られず、1 ページの行数は `linesPerPage × 段数` になる。したがって版面は
+
+```
+字の軸 = (段数 × 字詰め + (段数 − 1) × 段間) × 文字サイズ
+行の軸 = 行数 × 行送り × 文字サイズ
+```
+
+で、`gridFontSize` もこの式で用紙から文字サイズを逆算する。段間はテーマの
+`--vs-novel--column-gap`（2 文字）とプラグインの `COLUMN_GAP_CHARS` が一致していること。
+`--vs-line-height` と `GRID_LINE_HEIGHT` が一致していなければならないのと同じ理由で、
+片側だけ知っていると版面が段間の分だけ用紙からはみ出す。
+
+**行送りは一段組と同じ 2 文字のまま。** 印刷の二段組はもっと詰めるが、ルビは本文の半分の大きさで、
+行送り 2 が残す半行の空きにちょうど収まる。ここを詰めると 1 ページあたり数行増える代わりに、
+すべてのルビが隣の行に食い込む。
+
+**段組にするのは本文だけ**（`:root.vivlio-body body`）。表紙・扉・目次・奥付はページを満たすことで
+成立する頁で、段に割れた奥付は奥付ではない。脚注（`gcpm`）は Vivliostyle が版面の地に
+両段をまたいで置く（実測）。
+
+段数は本の設定 `columns` からも指定できる。`novel` テーマもこのキーに従うので、
+`theme: novel` に `columns: 2` でも二段組になる（行送りが一段組のままなので 1 段の行数は少なめ）。
 
 #### 縦組み特有の考慮
 

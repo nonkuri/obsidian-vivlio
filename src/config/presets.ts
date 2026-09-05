@@ -27,6 +27,14 @@ export interface Preset {
  * block sits on roughly three quarters of the sheet along the characters, the
  * proportion the paperback presets already compose at (see gridFontSize in
  * src/build/css.ts, which derives the body size from the paper and the grid).
+ *
+ * The three two-column presets are the same three sheets again, in the shape a
+ * 同人誌 usually takes, plus the 新書, which is the sheet 二段組 was made for
+ * and which reads badly in one column - a line of 60 characters. Their numbers
+ * are per 段: the grid is chosen so the two axes come out even, which on these
+ * sheets is a little over 23 characters against a little over 17 lines, and
+ * the type then lands near 9 point - larger than the same book set in one
+ * column, which is the point of setting it in two.
  */
 export const PRESETS: Preset[] = [
   {
@@ -102,6 +110,54 @@ export const PRESETS: Preset[] = [
       size: "A5",
       charsPerLine: 45,
       linesPerPage: 18,
+      footnote: "gcpm",
+      highlight: "boten",
+      autoTcy: true,
+      pageNumbering: "roman-then-arabic",
+      fontFamily: DEFAULT_SERIF_STACK,
+    },
+  },
+  {
+    id: "shinsho2",
+    labelKey: "preset.shinsho2",
+    values: {
+      theme: "novel-2col",
+      writingMode: "vertical-rl",
+      size: "新書",
+      charsPerLine: 24,
+      linesPerPage: 14,
+      footnote: "gcpm",
+      highlight: "boten",
+      autoTcy: true,
+      pageNumbering: "roman-then-arabic",
+      fontFamily: DEFAULT_SERIF_STACK,
+    },
+  },
+  {
+    id: "b62col",
+    labelKey: "preset.b62col",
+    values: {
+      theme: "novel-2col",
+      writingMode: "vertical-rl",
+      size: "JIS-B6",
+      charsPerLine: 23,
+      linesPerPage: 17,
+      footnote: "gcpm",
+      highlight: "boten",
+      autoTcy: true,
+      pageNumbering: "roman-then-arabic",
+      fontFamily: DEFAULT_SERIF_STACK,
+    },
+  },
+  {
+    id: "a52col",
+    labelKey: "preset.a52col",
+    values: {
+      theme: "novel-2col",
+      writingMode: "vertical-rl",
+      size: "A5",
+      charsPerLine: 26,
+      linesPerPage: 19,
       footnote: "gcpm",
       highlight: "boten",
       autoTcy: true,

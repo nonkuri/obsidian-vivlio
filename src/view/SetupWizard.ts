@@ -258,6 +258,7 @@ export class SetupWizard extends Modal {
     ]);
     this.numberRow(container, "settings.charsPerLine", "charsPerLine");
     this.numberRow(container, "settings.linesPerPage", "linesPerPage");
+    this.numberRow(container, "settings.columns", "columns");
     this.textRow(container, "settings.baseFontSize", "baseFontSize");
     this.textRow(container, "settings.paragraphIndent", "paragraphIndent");
     this.selectRow(

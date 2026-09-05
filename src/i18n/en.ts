@@ -117,6 +117,9 @@ export const en = {
   "preset.b6": "B6, vertical (43 x 17)",
   "preset.shiroku": "Shiroku 127 \u00d7 188 mm, vertical (44 x 17)",
   "preset.a5": "A5, vertical (45 x 18)",
+  "preset.shinsho2": "Shinsho 103 × 182 mm, vertical, two columns (24 x 14 each)",
+  "preset.b62col": "B6, vertical, two columns (23 x 17 each)",
+  "preset.a52col": "A5, vertical, two columns (26 x 19 each)",
   "preset.manual": "Manual or tech book (A5, horizontal)",
   "preset.custom": "Custom",
 
@@ -142,7 +145,8 @@ export const en = {
   "settings.writingMode.vertical-rl": "Vertical, read right to left (vertical-rl)",
   "settings.writingMode.horizontal-tb": "Horizontal, read top to bottom (horizontal-tb)",
   "settings.charsPerLine": "Characters per line",
-  "settings.linesPerPage": "Lines per page",
+  "settings.linesPerPage": "Lines per column",
+  "settings.columns": "Columns",
   "settings.baseFontSize": "Base font size",
   "settings.imageWidthUnit": "Unit for a bare number after an image",
   "settings.imageWidthUnit.px": "Pixels (px)",
@@ -306,6 +310,7 @@ export const en = {
 
   "book.untitled": "Untitled",
   "theme.novel": "novel — a novel, set vertically",
+  "theme.novel-2col": "novel-2col — a novel, set vertically in two columns",
   "theme.manual": "manual — a manual or tech book, set across the page",
 
   "book.theme": "Theme",
