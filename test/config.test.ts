@@ -21,13 +21,15 @@ import {
   frontmatterSnippetFor,
 } from "../src/config/yaml";
 import { configFromSettings } from "../src/config/resolve";
-import { DEFAULT_SETTINGS } from "../src/config/defaults";
+import { DEFAULT_SETTINGS, pageHeightMm, pageWidthMm } from "../src/config/defaults";
+import { PRESETS } from "../src/config/presets";
+import { SELECTABLE_THEMES } from "../src/vendor/assets";
 import { collectNotes } from "../src/build/collect";
 import { buildTocEntries } from "../src/build/toc";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { baseBookConfig } from "../src/config/defaults";
-import { setLanguage } from "../src/i18n";
+import { setLanguage, t, type StringKey } from "../src/i18n";
 
 /** The little of a build context that a contents list actually reads. */
 function tocContext(chapters: Chapter[]): BuildContext {
@@ -217,6 +219,41 @@ async function main(): Promise<void> {
     check(
       "an untouched file decides nothing",
       resolveConfig({ settings: DEFAULT_SETTINGS, yaml: empty }).issues.length === 0,
+    );
+  }
+
+  // --- presets -----------------------------------------------------------
+  // A preset that named a sheet nobody can measure would compose at whatever
+  // the theme thinks, and one that named a theme the picker does not offer
+  // would make a book whose look could not then be adjusted.
+  {
+    const unmeasured = PRESETS.filter(
+      (preset) =>
+        preset.values.size !== undefined &&
+        (pageWidthMm(preset.values.size) === null ||
+          pageHeightMm(preset.values.size) === null),
+    );
+    check(
+      "every preset names a sheet that can be measured",
+      unmeasured.length === 0,
+      unmeasured.map((preset) => `${preset.id}: ${preset.values.size}`).join(", "),
+    );
+
+    const hidden = PRESETS.filter(
+      (preset) =>
+        preset.values.theme !== undefined &&
+        !SELECTABLE_THEMES.includes(preset.values.theme),
+    );
+    check(
+      "and a theme the picker offers",
+      hidden.length === 0,
+      hidden.map((preset) => `${preset.id}: ${preset.values.theme}`).join(", "),
+    );
+
+    check(
+      "and every one of them has a label",
+      PRESETS.every((preset) => t(preset.labelKey as StringKey) !== preset.labelKey),
+      PRESETS.map((preset) => preset.labelKey).join(", "),
     );
   }
 

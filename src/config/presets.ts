@@ -19,7 +19,14 @@ export interface Preset {
  * The two paperbacks differ by two numbers and nothing else, which is why the
  * labels say the numbers rather than name two kinds of book they cannot tell
  * apart: every notation a web novel is written with is on by default, so a
- * preset has nothing else to switch.
+ * preset has nothing else to switch. The larger vertical formats are the same
+ * book on a larger sheet, so they are named by the sheet and by the grid that
+ * suits it - and by the writing mode, because A5 is offered both ways round.
+ *
+ * A grid is chosen so the type comes out around 9 to 10 point and the text
+ * block sits on roughly three quarters of the sheet along the characters, the
+ * proportion the paperback presets already compose at (see gridFontSize in
+ * src/build/css.ts, which derives the body size from the paper and the grid).
  */
 export const PRESETS: Preset[] = [
   {
@@ -47,6 +54,54 @@ export const PRESETS: Preset[] = [
       size: "文庫",
       charsPerLine: 40,
       linesPerPage: 16,
+      footnote: "gcpm",
+      highlight: "boten",
+      autoTcy: true,
+      pageNumbering: "roman-then-arabic",
+      fontFamily: DEFAULT_SERIF_STACK,
+    },
+  },
+  {
+    id: "b6",
+    labelKey: "preset.b6",
+    values: {
+      theme: "novel",
+      writingMode: "vertical-rl",
+      size: "JIS-B6",
+      charsPerLine: 43,
+      linesPerPage: 17,
+      footnote: "gcpm",
+      highlight: "boten",
+      autoTcy: true,
+      pageNumbering: "roman-then-arabic",
+      fontFamily: DEFAULT_SERIF_STACK,
+    },
+  },
+  {
+    id: "shiroku",
+    labelKey: "preset.shiroku",
+    values: {
+      theme: "novel",
+      writingMode: "vertical-rl",
+      size: "四六判",
+      charsPerLine: 44,
+      linesPerPage: 17,
+      footnote: "gcpm",
+      highlight: "boten",
+      autoTcy: true,
+      pageNumbering: "roman-then-arabic",
+      fontFamily: DEFAULT_SERIF_STACK,
+    },
+  },
+  {
+    id: "a5",
+    labelKey: "preset.a5",
+    values: {
+      theme: "novel",
+      writingMode: "vertical-rl",
+      size: "A5",
+      charsPerLine: 45,
+      linesPerPage: 18,
       footnote: "gcpm",
       highlight: "boten",
       autoTcy: true,

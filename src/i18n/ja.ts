@@ -113,6 +113,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "preset.techbook": "技術同人誌（A5 横組み）",
   "preset.academic": "論文（A4）",
   "preset.webnovel": "文庫（40字×16行）",
+  "preset.b6": "B6 縦組み（43字×17行）",
+  "preset.shiroku": "四六判 縦組み（44字×17行）",
+  "preset.a5": "A5 縦組み（45字×18行）",
   "preset.manual": "マニュアル・技術書（A5 横組み）",
   "preset.custom": "カスタム",
 
@@ -163,6 +166,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "paper.bunko": "文庫・A6（105×148mm）",
   "paper.shinsho": "新書（103×182mm）",
   "paper.jisB6": "B6・JIS（128×182mm）",
+  "paper.shiroku": "四六判（127×188mm）",
   "paper.a5": "A5（148×210mm）",
   "paper.jisB5": "B5・JIS（182×257mm）",
   "paper.b5": "B5・ISO（176×250mm）",
@@ -264,7 +268,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "syntax.stripLeadingSpace": "行頭の全角スペースを削除する",
   "syntax.stripLeadingSpace.desc":
     "組版では行頭の空白は詰められるため、原稿の全角スペースは紙面では字下げになりません（EPUB でも端末次第）。削除して、上の「段落の字下げ」で下げます。オフにすると全角スペースが残り、字下げの指定があると二重になります。",
-  "syntax.pageBreak": "［＃改ページ］で強制改ページ",
+  "syntax.pageBreak": "［＃改ページ］と === で強制改ページ",
+  "syntax.pageBreak.desc":
+    "青空文庫の注記、またはでんでんマークダウン式の「イコール 3 つ以上だけの行」で改ページします。イコールの行の上には空行を空けてください —— 段落のすぐ下に書くと、それは Markdown 本来の見出しの下線と読まれ、ここへ届く前に食べられてしまいます。",
   "syntax.blankLines": "原稿の連続する空行を紙面の空きにする（3 行で 1 行アキ）",
 
   "section.cover": "表紙",

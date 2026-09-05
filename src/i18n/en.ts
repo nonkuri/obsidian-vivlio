@@ -114,6 +114,9 @@ export const en = {
   "preset.techbook": "Tech book (A5, horizontal)",
   "preset.academic": "Paper (A4)",
   "preset.webnovel": "Paperback (40 x 16)",
+  "preset.b6": "B6, vertical (43 x 17)",
+  "preset.shiroku": "Shiroku 127 \u00d7 188 mm, vertical (44 x 17)",
+  "preset.a5": "A5, vertical (45 x 18)",
   "preset.manual": "Manual or tech book (A5, horizontal)",
   "preset.custom": "Custom",
 
@@ -164,6 +167,7 @@ export const en = {
   "paper.bunko": "Bunko / A6 \u2014 105 \u00d7 148 mm",
   "paper.shinsho": "Shinsho \u2014 103 \u00d7 182 mm",
   "paper.jisB6": "B6, JIS \u2014 128 \u00d7 182 mm",
+  "paper.shiroku": "Shiroku \u2014 127 \u00d7 188 mm",
   "paper.a5": "A5 \u2014 148 \u00d7 210 mm",
   "paper.jisB5": "B5, JIS \u2014 182 \u00d7 257 mm",
   "paper.b5": "B5, ISO \u2014 176 \u00d7 250 mm",
@@ -268,7 +272,9 @@ export const en = {
   "syntax.stripLeadingSpace": "Remove the ideographic space that indents a paragraph",
   "syntax.stripLeadingSpace.desc":
     "A typesetter trims a space at the start of a line, so the manuscript's own space gives no indent in print and an inconsistent one in EPUB. Removing it leaves the indent above to do the work; keeping it indents twice wherever that indent is also set.",
-  "syntax.pageBreak": "Break the page at ［＃改ページ］",
+  "syntax.pageBreak": "Break the page at ［＃改ページ］ or a line of ===",
+  "syntax.pageBreak.desc":
+    "Aozora Bunko's note, or Den-Den Markdown's three or more equals signs on a line of their own. Leave a blank line above the equals: directly under a paragraph they are Markdown's own underline for a heading, and are read as one before this ever sees them.",
   "syntax.blankLines":
     "Turn a run of blank lines in the manuscript into space on the page (three lines give one)",
 
