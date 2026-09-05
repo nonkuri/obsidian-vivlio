@@ -658,8 +658,8 @@ async function main(): Promise<void> {
   // theme is.
   checks.push(
     check(
-      "an ordered list's number is set upright",
-      /ol > li::marker \{\s*text-combine-upright: all;/.test(
+      "an ordered list's number is set upright, without its full stop",
+      /ol > li::marker \{\s*content: counter\(list-item[^)]*\)[^;]*;\s*text-combine-upright: all;/.test(
         flattenBundledTheme(bundledThemePath("novel")!),
       ),
     ),

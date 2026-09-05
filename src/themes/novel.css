@@ -507,18 +507,29 @@ aside[role='doc-footnote'] .footnote-back sup {
 }
 
 /* An ordered list numbers itself in Latin digits, and a Latin digit lies on
-   its side in vertical writing: `1.` through `7.` came out rotated beside
-   upright Japanese, which is what a numeral in vertical Japanese must not do.
-   Combining the marker sets it upright in one em, the same answer the folio,
-   the footnote number and the contents page all take.
-   `::marker` takes few properties, but `text-combine-upright` is one of them,
-   and the typesetter acts on it (measured, 1. through 11.). A marker of three
-   characters - `10.` - is condensed into the em rather than overflowing it,
-   which is what tate-chu-yoko does and what a printed book does with it.
-   Only ordered lists: a bullet is centred in its em box already, and the
-   lists that number themselves through generated content - the contents page,
-   the endnotes, a task list - set `list-style: none` and never reach here. */
+   its side in vertical writing: 1. through 7. came out rotated beside upright
+   Japanese, which is what a numeral in vertical Japanese must not do.
+
+   The number is set upright the way every other number in this theme is - the
+   folio, the footnote's mark, the page number on the contents page - and the
+   full stop after it is dropped first. Combining `1.` puts two characters in
+   the em that the body sets one character in, so the marker came out narrower
+   than the line it belonged to and sat off the grid, half a character to the
+   side of its own text. Without the stop there is one character in one em and
+   the marker lands where a character lands. A Japanese list is numbered that
+   way in any case: the number, a space, the item.
+
+   `::marker` takes few properties, but `content` and `text-combine-upright`
+   are both among them and the typesetter acts on both (measured, 1 through 11
+   - two digits still combine into the one em). The style comes from the same
+   variable theme-base gives the list, so a book that asks for another one is
+   numbered in it here too.
+
+   Ordered lists only. A bullet is centred in its em box already, and the lists
+   that number themselves through generated content - the contents page, the
+   endnotes, a task list - set `list-style: none` and never reach the marker. */
 ol > li::marker {
+  content: counter(list-item, var(--vs--ol-list-style-type, decimal));
   text-combine-upright: all;
 }
 
