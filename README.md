@@ -77,7 +77,7 @@ hand with the toolbar button or `Vivlio: Reload typeset result`.
 | `Vivlio: Export to PDF` / `to EPUB` | Export dialog, checks, then the file |
 | `Vivlio: Export this folder as a book` | Every `.md` in the folder, in order |
 | `Vivlio: Build a book from this note's links` | The note's `[[links]]` become the spine |
-| `Vivlio: Create book configuration` | Wizard that writes `vivlio.yaml` |
+| `Vivlio: Create book configuration` | Wizard that writes `vivlio.yaml` — every key, the untouched ones as comments |
 | `Vivlio: Add configuration to this note` | Inserts flat `vivlio-*` frontmatter |
 | `Vivlio: Write configuration reference` | Every key, with defaults and comments |
 
@@ -99,7 +99,7 @@ Three layers; a lower one overrides the one above it.
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel, or a CSS path in the vault — see “A theme of your own”
+theme: novel              # novel or manual, or a CSS path in the vault — see “A theme of your own”
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -120,7 +120,7 @@ output: 原稿/出力/猫.pdf
 ```yaml
 ---
 title: 吾輩は猫である
-vivlio-theme: bunko
+vivlio-theme: manual
 vivlio-size: 文庫
 ---
 ```
@@ -130,8 +130,21 @@ needs no `vivlio-title` to name the book. Write `vivlio-title` when the two
 should differ — it wins — which is the form `Vivlio: Add configuration to this
 note` inserts, since every key it offers takes the `vivlio-` prefix.
 
+`Vivlio: Create book configuration` asks about every one of those keys and
+writes them all. A key you left at **Use the default** is written as a comment,
+so the file lists what this book could say while the book still follows the
+vault as its defaults change — delete the `#` to take one over.
+
+```yaml
+# --- Typesetting ---
+# Page size: 文庫 (A6, 105x148mm) | 新書 | JIS-B6 | A5 | ...
+# size: 文庫
+# Characters per line; empty lets the theme size the text block from the page
+charsPerLine: 39
+```
+
 Run `Vivlio: Write configuration reference` for a `vivlio.yaml` listing every
-key with its default and a comment.
+key with its default and a comment, as values rather than comments.
 
 ## Chapter order
 
@@ -200,11 +213,14 @@ can start from a bundled one:
 theme: 装丁/私の本.css
 ```
 
-`vivlio:novel` is the theme this plugin is built around and the one its page
-geometry is tuned against. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and
-`vivlio:academic` — the CC0 Vivliostyle themes — resolve too, but only `novel`
-is offered in the picker: the others have not been gone over against this
-plugin's folios and headings yet.
+The theme picker offers the two themes built for this plugin — `novel`, for a
+novel set vertically, and `manual`, for a manual or tech book set across the
+page — followed by **every `.css` file in the vault, listed by its path**. Put
+a stylesheet anywhere in the vault and it is in the list; there is nothing to
+register. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and `vivlio:academic`
+— the CC0 Vivliostyle themes — resolve when a book names one, but are left out
+of the picker: they have not been gone over against this plugin's folios and
+headings yet.
 
 Any other `@import` is an ordinary one, relative to the file doing the
 importing and read from the vault. Each is followed once, so a ring of imports
