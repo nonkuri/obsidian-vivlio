@@ -102,15 +102,22 @@ export function notationRules(config: BookConfig): TextRule[] {
     });
   }
 
-  // #17 A forced page break, written the way Aozora Bunko writes one.
+  // #17 A forced page break, in either of the two ways a Japanese manuscript
+  // writes one: Aozora Bunko's note, and Den-Den Markdown's rule of three or
+  // more equals signs on a line of their own.
   //
   // A span, because a text rule can only put back what is valid where the text
   // was, and the text is inside a paragraph. The mark stands on its own line,
   // so liftPageBreaks turns that paragraph into the block a break can be taken
   // on (see src/build/vfm.ts).
+  //
+  // The equals form needs the blank line before it that Den-Den asks for.
+  // A row of equals signs directly under a paragraph is Markdown's own
+  // underline for a first-level heading, and Markdown has already read it as
+  // one - and eaten it - long before this pass runs.
   if (syntax.pageBreak) {
     rules.push({
-      test: /［＃改ページ］/g,
+      test: /［＃改ページ］|^[ \t]*={3,}[ \t]*$/gm,
       replace: () => [element("span", { className: [PAGE_BREAK_CLASS] }, [])],
     });
   }

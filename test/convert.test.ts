@@ -135,6 +135,10 @@ vivlio-theme: bunko
 
 #タグ は消える。 [[02]] は章間リンク、[[Other|よそのノート]] はただの文字列になる。
 
+===
+
+イコールだけの行でも次のページから始まる。
+
 ![[fig.png|300]]
 
 ![[fig.png|60%]]
@@ -251,6 +255,20 @@ async function main(): Promise<void> {
       html.slice(html.indexOf("page-break") - 90, html.indexOf("page-break") + 60),
     ),
     check("and the mark itself is gone", !html.includes("改ページ")),
+    // Den-Den Markdown's spelling of the same instruction. It is a paragraph
+    // of its own by the time this runs, so it goes the same way - as long as
+    // the blank line above it kept Markdown from reading it as a heading
+    // underline, which is what the paragraph below it proves.
+    check(
+      "a line of equals breaks the page too",
+      (html.match(/vivlio-page-break/g) ?? []).length === 2,
+      html,
+    ),
+    check(
+      "and leaves no equals signs on the page",
+      !/<p[^>]*>\s*=+\s*<\/p>/.test(html) && html.includes("イコールだけの行でも"),
+      html.slice(Math.max(0, html.indexOf("イコールだけ") - 120), html.indexOf("イコールだけ") + 40),
+    ),
   ];
 
   // Exporting rewrites every image to a path the output carries itself, and

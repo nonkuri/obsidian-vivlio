@@ -117,7 +117,7 @@ export interface SyntaxToggles {
    * `paragraphIndent` do the work is both reliable and portable.
    */
   stripLeadingSpace: boolean;
-  /** #17 the Aozora page-break note, `［＃改ページ］` */
+  /** #17 a forced page break: `［＃改ページ］`, or a line of `===` */
   pageBreak: boolean;
   /** #18 a run of blank lines in the manuscript becomes space on the page */
   blankLines: boolean;
