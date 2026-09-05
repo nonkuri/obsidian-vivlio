@@ -124,6 +124,7 @@ async function exportPdf(
     toc: outlineEntries(buildTocEntries(build.context, build.chapters)),
     anchorPages: rendered.anchorPages,
     pageClasses: rendered.pageClasses,
+    pageNumbers: rendered.pageNumbers,
     metadata: settings.pdfMetadata,
     outline: settings.pdfOutline,
     pageLabels: build.context.config.pageNumbering !== "none",

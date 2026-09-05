@@ -31,8 +31,8 @@ export type CoverFit = "cover" | "contain";
  * Japanese binding runs right to left, so the odd page is the left one: a
  * chapter, a dedication or a title page that must open on 左ページ is asking
  * for `left`. Where the text does not reach that side on its own, a blank leaf
- * goes in - counted in the pagination, as a blank leaf is, but carrying no
- * folio and no running head.
+ * goes in carrying no folio and no running head. Ordinary blanks count; the
+ * blank immediately behind the cover does not.
  */
 export const PAGE_SIDES = ["any", "left", "right"] as const;
 export type PageSide = (typeof PAGE_SIDES)[number];

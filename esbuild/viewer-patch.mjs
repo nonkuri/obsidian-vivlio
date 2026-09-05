@@ -68,6 +68,55 @@ function replaceOnce(source, pattern, replacement, what) {
 export function hardenViewer(source) {
   let patched = replaceOnce(source, IE_SCHEDULER, "", "Internet Explorer scheduler");
 
+  // Core 2.45 derives the next spine's page counter from the last page's
+  // PRE-render snapshot plus a hard-coded 1. That loses any counter-reset or
+  // counter-increment on that page (including a one-page cover or chapter).
+  // Keep the actual change on the rendered page, separate from the start
+  // snapshot used for re-layout. Reading start + delta also follows shifts
+  // applied to those snapshots when a cross-document TOC grows.
+  // Physical pageNumberOffset remains untouched: folios do not change sides.
+  patched = replaceOnce(
+    patched,
+    'finishPageContainer(e,t,i){',
+    'finishPageContainer(e,t,i){' +
+      'const vivlioCoverVerso=e.item.vivlioAfterCover&&0===i&&!t.container.textContent.trim();' +
+      'vivlioCoverVerso&&this.counterStore.forceSetPageCounter(this.counterStore.currentPageCounters.page.at(-1)-1);' +
+      't.container.vivlioIsCoverVerso=vivlioCoverVerso;' +
+      't.vivlioPageCounterDelta=this.counterStore.currentPageCounters.page.at(-1)-e.pageCounterStarts[i].page.at(-1);' +
+      'Object.defineProperty(t.container,"vivlioPageNumber",{get:()=>e.pageCounterStarts[i].page.at(-1)+t.vivlioPageCounterDelta});' +
+      'for(const e of t.container.querySelectorAll("[data-vivliostyle-page-counter]")){const t=Number(e.textContent.trim());Number.isFinite(t)&&t<=0&&(e.style.visibility="hidden")}',
+    "rendered page counter snapshot",
+  );
+  patched = replaceOnce(
+    patched,
+    'if(t&&t.length)f=t[t.length-1]+1;',
+    'if(t&&t.length)f=t[t.length-1]+m.pages[m.pages.length-1].vivlioPageCounterDelta;',
+    "cross-document page counter offset",
+  );
+  // Web Publication manifests normally have no pagination extension, and Core
+  // discards unknown link fields. Preserve Vivlio's numeric `startPage` on the
+  // reading-order item without using Core's built-in `startPage`: that option
+  // changes the physical page offset as well as the folio and makes Chromium
+  // print leading sheets. Only the page counter should change here.
+  patched = replaceOnce(
+    patched,
+    'index:b++,startPage:null,skipPagesBefore:null',
+    'index:b++,startPage:null,skipPagesBefore:null,vivlioStartPage:"number"==typeof t.startPage?t.startPage:null,vivlioAfterCover:!0===t.vivlioAfterCover',
+    "Web Publication startPage field",
+  );
+  patched = replaceOnce(
+    patched,
+    'this.startPage=e.startPage,this.skipPagesBefore=e.skipPagesBefore',
+    'this.startPage=e.startPage,this.skipPagesBefore=e.skipPagesBefore,this.vivlioStartPage=e.vivlioStartPage,this.vivlioAfterCover=e.vivlioAfterCover',
+    "Web Publication item page-counter start",
+  );
+  patched = replaceOnce(
+    patched,
+    'this.counterStore.forceSetPageCounter(f);',
+    'null!=r.vivlioStartPage&&(f=r.vivlioStartPage-1),this.counterStore.forceSetPageCounter(f);',
+    "Web Publication page-counter start",
+  );
+
   const executor = SCRIPT_EXECUTOR.exec(patched);
   if (!executor) {
     throw new Error(

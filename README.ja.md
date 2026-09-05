@@ -93,8 +93,8 @@ sections:
   toc: auto
   preface: まえがき.md
   colophon: auto
-pageNumbering: roman-then-arabic
-startPage: 1             # 本文のノンブルを何番から始めるか
+pageNumbering: continuous # 表紙を除き、前付けから本文まで通し番号
+startPage: 1             # 通し番号の開始値。0以下は数えるが表示しない
 cropMarks: false         # トンボなし
 bleed: 3mm               # 塗り足し 3mm。用紙がそのぶん広がります
 output: 原稿/出力/猫.pdf

@@ -29,7 +29,13 @@ Vivliostyle.js — @vivliostyle/core, @vivliostyle/viewer
     for `allowScripts=false`. A book does not run code, and a capability that
     is absent is worth more than one that is merely switched off. The patch is
     in the source repository and the result is reproducible from `npm run
-    build`; no other part of Vivliostyle.js is altered.
+    build`. The same patch preserves the actual page-counter change across
+    document boundaries (including single-page resets and uncounted covers)
+    and exposes the measured folio to PDF export. It also carries Vivlio's
+    `startPage` field from a Web Publication item into the page counter without
+    changing the physical page offset, omits the inside-cover blank from that
+    counter, and hides zero or negative folios. Physical page sides are
+    unchanged. No other part of Vivliostyle.js is altered.
 
 --------------------------------------------------------------------------------
 Vivliostyle Flavored Markdown — @vivliostyle/vfm

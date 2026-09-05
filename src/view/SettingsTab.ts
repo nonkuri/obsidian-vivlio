@@ -396,7 +396,7 @@ export class VivlioSettingTab extends PluginSettingTab {
       .setName(t("settings.pageNumbering"))
       .setDesc(t("settings.pageNumbering.desc"))
       .addDropdown((dropdown) => {
-        for (const mode of ["roman-then-arabic", "continuous", "none"] as const) {
+        for (const mode of ["continuous", "roman-then-arabic", "none"] as const) {
           dropdown.addOption(mode, t(`settings.pageNumbering.${mode}` as StringKey));
         }
         dropdown.setValue(this.plugin.settings.pageNumbering).onChange(async (value) => {

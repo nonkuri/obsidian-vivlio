@@ -13,9 +13,8 @@ export interface CoverResult {
 /**
  * Build the cover page from a single image (SPEC 5.9).
  *
- * theme-base already knows `role="doc-cover"`: it hides running heads and
- * folios and keeps the cover out of the page count, so the generated markup
- * only has to carry the role and let the stylesheet size the image.
+ * The cover role and class select our page-counter and full-sheet image
+ * rules in bookStylesheet, including exclusion from the folio count.
  */
 export function buildCover(context: BuildContext): CoverResult | null {
   const { config } = context;

@@ -82,7 +82,7 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
     acknowledgments: "off",
     colophon: "auto",
   },
-  pageNumbering: "roman-then-arabic",
+  pageNumbering: "continuous",
   tocDepth: 2,
 
   autoRefresh: true,
@@ -152,7 +152,7 @@ export function baseBookConfig(): BookConfig {
     embedFonts: [],
 
     sections: {},
-    pageNumbering: "roman-then-arabic",
+    pageNumbering: "continuous",
     tocDepth: 2,
     includeToc: false,
     startPage: null,

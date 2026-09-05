@@ -84,14 +84,14 @@ export function planSections(context: BuildContext): SectionPlan[] {
 }
 
 /** `title` alone, on its own page. */
-export function halfTitleDocument(context: BuildContext): string {
+export function halfTitleDocument(context: BuildContext, resetPage = false): string {
   const { config } = context;
   return htmlDocument({
     writingMode: config.writingMode,
     lang: config.lang,
     title: config.title || t("book.untitled"),
     rootClass: "vivlio-front-matter",
-    body: `<section class="halftitle vivlio-front">
+    body: `<section class="halftitle vivlio-front${resetPage ? " vivlio-page-reset" : ""}">
 <p class="title">${escapeHtml(config.title || t("book.untitled"))}</p>
 </section>`,
   });
@@ -111,7 +111,7 @@ function named(cls: string, name: string, role: string): string {
   return `<p class="${cls}">${escapeHtml(name)}${suffix}</p>`;
 }
 
-export function titlePageDocument(context: BuildContext): string {
+export function titlePageDocument(context: BuildContext, resetPage = false): string {
   const { config } = context;
   const parts: string[] = [];
 
@@ -144,7 +144,7 @@ export function titlePageDocument(context: BuildContext): string {
     lang: config.lang,
     title: config.title || t("book.untitled"),
     rootClass: "vivlio-front-matter",
-    body: `<section class="titlepage vivlio-front" epub:type="titlepage" id="${DOCUMENT_ANCHOR}">\n${parts.join("\n")}\n</section>`,
+    body: `<section class="titlepage vivlio-front${resetPage ? " vivlio-page-reset" : ""}" epub:type="titlepage" id="${DOCUMENT_ANCHOR}">\n${parts.join("\n")}\n</section>`,
   });
 }
 
@@ -174,7 +174,7 @@ function colophonDate(config: BookConfig): string {
     : japaneseDate(config.date);
 }
 
-export function colophonDocument(context: BuildContext): string {
+export function colophonDocument(context: BuildContext, resetPage = false): string {
   const { config } = context;
 
   // The colophon is written in groups, not as one ladder of labelled lines.
@@ -252,7 +252,7 @@ export function colophonDocument(context: BuildContext): string {
     writingMode: config.writingMode,
     lang: config.lang,
     title: t("section.colophon"),
-    body: `<section role="doc-colophon" id="${DOCUMENT_ANCHOR}">
+    body: `<section role="doc-colophon" id="${DOCUMENT_ANCHOR}"${resetPage ? ' class="vivlio-page-reset"' : ""}>
 <div class="colophon">
 ${head.join("\n")}
 <dl class="colophon-rows">

@@ -12,7 +12,7 @@ import type { BookConfig } from "../config/types";
 import type { ViewerTocItem } from "./pdf";
 import { log } from "../util/log";
 
-export type PageClass = "cover" | "front" | "body";
+export type PageClass = "cover" | "cover-verso" | "front" | "body";
 
 export interface PostprocessOptions {
   config: BookConfig;
@@ -21,6 +21,7 @@ export interface PostprocessOptions {
   anchorPages: Record<string, number>;
   /** One entry per page, in order. */
   pageClasses: PageClass[];
+  pageNumbers: number[];
   metadata: boolean;
   outline: boolean;
   pageLabels: boolean;
@@ -48,7 +49,7 @@ export async function postprocessPdf(
   }
   if (options.pageLabels) {
     try {
-      applyPageLabels(document, options.pageClasses);
+      applyPageLabels(document, options.pageClasses, options.pageNumbers, options.config);
     } catch (error) {
       log.error("could not write PDF page labels", error);
     }
@@ -146,19 +147,36 @@ function applyOutline(
  * The numbering on the paper comes from the stylesheet; without this the
  * viewer's own counter disagrees with it (SPEC 5.11).
  */
-function applyPageLabels(document: PDFDocument, classes: PageClass[]): void {
+function applyPageLabels(
+  document: PDFDocument,
+  classes: PageClass[],
+  numbers: number[],
+  config: BookConfig,
+): void {
   if (classes.length === 0) return;
+  if (classes.length !== document.getPageCount() || numbers.length !== classes.length) {
+    throw new Error("PDF page count differs from the measured layout");
+  }
   const context: PDFContext = document.context;
 
   const nums: (PDFNumber | PDFDict)[] = [];
   let index = 0;
   while (index < classes.length) {
-    const kind = classes[index];
+    const kind = labelKind(classes[index], numbers[index], config);
     const start = index;
-    while (index < classes.length && classes[index] === kind) index += 1;
+    const firstNumber = numbers[start];
+    if (!Number.isSafeInteger(firstNumber)) {
+      throw new Error(`Invalid folio on PDF page ${start + 1}`);
+    }
+    index += 1;
+    while (index < classes.length) {
+      const nextKind = labelKind(classes[index], numbers[index], config);
+      if (nextKind !== kind || numbers[index] !== firstNumber + index - start) break;
+      index += 1;
+    }
 
     nums.push(PDFNumber.of(start));
-    nums.push(labelDict(context, kind));
+    nums.push(labelDict(context, kind, firstNumber));
   }
 
   const array = PDFArray.withContext(context);
@@ -169,14 +187,25 @@ function applyPageLabels(document: PDFDocument, classes: PageClass[]): void {
   document.catalog.set(PDFName.of("PageLabels"), context.register(labels));
 }
 
-function labelDict(context: PDFContext, kind: PageClass): PDFDict {
+type LabelKind = PageClass | "hidden";
+
+function labelKind(pageClass: PageClass, number: number, config: BookConfig): LabelKind {
+  if (pageClass === "cover-verso" || number <= 0) return "hidden";
+  return pageClass === "front" && config.pageNumbering === "continuous" ? "body" : pageClass;
+}
+
+function labelDict(context: PDFContext, kind: LabelKind, start: number): PDFDict {
   const dict = context.obj({});
   if (kind === "cover") {
     // No numbering style: the cover is not a numbered page.
     dict.set(PDFName.of("P"), PDFHexString.fromText("Cover"));
     return dict;
   }
+  if (kind === "hidden") {
+    dict.set(PDFName.of("P"), PDFHexString.fromText(""));
+    return dict;
+  }
   dict.set(PDFName.of("S"), PDFName.of(kind === "front" ? "r" : "D"));
-  dict.set(PDFName.of("St"), PDFNumber.of(1));
+  dict.set(PDFName.of("St"), PDFNumber.of(start));
   return dict;
 }

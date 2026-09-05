@@ -477,8 +477,8 @@ ol.task-list {
 /**
  * Cover styling (SPEC 5.9).
  *
- * theme-base already understands `role="doc-cover"`: it hides the margin boxes
- * and keeps the cover out of the page count, so only the image fit is left.
+ * The cover gets no folio and does not advance the page counter. theme-base's
+ * vs-counter-doc counts documents, not pages, so it cannot do this for us.
  */
 function coverCss(context: BuildContext): string {
   const fit = context.config.coverFit === "contain" ? "contain" : "cover";
@@ -495,6 +495,8 @@ function coverCss(context: BuildContext): string {
   margin: 0;
   width: auto;
   height: auto;
+  counter-increment: page 0;
+  --vs-page--mbox-visibility: hidden;
 }
 
 .vivlio-cover,
@@ -503,7 +505,8 @@ function coverCss(context: BuildContext): string {
   block-size: 100%;
 }
 
-.cover {
+.cover,
+[role='doc-cover'] {
   /* Named here rather than relying on theme-base, which assigns
      \`cover-document\` through \`body:has([role='doc-cover'])\` - a selector the
      typesetter did not act on, which is how the cover kept being laid out
@@ -577,9 +580,8 @@ function sectionCss(context: BuildContext): string {
 }
 
 /* A leaf the typesetter put in to carry a part over to the side it opens on
-   (see startSideCss). It is a page of the book and is counted as one - that is
-   what a blank leaf in a printed book is - but nothing is printed on it, so
-   the folio and the running head come off. */
+   (see startSideCss). Nothing is printed on it. Ordinary blanks count; the
+   viewer patch separately excludes the one immediately behind the cover. */
 @page :blank {
   --vs-page--mbox-visibility: hidden;
 }
@@ -593,9 +595,9 @@ function sectionCss(context: BuildContext): string {
  * Japanese binding runs right to left, so the odd page is the left one, and a
  * chapter, a dedication or a title page is conventionally set to open there.
  * `break-before: left` says exactly that, and where the text does not reach
- * the side on its own the typesetter puts a blank leaf in - counted in the
- * pagination, which is what a blank leaf is, and left blank by the rule in
- * sectionCss.
+ * the side on its own the typesetter puts a blank leaf in and leaves it blank
+ * by the rule in sectionCss. Ordinary blanks count; the viewer patch excludes
+ * the one immediately behind the cover.
  *
  * The break goes on the first block *inside* a part, not on the part itself.
  * A part is the outermost box of its own document and the typesetter has
@@ -648,10 +650,13 @@ function pageNumberingCss(context: BuildContext): string {
 `.trim();
   }
 
-  // The page counter is incremented before an element's `counter-reset` is
-  // applied, so the value written here is the one the page shows: 1, not 0.
-  const reset = `.vivlio-page-reset { counter-reset: page 1; }`;
-  if (mode === "continuous") return reset;
+  // Continuous numbering is initialized on the reading-order item, before a
+  // possible opening blank. Split numbering resets at the body element. Core
+  // applies an element reset after the page increment, so it takes the printed
+  // value directly; the viewer patch carries it into the next document.
+  const start = context.config.startPage ?? 1;
+  const reset = `.vivlio-page-reset { counter-reset: page ${start}; }`;
+  if (mode === "continuous") return "";
 
   // Only the foot: setting a running-head variable as well printed the number
   // twice on every front-matter page.

@@ -39,7 +39,7 @@ export interface Chapter {
   isFrontMatter: boolean;
   /** Pre-generated HTML for documents with no source note. */
   html?: string;
-  /** `counter-reset: page` value, used to restart numbering at the body. */
+  /** `counter-reset: page` value at this document's numbered start. */
   startPage?: number;
 }
 

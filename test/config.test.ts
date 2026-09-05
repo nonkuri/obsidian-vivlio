@@ -401,6 +401,19 @@ async function main(): Promise<void> {
     pinnedResult.notes.map((file) => file.basename).join(","),
   );
 
+  check("new books use continuous folios", resolveConfig({ settings: DEFAULT_SETTINGS }).config.pageNumbering === "continuous");
+  check("existing Roman numbering is preserved", resolveConfig({ settings: { ...DEFAULT_SETTINGS, pageNumbering: "roman-then-arabic" } }).config.pageNumbering === "roman-then-arabic");
+  check("startPage follows configuration precedence", resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { startPage: 5 }, frontmatter: { startPage: 7 } }).config.startPage === 7);
+  check("a numeric startPage string is coerced", resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { startPage: "5" } }).config.startPage === 5);
+  for (const value of [0, -1, -20]) {
+    const result = resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { startPage: value } });
+    check(`startPage ${value} is accepted`, result.config.startPage === value && !result.issues.some((issue) => issue.key === "startPage"));
+  }
+  for (const value of [1.5]) {
+    const result = resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { startPage: 5 }, frontmatter: { startPage: value } });
+    check(`invalid startPage ${value} leaves the previous layer intact`, result.config.startPage === 5 && result.issues.some((issue) => issue.key === "startPage"));
+  }
+
   let failed = 0;
   for (const result of checks) {
     if (!result.ok) failed += 1;

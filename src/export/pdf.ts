@@ -20,9 +20,11 @@ export interface RenderResult {
   anchorPages: Record<string, number>;
   /** What each page is, in order, for `/PageLabels`. */
   pageClasses: PageClass[];
+  /** Actual folio counter values, including unprinted blank pages. */
+  pageNumbers: number[];
 }
 
-export type PageClass = "cover" | "front" | "body";
+export type PageClass = "cover" | "cover-verso" | "front" | "body";
 
 interface WebviewTag extends HTMLElement {
   src: string;
@@ -103,7 +105,7 @@ export async function renderPdf(
     const toc = (await webview
       .executeJavaScript("JSON.parse(JSON.stringify(window.coreViewer.getTOC() || []))")
       .catch(() => [])) as ViewerTocItem[];
-    const layout = await readLayout(webview);
+    const layout = await readLayout(webview, context);
 
     options.onProgress?.("printing");
     // `margins` takes inches, and the key is `margins` - the older
@@ -125,6 +127,7 @@ export async function renderPdf(
       pageCount: layout.pageClasses.length,
       anchorPages: layout.anchorPages,
       pageClasses: layout.pageClasses,
+      pageNumbers: layout.pageNumbers,
     };
   } finally {
     signal?.removeEventListener("abort", abortListener);
@@ -135,6 +138,7 @@ export async function renderPdf(
 interface LayoutInfo {
   anchorPages: Record<string, number>;
   pageClasses: PageClass[];
+  pageNumbers: number[];
 }
 
 /**
@@ -145,7 +149,10 @@ interface LayoutInfo {
  * bookmarks) and what kind of page it is (for page labels) - neither of which
  * can be known before the book is laid out.
  */
-async function readLayout(webview: WebviewTag): Promise<LayoutInfo> {
+async function readLayout(webview: WebviewTag, context: BuildContext): Promise<LayoutInfo> {
+  const kinds = context.chapters.map((chapter): PageClass =>
+    chapter.role === "doc-cover" ? "cover" : chapter.isFrontMatter ? "front" : "body",
+  );
   const result = await webview
     .executeJavaScript(
       `(() => {
@@ -153,17 +160,41 @@ async function readLayout(webview: WebviewTag): Promise<LayoutInfo> {
            document.querySelectorAll('[data-vivliostyle-page-container]')
          );
          const anchorPages = {};
-         const pageClasses = pages.map((page) => {
+         const kinds = ${JSON.stringify(kinds)};
+         // A CSS reset on the document root also reaches an empty page that
+         // \`break-before: left/right\` inserts before its content. It is not a
+         // second body page: retain the preceding sequence for the blank, and
+         // start the new sequence on the following content page.
+         const pageNumbers = pages.map(page => page.vivlioPageNumber);
+         const preResetBlanks = pages.map((page, index) =>
+           index + 1 < pages.length &&
+           pageNumbers[index] === pageNumbers[index + 1] &&
+           page.getAttribute('data-vivliostyle-spine-index') ===
+             pages[index + 1].getAttribute('data-vivliostyle-spine-index') &&
+           !page.textContent.trim()
+         );
+         const coverVersos = pages.map((page, index) =>
+           index > 0 && page.vivlioIsCoverVerso === true
+         );
+         for (let index = 0; index < pages.length; index += 1) {
+           if (preResetBlanks[index]) {
+             pageNumbers[index] = index > 0 ? pageNumbers[index - 1] + 1 : pageNumbers[index] - 1;
+           }
+         }
+         const pageClasses = pages.map((page, index) => {
            for (const element of page.querySelectorAll('[id]')) {
              if (anchorPages[element.id] === undefined) {
                anchorPages[element.id] = pages.indexOf(page);
              }
            }
-           if (page.querySelector('.cover, [role="doc-cover"]')) return 'cover';
-           if (page.querySelector('.vivlio-front')) return 'front';
-           return 'body';
+           const spine = Number(page.getAttribute('data-vivliostyle-spine-index'));
+           if (coverVersos[index]) return 'cover-verso';
+           if (preResetBlanks[index] && spine > 0) return kinds[spine - 1] || 'front';
+           return kinds[spine] || 'body';
          });
-         return { anchorPages, pageClasses };
+         // Supplied by the bundled viewer patch, from the final counter state.
+         // A blank page has no manuscript element to classify or read from.
+         return { anchorPages, pageClasses, pageNumbers };
        })()`,
     )
     .catch(() => null);
@@ -172,6 +203,7 @@ async function readLayout(webview: WebviewTag): Promise<LayoutInfo> {
   return {
     anchorPages: info?.anchorPages ?? {},
     pageClasses: info?.pageClasses ?? [],
+    pageNumbers: info?.pageNumbers ?? [],
   };
 }
 

@@ -122,6 +122,7 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
     // has not filled in yet. Neither is an instruction to override the layer
     // below - a blank `vivlio-theme:` means "not decided here", not "no theme".
     if (value === undefined || value === null) continue;
+    if (key === "startPage" && !Number.isSafeInteger(value)) continue;
 
     if (key === "sections") {
       if (value && typeof value === "object") {

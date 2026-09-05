@@ -112,8 +112,8 @@ sections:
   toc: auto
   preface: まえがき.md
   colophon: auto
-pageNumbering: roman-then-arabic
-startPage: 1             # the number the body starts counting from
+pageNumbering: continuous # one sequence through front matter and body, excluding the cover
+startPage: 1             # first folio; zero and negative values count but stay hidden
 cropMarks: false         # many Japanese printers ask for no marks
 bleed: 3mm               # …and 3mm of bleed; the sheet grows to carry it
 output: 原稿/出力/猫.pdf

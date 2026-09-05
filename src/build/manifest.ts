@@ -16,10 +16,16 @@ export function publicationManifest(context: BuildContext, chapters: Chapter[]):
     conformsTo: "https://github.com/vivliostyle/vivliostyle-cli",
     name: config.title || "Untitled",
     inLanguage: config.lang || "ja",
-    readingOrder: chapters.map((chapter) => ({
+    readingOrder: chapters.map((chapter, index) => ({
       url: chapter.docName,
       name: chapter.title,
       ...(chapter.role === "doc-cover" ? { rel: "cover" } : {}),
+      ...(index > 0 && chapters[index - 1].role === "doc-cover"
+        ? { vivlioAfterCover: true }
+        : {}),
+      ...(context.config.pageNumbering === "continuous" && chapter.startPage !== undefined
+        ? { startPage: chapter.startPage }
+        : {}),
     })),
   };
 

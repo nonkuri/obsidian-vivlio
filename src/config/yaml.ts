@@ -101,8 +101,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   },
   startSide: {
     group: "layout",
-    ja: "章・各部を始めるページ: any（なりゆき）| left（左ページ＝奇数）| right。必要なら空白ページが入る（ノンブルは刷らないがページ数には数える）",
-    en: "Which side a chapter or a part opens on: any | left (the odd page, in a right-bound book) | right. A blank leaf goes in where one is needed - counted, but carrying no folio",
+    ja: "章・各部を始めるページ: any（なりゆき）| left（左ページ＝奇数）| right。必要なら空白ページが入る（ノンブルは刷らない。表紙裏以外はページ数に数える）",
+    en: "Which side a chapter or a part opens on: any | left (the odd page, in a right-bound book) | right. A blank leaf goes in where needed without a printed folio; all but the inside cover are counted",
   },
   baseFontSize: {
     group: "layout",
@@ -179,14 +179,14 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   },
   pageNumbering: {
     group: "structure",
-    ja: "roman-then-arabic | continuous | none",
-    en: "roman-then-arabic | continuous | none",
+    ja: "continuous（既定）| roman-then-arabic | none",
+    en: "continuous (default) | roman-then-arabic | none",
   },
   tocDepth: { group: "structure", ja: "目次に拾う見出しの深さ", en: "Table of contents depth" },
   startPage: {
     group: "structure",
-    ja: "本文のノンブルを何番から始めるか",
-    en: "Page number the body starts counting from",
+    ja: "ノンブルの開始番号（0以下は数えるが表示しない。通し番号では表紙の次、別ノンブルでは本文）",
+    en: "First folio (zero and negative values count but stay hidden; after the cover in continuous mode, at the body in split mode)",
   },
   includeToc: {
     group: "structure",

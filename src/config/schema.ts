@@ -98,7 +98,7 @@ export const BookConfigInputSchema = v.object({
   pageNumbering: v.optional(PageNumberingSchema),
   tocDepth: v.optional(v.number()),
   includeToc: v.optional(v.boolean()),
-  startPage: v.optional(v.union([v.number(), v.null()])),
+  startPage: v.optional(v.union([v.pipe(v.number(), v.integer(), v.safeInteger()), v.null()])),
   order: v.optional(v.number()),
   toc: v.optional(v.boolean()),
 

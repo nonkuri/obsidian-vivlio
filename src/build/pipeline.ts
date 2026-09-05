@@ -297,7 +297,8 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
       isFrontMatter: false,
       // Roman front matter means the body has to start counting again.
       startPage:
-        index === 0 && config.pageNumbering === "roman-then-arabic" ? 1 : undefined,
+        index === 0 && config.pageNumbering === "roman-then-arabic"
+          ? config.startPage ?? 1 : undefined,
     });
   });
 
@@ -314,6 +315,14 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
     });
   }
 
+  // In continuous mode startPage belongs to the first numbered leaf, not to
+  // the first body chapter. The cover is outside the pagination; a title page,
+  // contents page or inserted blank before the preface is part of it.
+  if (config.pageNumbering === "continuous" && config.startPage !== null) {
+    const firstNumbered = chapters.find((chapter) => chapter.role !== "doc-cover");
+    if (firstNumbered) firstNumbered.startPage = config.startPage;
+  }
+
   return chapters;
 }
 
@@ -325,13 +334,26 @@ function generateDocument(
 ): string | null {
   switch (chapter.slot) {
     case "halfTitle":
-      return halfTitleDocument(context);
+      return halfTitleDocument(
+        context,
+        context.config.pageNumbering === "roman-then-arabic" && chapter.startPage !== undefined,
+      );
     case "titlePage":
-      return titlePageDocument(context);
+      return titlePageDocument(
+        context,
+        context.config.pageNumbering === "roman-then-arabic" && chapter.startPage !== undefined,
+      );
     case "toc":
-      return tocDocument(context, chapters);
+      return tocDocument(
+        context,
+        chapters,
+        context.config.pageNumbering === "roman-then-arabic" && chapter.startPage !== undefined,
+      );
     case "colophon":
-      return colophonDocument(context);
+      return colophonDocument(
+        context,
+        context.config.pageNumbering === "roman-then-arabic" && chapter.startPage !== undefined,
+      );
     default:
       return null;
   }

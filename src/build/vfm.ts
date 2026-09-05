@@ -101,7 +101,11 @@ export async function convertChapter(
           // for one opening with a bracket.
           applyIndentPlugin(context.config.paragraphIndentMode),
           dropBookTitleHeadingPlugin(context),
-          documentShapePlugin(chapter, chapterHeadingLevel(context, chapter, file)),
+          documentShapePlugin(
+            chapter,
+            chapterHeadingLevel(context, chapter, file),
+            context.config.pageNumbering === "roman-then-arabic",
+          ),
           // Last, so that it sees the tree the document is actually built
           // from: whatever the manuscript wrote, whatever `rehype-raw` let
           // through, and whatever the stages above put there themselves.
@@ -282,7 +286,11 @@ function dropBookTitleHeadingPlugin(context: BuildContext) {
  * get the right named page; the two parts with no DPUB role (title page and
  * half title) get a class instead.
  */
-function documentShapePlugin(chapter: Chapter, chapterLevel: number | null) {
+function documentShapePlugin(
+  chapter: Chapter,
+  chapterLevel: number | null,
+  resetPageInCss: boolean,
+) {
   return function attach() {
     return (tree: UNode): void => {
       const body = findBody(tree);
@@ -317,7 +325,9 @@ function documentShapePlugin(chapter: Chapter, chapterLevel: number | null) {
 
       // Restart the page counter on the first body chapter so front matter can
       // carry roman numerals (SPEC 5.11).
-      if (chapter.startPage !== undefined) addClass(host, "vivlio-page-reset");
+      if (resetPageInCss && chapter.startPage !== undefined) {
+        addClass(host, "vivlio-page-reset");
+      }
     };
   };
 }

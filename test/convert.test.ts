@@ -575,8 +575,8 @@ async function main(): Promise<void> {
     ),
     check(
       "the cover names its own page",
-      /\.cover\s*\{[^}]*page: cover;/.test(css),
-      css.slice(css.indexOf(".cover {"), css.indexOf(".cover {") + 200),
+      /\[role='doc-cover'\]\s*\{[^}]*page: cover;/.test(css),
+      css.slice(css.indexOf(".cover,"), css.indexOf(".cover,") + 300),
     ),
     check(
       "and the cover page is the whole sheet",
@@ -716,8 +716,8 @@ async function main(): Promise<void> {
 
   // Japanese binding runs right to left, so the odd page is the left one and a
   // chapter or a part is set to open there. Where the text does not reach that
-  // side, the typesetter puts a blank leaf in - counted, as a blank leaf is,
-  // but carrying nothing.
+  // side, the typesetter puts a blank leaf in. Ordinary blanks count, but the
+  // one immediately behind the cover does not; none of them carries anything.
   const sided = makeContext();
   sided.config.startSide = "left";
   const sidedCss = bookStylesheet(sided, "x.css");
@@ -829,6 +829,7 @@ async function main(): Promise<void> {
   // that the dedication printed iii was listed as 3, and the page appeared to
   // count 3, 4, 6, 1 downwards.
   const numbered = makeContext();
+  numbered.config.pageNumbering = "roman-then-arabic";
   numbered.chapters = [
     {
       docName: "preface.html",

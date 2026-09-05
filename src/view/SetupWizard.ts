@@ -384,7 +384,7 @@ export class SetupWizard extends Modal {
       container,
       "settings.pageNumbering",
       "pageNumbering",
-      (["roman-then-arabic", "continuous", "none"] as const).map((value) => ({
+      (["continuous", "roman-then-arabic", "none"] as const).map((value) => ({
         value,
         label: t(`settings.pageNumbering.${value}` as StringKey),
       })),

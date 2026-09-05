@@ -147,8 +147,8 @@ export function buildTocEntries(
  * finished layout. So this only has to emit a plain nested list; the page
  * numbers appear on their own.
  */
-export function tocDocument(context: BuildContext, chapters: Chapter[]): string {
-  const body = `<nav role="doc-toc" id="toc" class="vivlio-front">
+export function tocDocument(context: BuildContext, chapters: Chapter[], resetPage = false): string {
+  const body = `<nav role="doc-toc" id="toc" class="vivlio-front${resetPage ? " vivlio-page-reset" : ""}">
 <h1>${escapeHtml(t("toc.heading"))}</h1>
 ${renderList(buildTocEntries(context, chapters))}
 </nav>`;
