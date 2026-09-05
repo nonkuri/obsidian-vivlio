@@ -317,6 +317,43 @@ ruby.boten > rt {
   text-combine-upright: all;
 }
 
+/* A link is not a footnote ---------------------------------------------------
+ *
+ * theme-base turns every external link into a note at the foot of the page
+ * when printing: `a[href^='http']::before` is given
+ * `content: <marker> attr(href)` and floated into the footnote area. This
+ * theme switches that off, for three reasons.
+ *
+ * The note is one box of generated content - the number and the URL in a
+ * single run - so the number cannot be set upright while the URL lies on its
+ * side, which is what a numeral in vertical Japanese has to do. There is no
+ * `::before::footnote-marker` to reach for.
+ *
+ * It repeats what the page already says. VFM renders a bare URL with the URL
+ * as its own text, so the note prints the same string a second time. Measured
+ * on a page of seven source links: seven lines of body text, and the same
+ * seven URLs again at the foot.
+ *
+ * And it counts on the book's own counter. Both this rule and `.footnote`
+ * increment `vs-counter-footnote`, so a chapter with a real footnote and a
+ * link in it hands the two of them one sequence between them.
+ *
+ * A writer who wants a URL at the foot of the page writes a footnote saying
+ * so, which all three modes set correctly - the number upright, and clear of
+ * the note.
+ */
+@media print {
+  :not(.footnote) > a[href^='http']::before,
+  :not(.footnote) > a[href^='http']::after {
+    content: none;
+    float: none;
+  }
+
+  :not(.footnote) > a[href^='http'] {
+    counter-increment: none;
+  }
+}
+
 /* The other two footnote modes -----------------------------------------------
  *
  * `gcpm` puts the note at the foot of the page and lets CSS draw both marks.

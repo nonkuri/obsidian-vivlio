@@ -1319,6 +1319,39 @@ EPUB 側は結局同梱できず（`@import` の連鎖が Vault の中にある�
 段数は本の設定 `columns` からも指定できる。`novel` テーマもこのキーに従うので、
 `theme: novel` に `columns: 2` でも二段組になる（行送りが一段組のままなので 1 段の行数は少なめ）。
 
+#### 外部リンクは脚注にしない【決定】（`novel` テーマ）
+
+theme-base は `css/partial/footnote-external-link.css` で、**印刷時に `http` で始まるリンクを
+すべてページ下部の脚注に変える。**
+
+```css
+@media print {
+  :not(.footnote) > a[href^='http']::before {
+    content: var(--vs-footnote--marker-content) attr(href);
+    display: block;
+    float: footnote;
+  }
+}
+```
+
+`novel` テーマではこれを止める（`content: none` / `float: none` / `counter-increment: none`）。理由は 3 つ。
+
+- **番号だけを正立させられない。** 番号と URL がひとつの `content` にまとめて入るので、
+  縦組みで数字を縦中横にしつつ URL を寝かせる、という分け方ができない。
+  `::before::footnote-marker` のような擬似要素の連鎖は CSS に無い
+- **同じ URL が二度出る。** VFM は裸の URL をリンクにするとき URL 自身をリンクテキストにするので、
+  本文にも脚注にも同じ文字列が並ぶ（実測: 出典 7 件の頁で、本文 7 行と頁末の 7 行）
+- **本の脚注と番号を共有する。** この規則も `.footnote` も同じ `vs-counter-footnote` を増やすので、
+  実脚注とリンクが同じ章にあると 1 本の連番を分け合う
+
+**この不具合の見え方は novel テーマ固有だった。** theme-base の既定の
+`--vs-footnote--marker-content` は末尾に `'. '` を持つので `1. https://…` と読める。
+`novel` はここを `counter(...)` だけに置き換えている（和文の脚注は `1.` ではなく番号＋アキで組むため、
+アキは `--vs-footnote--marker-margin-inline` が持つ）。その置き換えがこの規則にも効いて
+`1https://…` になっていた。`manual` テーマは techbook 経由で theme-base の既定のままなので影響しない。
+
+URL を頁末に出したい書き手は脚注として書く。3 つのモードのいずれでも番号は正立し、本文とも離れる。
+
 #### 縦組み特有の考慮
 
 - **縦組みでは `font-feature-settings: 'vert' 1, 'vrt2' 1` が必要な場合がある**（句読点・括弧・長音の字形が縦用に切り替わる）。

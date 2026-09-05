@@ -8,7 +8,13 @@
 import { TFile } from "obsidian";
 import { convertChapter } from "../src/build/vfm";
 import { bookStylesheet, themeUrlFor } from "../src/build/css";
-import { resolveVaultTheme, themeChoices, THEME_STYLESHEET } from "../src/build/theme";
+import {
+  flattenBundledTheme,
+  resolveVaultTheme,
+  themeChoices,
+  THEME_STYLESHEET,
+} from "../src/build/theme";
+import { bundledThemePath } from "../src/vendor/assets";
 import { BOOK_STYLESHEET } from "../src/build/vfm";
 import { buildTocEntries, tocDocument, TOC_FRONT_MATTER_CLASS } from "../src/build/toc";
 import { colophonDocument, titlePageDocument } from "../src/build/sections";
@@ -644,6 +650,30 @@ async function main(): Promise<void> {
       "toc entries are a plain nested list",
       tocHtml.includes('<li><a href="ch01.html#ch1">第一章</a>'),
       tocHtml,
+    ),
+  );
+
+  // theme-base turns every external link into a page-bottom footnote when
+  // printing. The vertical theme switches that off - the number and the URL
+  // arrive as one run of generated content, so the number cannot be set
+  // upright, and a bare URL would be printed twice. The upstream rule is
+  // checked too: if it is ever renamed there is nothing left to switch off,
+  // and the notes would come back without anyone noticing.
+  const novelCss = flattenBundledTheme(bundledThemePath("novel")!);
+  const upstream = novelCss.indexOf("a[href^='http']::before");
+  const ours = novelCss.lastIndexOf("a[href^='http']::after");
+  checks.push(
+    check("theme-base still auto-footnotes external links", upstream !== -1),
+    check(
+      "and the vertical theme switches it off, after it",
+      ours > upstream && /content: none;\s*float: none;/.test(novelCss.slice(ours)),
+      novelCss.slice(ours, ours + 200),
+    ),
+    // The horizontal theme keeps it: nothing is rotated there, and theme-base's
+    // own marker ends in ". ", so the note reads as a note.
+    check(
+      "the horizontal theme leaves it alone",
+      !flattenBundledTheme(bundledThemePath("manual")!).includes("float: none"),
     ),
   );
 
