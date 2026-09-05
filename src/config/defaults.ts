@@ -128,6 +128,7 @@ export function baseBookConfig(): BookConfig {
     charsPerLine: null,
     linesPerPage: null,
     columns: null,
+    startSide: "any",
     baseFontSize: "",
     paragraphIndent: "",
     paragraphIndentMode: "auto",

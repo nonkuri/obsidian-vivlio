@@ -1,7 +1,7 @@
 import { Modal, Notice, Setting, TFile, TFolder, type App } from "obsidian";
 import type VivlioPlugin from "../main";
 import type { BookConfig, SectionSlot } from "../config/types";
-import { AUTO_CAPABLE_SLOTS, INDENT_MODES, SECTION_SLOTS } from "../config/types";
+import { AUTO_CAPABLE_SLOTS, INDENT_MODES, PAGE_SIDES, SECTION_SLOTS } from "../config/types";
 import { configFromSettings } from "../config/resolve";
 import { findPreset, PRESETS } from "../config/presets";
 import { configToYaml, keyDescription } from "../config/yaml";
@@ -277,6 +277,15 @@ export class SetupWizard extends Modal {
     this.numberRow(container, "settings.charsPerLine", "charsPerLine");
     this.numberRow(container, "settings.linesPerPage", "linesPerPage");
     this.numberRow(container, "settings.columns", "columns");
+    this.selectRow(
+      container,
+      "settings.startSide",
+      "startSide",
+      PAGE_SIDES.map((value) => ({
+        value,
+        label: t(`settings.startSide.${value}` as StringKey),
+      })),
+    );
     this.textRow(container, "settings.baseFontSize", "baseFontSize");
     this.textRow(container, "settings.paragraphIndent", "paragraphIndent");
     this.selectRow(

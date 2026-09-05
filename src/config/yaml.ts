@@ -99,6 +99,11 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
     ja: "段数。novel-2col テーマは 2。字詰めと行数は1段あたりの数になる",
     en: "Columns (段). The novel-2col theme sets 2; the two figures above are then per column",
   },
+  startSide: {
+    group: "layout",
+    ja: "章・各部を始めるページ: any（なりゆき）| left（左ページ＝奇数）| right。必要なら空白ページが入る（ノンブルは刷らないがページ数には数える）",
+    en: "Which side a chapter or a part opens on: any | left (the odd page, in a right-bound book) | right. A blank leaf goes in where one is needed - counted, but carrying no folio",
+  },
   baseFontSize: {
     group: "layout",
     ja: "基準の文字サイズ（9pt など）。空ならテーマ任せ",

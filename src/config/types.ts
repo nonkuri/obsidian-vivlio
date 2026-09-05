@@ -24,6 +24,18 @@ export const INDENT_MODES = ["auto", "manuscript", "brackets", "all"] as const;
 
 export type IndentMode = (typeof INDENT_MODES)[number];
 export type CoverFit = "cover" | "contain";
+
+/**
+ * Which side of the spread a chapter or a part has to open on.
+ *
+ * Japanese binding runs right to left, so the odd page is the left one: a
+ * chapter, a dedication or a title page that must open on 左ページ is asking
+ * for `left`. Where the text does not reach that side on its own, a blank leaf
+ * goes in - counted in the pagination, as a blank leaf is, but carrying no
+ * folio and no running head.
+ */
+export const PAGE_SIDES = ["any", "left", "right"] as const;
+export type PageSide = (typeof PAGE_SIDES)[number];
 export type Language = "ja" | "en" | "auto";
 
 /** Front/back matter slots, in the canonical order they are laid out (SPEC 5.11). */
@@ -189,6 +201,13 @@ export interface BookConfig {
   paragraphIndent: string;
   /** Which paragraphs the indent applies to (SPEC 5.3 #16). */
   paragraphIndentMode: IndentMode;
+  /**
+   * The side a chapter and each front or back matter part opens on.
+   *
+   * `any` lets them fall where the text reaches, which is what a book that
+   * says nothing gets.
+   */
+  startSide: PageSide;
   footnote: FootnoteMode;
   highlight: HighlightMode;
   autoTcy: boolean;

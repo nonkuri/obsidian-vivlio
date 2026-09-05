@@ -3,6 +3,7 @@ import type { BookConfig } from "../config/types";
 import { pageHeightMm, pageWidthMm, resolvePaperSize } from "../config/defaults";
 import { BUNDLED_THEME_GRIDS, bundledThemePath, type ThemeGrid } from "../vendor/assets";
 import { THEME_STYLESHEET } from "./theme";
+import { DOCUMENT_ANCHOR } from "./toc";
 import { TOC_FRONT_MATTER_CLASS } from "./toc";
 import { fontFaceRules } from "./fonts";
 
@@ -92,6 +93,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   blocks.push(imageBackstop(textBlockMm(config)));
   blocks.push(coverCss(context));
   blocks.push(sectionCss(context));
+  blocks.push(startSideCss(context));
   blocks.push(pageNumberingCss(context));
 
   if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
@@ -574,7 +576,52 @@ function sectionCss(context: BuildContext): string {
   break-after: page;
 }
 
+/* A leaf the typesetter put in to carry a part over to the side it opens on
+   (see startSideCss). It is a page of the book and is counted as one - that is
+   what a blank leaf in a printed book is - but nothing is printed on it, so
+   the folio and the running head come off. */
+@page :blank {
+  --vs-page--mbox-visibility: hidden;
+}
+
 `.trim();
+}
+
+/**
+ * Which side of the spread a chapter or a part opens on (SPEC 5.11).
+ *
+ * Japanese binding runs right to left, so the odd page is the left one, and a
+ * chapter, a dedication or a title page is conventionally set to open there.
+ * `break-before: left` says exactly that, and where the text does not reach
+ * the side on its own the typesetter puts a blank leaf in - counted in the
+ * pagination, which is what a blank leaf is, and left blank by the rule in
+ * sectionCss.
+ *
+ * The break goes on the first block *inside* a part, not on the part itself.
+ * A part is the outermost box of its own document and the typesetter has
+ * already opened a page for it, so a break there is nothing to act on -
+ * measured, `#vivlio-start { break-before: left }` left the title page on the
+ * right and computed to `auto`. One box further in there is a break to take,
+ * and the page it opens is the one the part begins on.
+ *
+ * The cover is left out: it is the first leaf, and there is nothing in front
+ * of it to break from. The parts are named by the anchor every generated and
+ * converted document carries on its outermost element, plus the two that
+ * carry an id or a class of their own instead.
+ *
+ * `h2` as well, for a book written as one note: the theme already opens a page
+ * on it, and this says which page.
+ */
+function startSideCss(context: BuildContext): string {
+  const side = context.config.startSide;
+  if (side !== "left" && side !== "right") return "";
+  return `
+h2,
+#${DOCUMENT_ANCHOR}:not(.cover) > :first-child,
+#toc > :first-child,
+.halftitle > :first-child {
+  break-before: ${side};
+}`.trim();
 }
 
 /**

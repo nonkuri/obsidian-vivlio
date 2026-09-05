@@ -714,6 +714,38 @@ async function main(): Promise<void> {
     ),
   );
 
+  // Japanese binding runs right to left, so the odd page is the left one and a
+  // chapter or a part is set to open there. Where the text does not reach that
+  // side, the typesetter puts a blank leaf in - counted, as a blank leaf is,
+  // but carrying nothing.
+  const sided = makeContext();
+  sided.config.startSide = "left";
+  const sidedCss = bookStylesheet(sided, "x.css");
+  const anySide = bookStylesheet(makeContext(), "x.css");
+  checks.push(
+    check(
+      "a chapter can be made to open on one side",
+      /h2,\s*#vivlio-start:not\(\.cover\) > :first-child,\s*#toc > :first-child,\s*\.halftitle > :first-child \{\s*break-before: left;/.test(
+        sidedCss,
+      ),
+      sidedCss.slice(sidedCss.indexOf("break-before: left") - 120),
+    ),
+    // The cover is the first leaf; there is nothing in front of it to break from.
+    // A part is the outermost box of its own document and the page is already
+    // open for it, so the break has to go one box further in.
+    check(
+      "the break goes inside the part, not on it",
+      sidedCss.includes("#vivlio-start:not(.cover) > :first-child"),
+    ),
+    check("and a book that says nothing is not broken at all", !anySide.includes("break-before: left")),
+    // The leaf that goes in is a page of the book, and carries nothing.
+    check(
+      "an inserted leaf carries no folio",
+      /@page :blank \{\s*--vs-page--mbox-visibility: hidden;/.test(anySide),
+      anySide.slice(anySide.indexOf("@page :blank")),
+    ),
+  );
+
   // "トンボなし・塗り足し3mm" is a real submission rule, and CSS cannot say it:
   // `bleed` has no effect without marks. The sheet carries it instead.
   const bled = makeContext();
