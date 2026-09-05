@@ -1,7 +1,7 @@
 import { PluginSettingTab, Setting, type App } from "obsidian";
 import type VivlioPlugin from "../main";
 import { PRESETS } from "../config/presets";
-import { PAPER_SIZES } from "../config/defaults";
+import { PAPER_SIZE_CHOICES } from "../config/defaults";
 import { themeChoices } from "../build/theme";
 import { localFontFamilies } from "../build/fonts";
 import {
@@ -126,7 +126,9 @@ export class VivlioSettingTab extends PluginSettingTab {
       });
 
     new Setting(container).setName(t("settings.size")).addDropdown((dropdown) => {
-      for (const size of Object.keys(PAPER_SIZES)) dropdown.addOption(size, size);
+      for (const size of PAPER_SIZE_CHOICES) {
+        dropdown.addOption(size.value, t(size.labelKey as StringKey));
+      }
       dropdown.setValue(this.plugin.settings.size).onChange(async (value) => {
         this.plugin.settings.size = value;
         await this.save();
@@ -135,8 +137,8 @@ export class VivlioSettingTab extends PluginSettingTab {
 
     new Setting(container).setName(t("settings.writingMode")).addDropdown((dropdown) => {
       dropdown
-        .addOption("vertical-rl", "vertical-rl")
-        .addOption("horizontal-tb", "horizontal-tb")
+        .addOption("vertical-rl", t("settings.writingMode.vertical-rl"))
+        .addOption("horizontal-tb", t("settings.writingMode.horizontal-tb"))
         .setValue(this.plugin.settings.writingMode)
         .onChange(async (value) => {
           this.plugin.settings.writingMode = value as "vertical-rl" | "horizontal-tb";
@@ -368,11 +370,16 @@ export class VivlioSettingTab extends PluginSettingTab {
     });
 
     for (const slot of SECTION_SLOTS) {
-      const setting = new Setting(container).setName(t(`section.${slot}` as StringKey));
+      // Half title, epigraph, colophon: the names are the trade's, not
+      // everyone's, so each row says what the part actually is.
+      const what = t(`section.${slot}.desc` as StringKey);
+      const setting = new Setting(container)
+        .setName(t(`section.${slot}` as StringKey))
+        .setDesc(what);
       // A part the plugin cannot write itself has nothing to switch on: it is
       // out of the book until a vivlio.yaml names the note that fills it.
       if (!AUTO_CAPABLE_SLOTS.includes(slot)) {
-        setting.setDesc(t("settings.section.yamlOnly"));
+        setting.setDesc(`${what} ${t("settings.section.yamlOnly")}`);
         continue;
       }
       setting.addToggle((toggle) =>

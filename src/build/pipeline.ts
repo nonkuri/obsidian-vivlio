@@ -264,6 +264,14 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
   const front = plans.filter((plan) => plan.isFrontMatter);
   const back = plans.filter((plan) => !plan.isFrontMatter);
 
+  // A note named as the preface, the afterword or the cover is already in the
+  // book once. It is usually a note in the book's own folder, which is also
+  // where the body comes from, so without this it would be set twice - once
+  // in its part and once as a chapter of the body.
+  const spoken = new Set<string>();
+  for (const chapter of chapters) if (chapter.file) spoken.add(chapter.file.path);
+  for (const plan of plans) if (plan.file) spoken.add(plan.file.path);
+
   for (const plan of front) {
     if (plan.file) context.headings.set(plan.file.path, headingsOf(app, plan.file));
     chapters.push({
@@ -278,7 +286,7 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
   }
 
   // --- body --------------------------------------------------------------
-  notes.forEach((file, index) => {
+  notes.filter((file) => !spoken.has(file.path)).forEach((file, index) => {
     chapters.push({
       docName: `ch${String(index + 1).padStart(2, "0")}.html`,
       file,

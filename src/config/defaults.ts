@@ -179,6 +179,27 @@ export const PAPER_SIZES: Record<string, string> = {
   letter: "letter",
 };
 
+/**
+ * Paper sizes a picker offers, in the order it offers them.
+ *
+ * `A6` and `文庫` name the same 105 x 148 mm sheet, so the list carries it
+ * once, under the name a Japanese book uses; both stay resolvable above, for
+ * a configuration that already writes either one.
+ *
+ * The labels give the millimetres, because "B5" alone is two different sheets
+ * and the difference is the whole reason both are here.
+ */
+export const PAPER_SIZE_CHOICES: { value: string; labelKey: string }[] = [
+  { value: "文庫", labelKey: "paper.bunko" },
+  { value: "新書", labelKey: "paper.shinsho" },
+  { value: "JIS-B6", labelKey: "paper.jisB6" },
+  { value: "A5", labelKey: "paper.a5" },
+  { value: "JIS-B5", labelKey: "paper.jisB5" },
+  { value: "B5", labelKey: "paper.b5" },
+  { value: "A4", labelKey: "paper.a4" },
+  { value: "letter", labelKey: "paper.letter" },
+];
+
 /** Resolve a `size` value to something usable in `--vs-page--size`. */
 export function resolvePaperSize(size: string): string {
   const trimmed = (size ?? "").trim();

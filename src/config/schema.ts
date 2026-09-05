@@ -142,8 +142,13 @@ export function validateConfig(raw: unknown, source: string): ConfigIssue[] {
     }
   }
 
+  // A key written but left empty is a line waiting to be filled in, not a
+  // wrong value: `resolveConfig` skips a null rather than overriding with it,
+  // so the check has nothing to report about one either.
   const known: Record<string, unknown> = {};
-  for (const key of Object.keys(obj)) if (KNOWN_KEYS.has(key)) known[key] = obj[key];
+  for (const key of Object.keys(obj)) {
+    if (KNOWN_KEYS.has(key) && obj[key] !== null) known[key] = obj[key];
+  }
 
   const result = v.safeParse(BookConfigInputSchema, known);
   if (!result.success) {

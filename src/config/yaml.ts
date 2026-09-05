@@ -1,7 +1,12 @@
 import { dump as dumpYaml } from "js-yaml";
 import { DEFAULT_SETTINGS } from "./defaults";
 import { camelToKebab, configFromSettings } from "./resolve";
-import { SECTION_SLOTS, type BookConfig, type VivlioSettings } from "./types";
+import {
+  SECTION_SLOTS,
+  type BookConfig,
+  type SectionSlot,
+  type VivlioSettings,
+} from "./types";
 import { detectLocale } from "../i18n";
 
 type Locale = "ja" | "en";
@@ -39,12 +44,24 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   author: { group: "book", ja: "著者", en: "Author" },
   translator: { group: "book", ja: "訳者", en: "Translator" },
   publisher: { group: "book", ja: "発行所", en: "Publisher" },
-  printer: { group: "book", ja: "印刷所", en: "Printer" },
+  printer: {
+    group: "book",
+    ja: "印刷所（日本の奥付は発行所と別に刷る）",
+    en: "Printer, which a Japanese colophon names apart from the publisher",
+  },
   contact: { group: "book", ja: "連絡先（住所・メール）", en: "Contact (address, email)" },
   website: { group: "book", ja: "WEB サイト", en: "Website" },
-  date: { group: "book", ja: "発行日（縦組みでは漢数字で組まれる）", en: "Publication date" },
-  lang: { group: "book", ja: "言語", en: "Language" },
-  version: { group: "book", ja: "版", en: "Edition" },
+  date: {
+    group: "book",
+    ja: "発行日。2026-09-05 と書くと、縦組みの奥付では二〇二六年九月五日に組み替わる",
+    en: "Publication date, e.g. 2026-09-05; a vertical colophon sets it in kanji",
+  },
+  lang: {
+    group: "book",
+    ja: "本の言語（ja / en）。組版の言語指定になり、奥付の日付の書き方も決まる",
+    en: "Language of the book (ja / en). Sets the typesetting language, and how the colophon writes its date",
+  },
+  version: { group: "book", ja: "版（第二版・改訂版など）", en: "Edition (e.g. second edition)" },
   colophonExtra: {
     group: "book",
     yamlOnly: true,
@@ -54,8 +71,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
 
   theme: {
     group: "layout",
-    ja: "novel | bunko | techbook | academic | base | Vault 内の css パス（5.10）",
-    en: "novel | bunko | techbook | academic | base | a CSS path inside the vault",
+    ja: "テーマ: novel（縦組みの小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス",
+    en: "Theme: novel (a vertical novel) | manual (a horizontal manual or tech book) | the path of a .css file in the vault",
   },
   writingMode: {
     group: "layout",
@@ -64,12 +81,24 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   },
   size: {
     group: "layout",
-    ja: "A4 | A5 | B5 | JIS-B6 | 文庫 | 新書 | \"128mm 188mm\"",
-    en: "A4 | A5 | B5 | JIS-B6 | 文庫 | 新書 | \"128mm 188mm\"",
+    ja: "判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | JIS-B5 | B5 | A4 | letter | \"128mm 188mm\"",
+    en: "Page size: 文庫 (A6, 105x148mm) | 新書 | JIS-B6 | A5 | JIS-B5 | B5 | A4 | letter | \"128mm 188mm\"",
   },
-  charsPerLine: { group: "layout", ja: "1 行の字数", en: "Characters per line" },
-  linesPerPage: { group: "layout", ja: "1 ページの行数", en: "Lines per page" },
-  baseFontSize: { group: "layout", ja: "基準の文字サイズ", en: "Base font size" },
+  charsPerLine: {
+    group: "layout",
+    ja: "行あたりの文字数。空ならテーマが判型と文字サイズから決める",
+    en: "Characters per line; empty lets the theme size the text block from the page",
+  },
+  linesPerPage: {
+    group: "layout",
+    ja: "ページあたりの行数。空ならテーマが判型と文字サイズから決める",
+    en: "Lines per page; empty lets the theme size the text block from the page",
+  },
+  baseFontSize: {
+    group: "layout",
+    ja: "基準の文字サイズ（9pt など）。空ならテーマ任せ",
+    en: "Base font size (e.g. 9pt); empty leaves it to the theme",
+  },
   paragraphIndent: {
     group: "layout",
     ja: "段落の字下げ。原稿が全角スペースで字下げ済みなら 0（空ならテーマ任せ）",
@@ -107,7 +136,11 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
     ja: "表紙として組むノート（cover より優先）",
     en: "Note used as the cover page (wins over `cover`)",
   },
-  coverFit: { group: "cover", ja: "cover（裁ち落とし）| contain", en: "cover | contain" },
+  coverFit: {
+    group: "cover",
+    ja: "表紙画像の合わせ方: cover（判型いっぱいに広げ、はみ出しを裁ち落とす）| contain（画像全体を収め、余白を出す）",
+    en: "How the cover image fills the page: cover (fill and crop the overflow) | contain (fit the whole image, leaving margins)",
+  },
   coverInPdf: { group: "cover", ja: "PDF に表紙を含める", en: "Include the cover in the PDF" },
 
   fontFamily: { group: "fonts", ja: "本文フォント", en: "Body font" },
@@ -131,8 +164,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   sections: {
     group: "structure",
     yamlOnly: true,
-    ja: "前付け・後付け。auto | ノートパス | off",
-    en: "Front and back matter. auto | note path | off",
+    ja: "前付け・後付け。auto（プラグインが作る。半扉・扉・目次・奥付のみ）| 中身にするノートのパス | off",
+    en: "Front and back matter. auto (generated; half title, title page, contents and colophon only) | the path of a note to use | off",
   },
   pageNumbering: {
     group: "structure",
@@ -166,17 +199,37 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
 
   output: {
     group: "output",
-    ja: "書き出し先（Vault 相対 / 絶対パス）",
-    en: "Output path (vault-relative or absolute)",
+    ja: "この本の書き出し先（Vault 相対 / 絶対パス）。空なら設定タブの出力フォルダ",
+    en: "Where this book is written (vault-relative or absolute); empty uses the output folder in the settings tab",
   },
-  cropMarks: { group: "output", ja: "トンボを付ける", en: "Add crop marks" },
-  bleed: { group: "output", ja: "塗り足し（例 3mm）", en: "Bleed (e.g. 3mm)" },
+  cropMarks: {
+    group: "output",
+    ja: "トンボ（断裁位置の印）を付ける。入稿では塗り足しとセットで求められる",
+    en: "Add crop marks; a print shop asks for these together with the bleed",
+  },
+  bleed: {
+    group: "output",
+    ja: "塗り足し。断裁位置より外へ絵柄をはみ出させる幅（3mm など）",
+    en: "Bleed: how far artwork runs past the trim (e.g. 3mm)",
+  },
 
   css: {
     group: "output",
     yamlOnly: true,
     ja: "追加 CSS（テーマの後に注入）",
     en: "Extra CSS, injected after the theme",
+  },
+  syntax: {
+    group: "output",
+    yamlOnly: true,
+    ja: "この本だけの記法スイッチ。書いたものだけが設定タブより優先される",
+    en: "Syntax switches for this book alone; only the ones written here override the settings tab",
+  },
+  vfm: {
+    group: "output",
+    yamlOnly: true,
+    ja: "VFM にそのまま渡すオプション",
+    en: "Options handed straight to VFM",
   },
 };
 
@@ -191,6 +244,22 @@ const GROUP_TITLES: Record<string, { ja: string; en: string }> = {
 
 function locale(): Locale {
   return detectLocale();
+}
+
+/**
+ * What a key means, in the interface language.
+ *
+ * The wizard and the generated YAML say the same thing about a key because
+ * they read the same sentence: a description kept in only one of them would
+ * drift out of step with the other the first time either was edited.
+ */
+export function keyDescription(key: NoteKey): string {
+  return KEY_DOCS[key]?.[locale()] ?? "";
+}
+
+/** A block of YAML turned into comments, so it documents without applying. */
+function commented(block: string): string[] {
+  return block.split("\n").map((line) => `# ${line}`);
 }
 
 function scalar(value: unknown): string {
@@ -246,35 +315,98 @@ export function referenceYaml(settings: VivlioSettings): string {
   return `${lines.join("\n")}\n`;
 }
 
+export interface YamlOptions {
+  /**
+   * Write every key, not only the ones this book decides for itself.
+   *
+   * A key left at the default is written as a comment: the file then lists
+   * everything the book could say, with today's answer beside it, while the
+   * book still follows the vault default as that default changes. Taking one
+   * over is a matter of deleting a `#`.
+   */
+  complete?: boolean;
+}
+
 /**
- * `vivlio.yaml` holding only what differs from the defaults.
+ * `vivlio.yaml` for one book.
  *
- * Writing every key would freeze today's defaults into the file and make the
- * diff unreadable (SPEC 5.4).
+ * By default it holds only what differs from the defaults: writing every key
+ * live would freeze today's defaults into the file and make the diff
+ * unreadable (SPEC 5.4). `complete` keeps that property and lists the rest as
+ * comments, so the file doubles as the reference for what else it could say.
  */
 export function configToYaml(
   values: Partial<BookConfig>,
   defaults: BookConfig,
+  options: YamlOptions = {},
 ): string {
   const language = locale();
+  const complete = options.complete === true;
   const lines: string[] = [];
+
+  if (complete) {
+    lines.push(
+      language === "ja"
+        ? "# この本の設定。# で始まる行は Vault の既定値のままという意味で、"
+        : "# This book's configuration. A line that starts with # is following",
+      language === "ja"
+        ? "# 行頭の # を外すと、この本だけの値になります。"
+        : "# the vault default; drop the # to give this book a value of its own.",
+    );
+  }
 
   let currentGroup = "";
   for (const [key, doc] of Object.entries(KEY_DOCS) as [keyof BookConfig, KeyDoc][]) {
+    if (doc.noteOnly) continue;
+
     const value = values[key];
-    if (value === undefined) continue;
-    if (JSON.stringify(value) === JSON.stringify(defaults[key])) continue;
-    if (value === "" || value === null) continue;
+    const chosen =
+      value !== undefined &&
+      value !== "" &&
+      value !== null &&
+      JSON.stringify(value) !== JSON.stringify(defaults[key]);
+    if (!chosen && !complete) continue;
 
     if (doc.group !== currentGroup) {
-      if (currentGroup) lines.push("");
+      if (currentGroup || complete) lines.push("");
       currentGroup = doc.group;
-      lines.push(`# ${GROUP_TITLES[currentGroup]?.[language] ?? currentGroup}`);
+      const title = GROUP_TITLES[currentGroup]?.[language] ?? currentGroup;
+      lines.push(complete ? `# --- ${title} ---` : `# ${title}`);
     }
-    lines.push(emit(key, value));
+    if (complete) lines.push(`# ${doc[language]}`);
+
+    if (complete && key === "sections") {
+      lines.push(...sectionLines(values.sections ?? {}, defaults.sections));
+      continue;
+    }
+    if (chosen) lines.push(emit(key, value));
+    else lines.push(...commented(emit(key, defaults[key])));
   }
 
   return `${lines.join("\n")}\n`;
+}
+
+/**
+ * The `sections:` block with every slot listed, the chosen ones live.
+ *
+ * The mapping key stays live even when every slot under it is commented out,
+ * so that uncommenting one slot is all it takes to add that part. An empty
+ * `sections:` is a key nobody filled in, which the resolver skips.
+ */
+function sectionLines(
+  values: Partial<Record<SectionSlot, string>>,
+  defaults: Partial<Record<SectionSlot, string>>,
+): string[] {
+  const lines = ["sections:"];
+  for (const slot of SECTION_SLOTS) {
+    const own = values[slot];
+    lines.push(
+      own === undefined
+        ? `#   ${slot}: ${defaults[slot] ?? "off"}`
+        : `  ${slot}: ${scalar(own)}`,
+    );
+  }
+  return lines;
 }
 
 /** Ticked when the picker opens on a note that has none of them yet (SPEC 5.4). */

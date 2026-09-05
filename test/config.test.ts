@@ -6,6 +6,7 @@
  * SPEC 5.2.
  */
 import { TFile, TFolder, type App } from "obsidian";
+import { load as loadYaml } from "js-yaml";
 import {
   extractFrontmatterConfig,
   resolveConfig,
@@ -175,6 +176,49 @@ async function main(): Promise<void> {
   );
   check("changed keys are written", yaml.includes("theme: techbook"), yaml);
   check("unchanged keys are left out", !yaml.includes("tocDepth"), yaml);
+
+  // The wizard writes the complete file: everything the book could say, with
+  // the keys it does not decide left as comments so it still follows the
+  // vault. A key nobody ever put in the wizard - the printer, say - is in it
+  // too, which is the only way a writer finds out the key exists.
+  {
+    const full = configToYaml(
+      { title: "本", sections: { preface: "まえがき.md" } },
+      configFromSettings(DEFAULT_SETTINGS),
+      { complete: true },
+    );
+    check("the complete file writes what was chosen", /^title: 本$/m.test(full), full);
+    check(
+      "and comments out what was not",
+      full.includes("# theme: novel") && !/^theme:/m.test(full),
+      full,
+    );
+    check("it reaches the keys no step asked about", full.includes("printer:"), full);
+    check(
+      "a chosen part is live, the rest are comments",
+      /^ {2}preface: まえがき\.md$/m.test(full) && full.includes("#   colophon: auto"),
+      full,
+    );
+    // It has to survive being read back, comments and all: an empty
+    // `sections:` is a key nobody filled in, not a book with no parts.
+    const parsed = loadYaml(full) as Record<string, unknown>;
+    const reread = resolveConfig({ settings: DEFAULT_SETTINGS, yaml: parsed });
+    check("the complete file reads back clean", reread.issues.length === 0, JSON.stringify(reread.issues));
+    check(
+      "and says what it was given",
+      reread.config.title === "本" &&
+        reread.config.sections.preface === "まえがき.md" &&
+        reread.config.theme === DEFAULT_SETTINGS.theme,
+      JSON.stringify(reread.config.sections),
+    );
+    const empty = loadYaml(
+      configToYaml({}, configFromSettings(DEFAULT_SETTINGS), { complete: true }),
+    ) as Record<string, unknown>;
+    check(
+      "an untouched file decides nothing",
+      resolveConfig({ settings: DEFAULT_SETTINGS, yaml: empty }).issues.length === 0,
+    );
+  }
 
   const reference = referenceYaml(DEFAULT_SETTINGS);
   check("the reference lists every part", reference.includes("colophon:"));

@@ -3,6 +3,7 @@ import { warn, type BuildContext } from "./context";
 import { SELECTABLE_THEMES, bundledThemePath, themeAssets } from "../vendor/assets";
 import { dirname, joinPosix } from "../util/paths";
 import { log } from "../util/log";
+import { t, type StringKey } from "../i18n";
 
 /**
  * Themes the book can be set in: the bundled ones, and any stylesheet the
@@ -143,9 +144,12 @@ export interface ThemeChoice {
  * list happens to start with.
  */
 export function themeChoices(app: App, current = ""): ThemeChoice[] {
+  // A bundled theme is named for the kind of book it sets, which is what a
+  // picker has to say: "novel" alone does not tell anyone it is the vertical
+  // one. A vault stylesheet is shown by its path, which already says it.
   const choices: ThemeChoice[] = SELECTABLE_THEMES.map((name) => ({
     value: name,
-    label: name,
+    label: t(`theme.${name}` as StringKey),
   }));
 
   const vault = app.vault
