@@ -40,6 +40,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "notice.noActiveNote": "Vivlio: ノートが開かれていません",
   "notice.desktopOnly": "Vivlio はデスクトップ版でのみ動作します",
   "notice.serverFailed": "Vivlio: プレビュー用のローカルサーバを起動できませんでした",
+  "notice.configUnreadable": "Vivlio: vivlio.yaml を読めませんでした。既定値から始めます",
   "notice.configWritten": "Vivlio: {path} を書き出しました",
   "notice.printFailed": "Vivlio: PDF の生成に失敗しました — {message}",
   "notice.noteFailed": "Vivlio: {path} を作れませんでした — {message}",

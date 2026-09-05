@@ -362,10 +362,20 @@ ruby.boten > rt {
   counter-increment: vivlio-endnote;
 }
 
+/* The number fills the two em the hang below reserves, rather than carrying a
+   gap of its own. A margin on it does not answer: the typesetter lays the
+   marker out as an inline box and the inline-end margin it is given never
+   reaches the line, so the number and the note ran together - measured, a
+   `margin-inline-end: 1em` that computes to 9.49px and moves nothing. An
+   inline-block of a definite inline size is laid out, and filling exactly the
+   hang is also what puts the first line's text where the second line starts.
+   The same answer the dpub back-link already needed, for the same reason. */
 .footnotes li::before,
 [role='doc-endnotes'] li::before {
   content: counter(vivlio-endnote, decimal);
-  margin-inline-end: 1em;
+  display: inline-block;
+  inline-size: 2em;
+  text-indent: 0;
 }
 
 /* `dpub` writes the note as an `<aside>` carrying its own number, and the

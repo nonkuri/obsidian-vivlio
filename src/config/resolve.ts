@@ -196,6 +196,35 @@ function colophonEntries(value: unknown): ColophonEntry[] {
   return rows;
 }
 
+/**
+ * Just the keys a parsed `vivlio.yaml` actually carries, coerced.
+ *
+ * `resolveConfig` answers a different question: it merges the three layers and
+ * hands back a whole book, so a key the file never mentioned comes back
+ * carrying the vault's default and there is no telling the two apart. The
+ * setup wizard has to tell them apart - a key the file leaves out must stay on
+ * "use the default", or reopening the wizard on a file would silently pin
+ * every unset key to whatever the settings happened to say that day.
+ *
+ * The coercion is the layer's own, so a file and the wizard read `39` and
+ * `"39"` the same way.
+ */
+export function bookValuesFromYaml(
+  raw: Record<string, unknown> | null | undefined,
+): Partial<BookConfig> {
+  if (!raw) return {};
+  const applied = baseBookConfig();
+  applyLayer(applied, raw);
+
+  const values: Partial<BookConfig> = {};
+  const record = applied as unknown as Record<string, unknown>;
+  for (const key of Object.keys(raw)) {
+    if (!KNOWN_KEYS.has(key) || key === "order" || key === "toc") continue;
+    (values as Record<string, unknown>)[key] = record[key];
+  }
+  return values;
+}
+
 export interface ResolveLayers {
   settings: VivlioSettings;
   /** Layer 2: parsed `vivlio.yaml`. */

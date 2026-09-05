@@ -35,7 +35,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   // `linesPerPage` and centres with `margin: auto`. Forcing them to `auto`
   // makes the block fill the sheet, which collapses every margin to zero and
   // leaves the running head printing on top of the text.
-  const size = resolvePaperSize(config.size);
+  const size = sheetSize(config);
   if (size && size !== "auto") root.push(`--vs-page--size: ${size};`);
 
   // Both numbers are written, or neither: the theme composes its block from
@@ -76,8 +76,12 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   if (config.rubyFontSize) root.push(`--vs--rt-font-size: ${config.rubyFontSize};`);
   root.push(`--vs--tcy-font-family: ${config.tcyFontFamily || "inherit"};`);
 
-  if (config.cropMarks) root.push("--vs-page--marks: crop cross;");
-  if (config.bleed) root.push(`--vs-page--bleed: ${config.bleed};`);
+  // Bleed without marks is carried by the sheet itself (see sheetSize), so
+  // only the marked case hands the length to the theme.
+  if (config.cropMarks) {
+    root.push("--vs-page--marks: crop cross;");
+    if (config.bleed) root.push(`--vs-page--bleed: ${config.bleed};`);
+  }
 
   blocks.push(`:root {\n  ${root.join("\n  ")}\n}`);
 
@@ -122,6 +126,41 @@ svg {
   max-width: ${block.widthMm.toFixed(2)}mm;
   max-height: ${block.heightMm.toFixed(2)}mm;
 }`.trim();
+}
+
+/**
+ * The sheet the book is printed on.
+ *
+ * Normally the trim size. But `bleed` on its own - no crop marks - is a real
+ * combination and a common one: a good many Japanese printers ask for
+ * "トンボなし・塗り足し3mm", a PDF whose page is the finished size with three
+ * millimetres of artwork past every edge and nothing drawn in the margin.
+ *
+ * CSS cannot say that directly. `bleed` "only has effect if crop marks are
+ * enabled" (CSS Paged Media 3), so asking for one without the other gets a
+ * sheet cut to the trim line and artwork that stops there. What the printer
+ * wants is simply a larger sheet: the trim size plus twice the bleed, with the
+ * text block still centred - which it is, because the margins are `auto` and
+ * the same length is added to every edge, so the block keeps its place
+ * relative to the trim. A full-bleed picture then fills the enlarged sheet,
+ * which is the bleed itself.
+ *
+ * With marks on, the theme is handed the bleed as a length and Vivliostyle
+ * enlarges the sheet and draws the marks itself; nothing here has to help.
+ */
+function sheetSize(config: BookConfig): string {
+  const size = resolvePaperSize(config.size);
+  if (config.cropMarks || !config.bleed) return size;
+
+  const bleed = /^([\d.]+)mm$/.exec(config.bleed.trim());
+  const width = pageWidthMm(config.size);
+  const height = pageHeightMm(config.size);
+  // A bleed in some other unit, or a sheet whose millimetres are not knowable,
+  // is left alone rather than guessed at.
+  if (!bleed || !width || !height) return size;
+
+  const margin = Number(bleed[1]) * 2;
+  return `${(width + margin).toFixed(3)}mm ${(height + margin).toFixed(3)}mm`;
 }
 
 /** Running heads and folios sit below the body size, as in a printed book. */
@@ -513,11 +552,20 @@ function sectionCss(context: BuildContext): string {
   page: colophon;
 }
 
-/* A colophon is where the book says who made it, not a page anyone is
-   counting. Japanese books print no folio on it, and the contents page does
-   not list it either (see buildTocEntries). It joins the two parts that were
-   already unnumbered, through the one mechanism proven to do it. */
-@page titlepage, halftitle, colophon {
+/* The pages that carry no folio.
+ *
+ * A contents page lists what follows it, so nothing laid out before it is a
+ * page anyone looks up, and a Japanese book prints a number on none of them:
+ * the half title, the title page, the dedication, the epigraph. The contents
+ * page hides its own (the theme does that, by the root class).
+ *
+ * The colophon joins them at the back for the same reason. It is where the
+ * book says who made it, not a page anyone is counting, and the contents does
+ * not list it either (see buildTocEntries).
+ *
+ * theme-base gives the dedication and the epigraph a named page from their
+ * DPUB role, so naming those pages here is all it takes. */
+@page titlepage, halftitle, dedication, epigraph, colophon {
   --vs-page--mbox-visibility: hidden;
 }
 

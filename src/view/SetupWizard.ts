@@ -70,7 +70,20 @@ export class SetupWizard extends Modal {
   private newNotes: Partial<Record<SectionSlot, string>> = {};
   private fontFamilies: string[] = [];
 
-  constructor(app: App, plugin: VivlioPlugin, bookRoot: string) {
+  /**
+   * @param existing what the book's `vivlio.yaml` already says, when the
+   * wizard was opened on one. Running the wizard again on a book that has been
+   * set up is how a writer changes several things at once, and starting it
+   * from a preset would have thrown away every answer they gave the first
+   * time. The preset drops to `custom`, because the file is now the starting
+   * point and no preset describes it.
+   */
+  constructor(
+    app: App,
+    plugin: VivlioPlugin,
+    bookRoot: string,
+    existing?: Partial<BookConfig> | null,
+  ) {
     super(app);
     this.plugin = plugin;
     this.bookRoot = bookRoot;
@@ -80,6 +93,11 @@ export class SetupWizard extends Modal {
     this.values.title = bookRoot.split("/").pop() || app.vault.getName();
     // A book is published on the day it is made, until someone says otherwise.
     this.values.date = today();
+
+    if (existing && Object.keys(existing).length > 0) {
+      this.preset = "custom";
+      this.values = { ...existing };
+    }
   }
 
   async onOpen(): Promise<void> {

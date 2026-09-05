@@ -12,6 +12,7 @@ import {
   resolveConfig,
   camelToKebab,
   kebabToCamel,
+  bookValuesFromYaml,
 } from "../src/config/resolve";
 import { validateConfig } from "../src/config/schema";
 import {
@@ -365,6 +366,24 @@ async function main(): Promise<void> {
     tocResult.notes.map((file) => file.basename).join(","),
   );
   check("the table-of-contents note is not a chapter", !tocResult.notes.includes(index));
+
+  // The wizard reopened on a book starts from what its vivlio.yaml says, and a
+  // key the file leaves out has to stay on "use the default" - otherwise
+  // reopening it would pin every unset key to whatever the settings said that
+  // day. That is what tells this apart from resolveConfig, which merges the
+  // layers and cannot say which of them answered.
+  const carried = bookValuesFromYaml({
+    theme: "novel-2col",
+    charsPerLine: "23",
+    unknownKey: 1,
+    order: 3,
+  });
+  check("a vivlio.yaml's own keys come back", carried.theme === "novel-2col");
+  check("coerced the way a layer coerces them", carried.charsPerLine === 23);
+  check("a key the file omits stays unset", !("size" in carried));
+  check("an unknown key is not a book setting", !("unknownKey" in carried));
+  check("nor is a spine hint", !("order" in carried));
+  check("and no file means no answers", Object.keys(bookValuesFromYaml(null)).length === 0);
 
   // `vivlio-order` pins a note to a position.
   const first = makeFile("book3/z.md", { "vivlio-order": 1 });

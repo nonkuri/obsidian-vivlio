@@ -647,6 +647,58 @@ async function main(): Promise<void> {
     ),
   );
 
+  // Nothing laid out before the contents page carries a folio, and the
+  // colophon joins them at the back. theme-base names the dedication's and the
+  // epigraph's pages from their DPUB role, so naming those pages is enough.
+  const blind = bookStylesheet(makeContext(), "x.css");
+  checks.push(
+    check(
+      "the pages before the contents carry no folio",
+      blind.includes(
+        `@page titlepage, halftitle, dedication, epigraph, colophon {
+  --vs-page--mbox-visibility: hidden;`,
+      ),
+      blind.slice(blind.indexOf("@page titlepage")),
+    ),
+  );
+
+  // "トンボなし・塗り足し3mm" is a real submission rule, and CSS cannot say it:
+  // `bleed` has no effect without marks. The sheet carries it instead.
+  const bled = makeContext();
+  bled.config.size = "A5";
+  bled.config.bleed = "3mm";
+  const marked = makeContext();
+  marked.config.size = "A5";
+  marked.config.bleed = "3mm";
+  marked.config.cropMarks = true;
+  const bledCss = bookStylesheet(bled, "x.css");
+  const markedCss = bookStylesheet(marked, "x.css");
+  checks.push(
+    check(
+      "bleed with no marks grows the sheet",
+      bledCss.includes("--vs-page--size: 154.000mm 216.000mm;"),
+      bledCss.slice(0, 300),
+    ),
+    check("and is not handed to the theme as well", !bledCss.includes("--vs-page--bleed")),
+    // With marks the typesetter enlarges the sheet and draws them itself.
+    check(
+      "marks leave the sheet alone",
+      markedCss.includes("--vs-page--size: A5;") &&
+        markedCss.includes("--vs-page--bleed: 3mm;"),
+      markedCss.slice(0, 300),
+    ),
+    // A length the plugin cannot measure is left alone rather than guessed at.
+    check(
+      "an unmeasurable bleed changes nothing",
+      (() => {
+        const odd = makeContext();
+        odd.config.size = "A5";
+        odd.config.bleed = "0.125in";
+        return bookStylesheet(odd, "x.css").includes("--vs-page--size: A5;");
+      })(),
+    ),
+  );
+
   // A contents page lists what follows it. The parts laid out before it are
   // leaves the reader has already turned past, and a line pointing backwards
   // is one nobody can use - which is what made the page count iii, iv, vi

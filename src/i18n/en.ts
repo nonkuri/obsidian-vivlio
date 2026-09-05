@@ -40,6 +40,7 @@ export const en = {
   "notice.noActiveNote": "Vivlio: no active note",
   "notice.desktopOnly": "Vivlio only runs on the desktop app",
   "notice.serverFailed": "Vivlio: could not start the local preview server",
+  "notice.configUnreadable": "Vivlio: could not read vivlio.yaml; starting from the defaults",
   "notice.configWritten": "Vivlio: wrote {path}",
   "notice.printFailed": "Vivlio: PDF generation failed — {message}",
   "notice.noteFailed": "Vivlio: could not create {path} — {message}",
