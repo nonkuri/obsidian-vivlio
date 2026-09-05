@@ -15,7 +15,7 @@ import { themeChoices } from "../build/theme";
 import { debounce, isAbortError, type Debounced } from "../util/async";
 import { t } from "../i18n";
 import { writeDiagnostics } from "../util/diagnostics";
-import { PAGE_MESSAGE } from "../server/keepPage";
+import { POSITION_MESSAGE } from "../server/keepPage";
 import { log } from "../util/log";
 
 export const VIEW_TYPE_PREVIEW = "vivlio-preview";
@@ -40,13 +40,15 @@ export class VivlioPreviewView extends ItemView {
   /** The view holds one reference to the server, not one per rebuild. */
   private holdsServer = false;
   /**
-   * Where the reader had got to, zero-based over the whole publication.
+   * Where the reader had got to in the publication source.
    *
    * A rebuild reloads the frame, which would otherwise land back on the
-   * cover; the frame reports this as the reader turns pages, and gets it back
-   * in the URL. It is cleared whenever the book being shown changes, because
-   * a page number means nothing in a different book.
+   * cover; the frame reports a CFI as the reader turns pages, and gets it back
+   * in the URL. Unlike the epage fallback, it remains exact while lazy
+   * pagination discovers more pages. Both are cleared whenever the book being
+   * shown changes, because a position means nothing in a different book.
    */
+  private cfi = "";
   private epage = 0;
 
   constructor(leaf: WorkspaceLeaf, plugin: VivlioPlugin) {
@@ -84,9 +86,14 @@ export class VivlioPreviewView extends ItemView {
       // `origin`, not `base`: base carries the session path as well, and a
       // MessageEvent's origin is only ever scheme, host and port.
       if (event.origin !== this.plugin.server.origin) return;
-      const data = event.data as { type?: string; epage?: number } | null;
-      if (!data || data.type !== PAGE_MESSAGE) return;
-      if (typeof data.epage === "number" && data.epage >= 0) this.epage = data.epage;
+      const data = event.data as { type?: string; cfi?: string; epage?: number } | null;
+      if (!data || data.type !== POSITION_MESSAGE) return;
+      if (typeof data.cfi === "string" && /^epubcfi\(.+\)$/.test(data.cfi)) {
+        this.cfi = data.cfi;
+      }
+      if (typeof data.epage === "number" && Number.isFinite(data.epage) && data.epage >= 0) {
+        this.epage = data.epage;
+      }
     });
 
     // A note being edited elsewhere should show up here (SPEC decision 19).
@@ -122,7 +129,10 @@ export class VivlioPreviewView extends ItemView {
   async show(target: BuildTarget): Promise<void> {
     // Another book starts at its own beginning: the page held here belongs to
     // the one being left.
-    if (!sameTarget(this.target, target)) this.epage = 0;
+    if (!sameTarget(this.target, target)) {
+      this.cfi = "";
+      this.epage = 0;
+    }
     this.target = target;
     await this.rebuild();
   }
@@ -208,6 +218,7 @@ export class VivlioPreviewView extends ItemView {
       this.frame.src = this.plugin.server.bookViewerUrl(result.publicationUrl, {
         renderAllPages: this.plugin.settings.renderAllPages,
         cacheBust: true,
+        cfi: this.cfi,
         epage: this.epage,
       });
       this.setStatus(

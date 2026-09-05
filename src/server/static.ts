@@ -6,7 +6,7 @@ import { Workspace } from "../build/workspace";
 import { isInside, joinPosix, mimeType, normalizeAbsolute } from "../util/paths";
 import { log } from "../util/log";
 import { themeAssets, viewerAssets } from "../vendor/assets";
-import { EPAGE_PARAM, withKeepPageScript } from "./keepPage";
+import { CFI_PARAM, EPAGE_PARAM, withKeepPageScript } from "./keepPage";
 
 const HOST = "127.0.0.1";
 
@@ -125,7 +125,7 @@ export class PreviewServer {
    */
   bookViewerUrl(
     publicationUrl: string,
-    options: { renderAllPages: boolean; cacheBust?: boolean; epage?: number } = {
+    options: { renderAllPages: boolean; cacheBust?: boolean; cfi?: string; epage?: number } = {
       renderAllPages: true,
     },
   ): string {
@@ -142,15 +142,12 @@ export class PreviewServer {
       // covers the export webview as well as the preview.
       "allowScripts=false",
     ];
-    // The viewer drops a `page` of its own from the fragment, so the page to
-    // return to travels under a name of ours and is applied by the script in
-    // keepPage.ts.
-    //
-    // Rounded, not truncated. While the preview composes only as far as it
-    // has been asked to, the viewer reports the page as a fraction - 6.91 for
-    // the page it was told to call 7 - and taking the floor of that put the
-    // reader back one page short of where they were.
-    if (options.epage) params.push(`${EPAGE_PARAM}=${Math.round(options.epage)}`);
+    // `f` is the viewer's public EPUB-CFI input. It identifies a place in the
+    // source rather than an estimated page, so lazy pagination can grow around
+    // it without moving the remembered place. Use the approximate epage only
+    // when an older/incomplete nav payload supplied no CFI.
+    if (options.cfi) params.push(`${CFI_PARAM}=${encodeViewerFragment(options.cfi)}`);
+    else if (options.epage) params.push(`${EPAGE_PARAM}=${Math.round(options.epage)}`);
     if (options.cacheBust) params.push(`t=${Date.now()}`);
     return `${this.viewerUrl()}#${params.join("&")}`;
   }
@@ -351,6 +348,11 @@ export class PreviewServer {
       res.end();
     });
   }
+}
+
+/** Encode the characters that the viewer itself escapes in its `f` value. */
+function encodeViewerFragment(fragment: string): string {
+  return fragment.replace(/[\s+&?=#\u007F-\uFFFF]+/g, encodeURIComponent);
 }
 
 function send(

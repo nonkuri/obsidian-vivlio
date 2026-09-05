@@ -7,48 +7,63 @@
  *
  * The plugin serves the viewer itself, so it can put a small script beside it.
  * The script speaks only to `window.coreViewer`, the `CoreViewer` the viewer
- * exposes: `nav` reports the page as the reader turns it, and
- * `navigateToPage` puts them back. Both are the published API of
- * `@vivliostyle/core`, so this does not reach into the viewer's own markup,
+ * exposes: `nav` reports the source CFI as the reader turns pages. The
+ * viewer's public `f` parameter restores that CFI; `navigateToPage` handles
+ * the legacy fallback. This does not reach into the viewer's own markup,
  * whose element ids are its private business.
  *
- * The page travels through the parent rather than through storage inside the
- * frame: only the preview knows whether it is rebuilding the same book or
- * showing a different one, and only it should decide when a remembered page
- * still means anything.
+ * The source position travels through the parent rather than through storage
+ * inside the frame: only the preview knows whether it is rebuilding the same
+ * book or showing a different one, and only it should decide when a
+ * remembered position still means anything. The viewer accepts the CFI again
+ * through its public `f` URL parameter. Unlike an epage, a CFI does not change
+ * its meaning while lazy pagination discovers more pages.
  */
 
 /** Name of the fragment parameter carrying the page to restore. */
 export const EPAGE_PARAM = "vivlioEpage";
 
+/** Name of the viewer's public fragment parameter carrying an EPUB CFI. */
+export const CFI_PARAM = "f";
+
 /** What the frame posts to the preview, and what the preview listens for. */
-export const PAGE_MESSAGE = "vivlio:page";
+export const POSITION_MESSAGE = "vivlio:position";
 
 /**
  * The script served with the viewer.
  *
- * `epage` is zero-based and counts the whole publication, which is what makes
- * it the right thing to remember: a page number restarts at the body, and the
- * front matter's roman numerals would not survive the round trip.
+ * A CFI identifies the publication source position. The fallback `epage` is
+ * zero-based over the whole publication, rather than a printed page number
+ * that may restart at the body or use roman numerals.
  */
 export const KEEP_PAGE_SCRIPT = `
 (function () {
-  var MESSAGE = ${JSON.stringify(PAGE_MESSAGE)};
-  var PARAM = ${JSON.stringify(EPAGE_PARAM)};
+  var MESSAGE = ${JSON.stringify(POSITION_MESSAGE)};
+  var EPAGE = ${JSON.stringify(EPAGE_PARAM)};
+  var CFI = ${JSON.stringify(CFI_PARAM)};
   // How long the book may go without growing before the page it has
   // reached is taken as the whole of it.
   var SETTLE_MS = 2500;
 
-  function wanted() {
+  function parameter(name) {
     // The digit class is spelt out rather than abbreviated: this lives in a
     // template literal, where a backslash belongs to the literal before the
     // regexp ever sees it.
-    var match = new RegExp("[#&]" + PARAM + "=([0-9]+)").exec(location.hash);
-    return match ? parseInt(match[1], 10) : 0;
+    var match = new RegExp("[#&]" + name + "=([^&]+)").exec(location.hash);
+    return match ? match[1] : "";
+  }
+
+  function wantedPage() {
+    var value = parameter(EPAGE);
+    return /^[0-9]+$/.test(value) ? parseInt(value, 10) : 0;
   }
 
   function start(viewer) {
-    var target = wanted();
+    // The f parameter is consumed by the viewer itself while it loads the publication.
+    // The epage machinery below is retained only as a fallback for a nav
+    // payload that did not contain a CFI.
+    var hasCfi = parameter(CFI) !== "";
+    var target = hasCfi ? 0 : wantedPage();
     var pending = target > 0;
     var known = 0;
     var settle = null;
@@ -70,10 +85,9 @@ export const KEEP_PAGE_SCRIPT = `
           // point one page is all there is.
           if (target <= count - 1) { go(target); return; }
 
-          // The book is still growing. Only when it stops, and has genuinely
-          // ended short of the page, is the last page the answer. This runs
-          // with the whole book composed (see bookViewerUrl), so a count that
-          // has stopped growing is the count.
+          // With no CFI this can only approximate the old location. Let the
+          // estimate settle before deciding that its last known page is the
+          // closest available fallback.
           if (count > known) {
             known = count;
             if (settle) clearTimeout(settle);
@@ -83,7 +97,20 @@ export const KEEP_PAGE_SCRIPT = `
         return;
       }
 
-      if (typeof payload.epage === "number") {
+      // A nav notification with a CFI is the coherent pair for the page that
+      // is actually on screen. Pagination-progress notifications may carry
+      // only an approximate epage, so never let one overwrite it.
+      if (typeof payload.cfi === "string" && payload.cfi) {
+        try {
+          parent.postMessage({
+            type: MESSAGE,
+            cfi: payload.cfi,
+            epage: payload.epage
+          }, "*");
+        } catch (e) {
+          /* The preview is not listening; nothing here depends on it. */
+        }
+      } else if (typeof payload.epage === "number" && !hasCfi) {
         try {
           parent.postMessage({ type: MESSAGE, epage: payload.epage }, "*");
         } catch (e) {

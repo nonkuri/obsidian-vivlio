@@ -10,7 +10,7 @@ import * as os from "os";
 import * as path from "path";
 import { PreviewServer } from "../src/server/static";
 import { Workspace } from "../src/build/workspace";
-import { EPAGE_PARAM, PAGE_MESSAGE } from "../src/server/keepPage";
+import { CFI_PARAM, EPAGE_PARAM, POSITION_MESSAGE } from "../src/server/keepPage";
 
 interface Result {
   status: number;
@@ -159,6 +159,27 @@ async function main(): Promise<void> {
   });
   check("the viewer url carries the page to return to", resumed.includes(`${EPAGE_PARAM}=7`), resumed);
 
+  const cfi = "epubcfi(/8!/4/2[vivlio-start]/10/6)";
+  const resumedAtSource = server.bookViewerUrl(`${base}/w/book/publication.json`, {
+    renderAllPages: false,
+    cfi,
+    epage: 7,
+  });
+  check(
+    "a source position takes precedence over an approximate page",
+    resumedAtSource.includes(`${CFI_PARAM}=${cfi}`) && !resumedAtSource.includes(EPAGE_PARAM),
+    resumedAtSource,
+  );
+  const escapedCfi = server.bookViewerUrl(`${base}/w/book/publication.json`, {
+    renderAllPages: false,
+    cfi: "epubcfi(/8!/4/2[id with + & #]/2)",
+  });
+  check(
+    "unsafe CFI characters cannot split viewer parameters",
+    escapedCfi.includes("id%20with%20%2B%20%26%20%23"),
+    escapedCfi,
+  );
+
   // What the frame's messages have to be checked against. `base` carries the
   // session path too, and a MessageEvent's origin never does, so comparing
   // against it silently discards every message the frame sends.
@@ -174,12 +195,14 @@ async function main(): Promise<void> {
   const viewerPage = await get(`${base}/viewer/index.html`);
   check(
     "the served viewer carries the script that keeps the page",
-    viewerPage.body.includes(PAGE_MESSAGE) && viewerPage.body.includes("navigateToPage"),
+    viewerPage.body.includes(POSITION_MESSAGE) &&
+      viewerPage.body.includes("payload.cfi") &&
+      viewerPage.body.includes("navigateToPage"),
     String(viewerPage.status),
   );
   check(
     "the script is inside the document it was put in",
-    viewerPage.body.lastIndexOf(PAGE_MESSAGE) < viewerPage.body.lastIndexOf("</body>"),
+    viewerPage.body.lastIndexOf(POSITION_MESSAGE) < viewerPage.body.lastIndexOf("</body>"),
   );
 
   await server.stop();
