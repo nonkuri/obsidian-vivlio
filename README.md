@@ -114,8 +114,22 @@ sections:
   colophon: auto
 pageNumbering: roman-then-arabic
 startPage: 1             # the number the body starts counting from
+cropMarks: false         # many Japanese printers ask for no marks
+bleed: 3mm               # …and 3mm of bleed; the sheet grows to carry it
 output: 原稿/出力/猫.pdf
 ```
+
+`bleed` works with or without `cropMarks`. Without them the sheet is printed
+at the trim size plus twice the bleed, which is the shape a Japanese printer
+means by 「トンボなし・塗り足し3mm」; the text block keeps its place relative to
+the trim.
+
+**Only the cover bleeds.** It is laid out as the sheet rather than inside the
+text block, so it fills the paper to the bleed edge on its own. A picture in
+the body is fitted to the text block and stops there, and neither the plugin
+nor the bundled themes paint a page background, so there is nothing else that
+reaches the edge. A bleeding illustration or a tinted page needs CSS of your
+own - `@page` for the paper, since `body` is only the text block.
 
 ```yaml
 ---
