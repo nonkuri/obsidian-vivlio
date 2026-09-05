@@ -3,6 +3,7 @@ import type { BookConfig } from "../config/types";
 import { pageHeightMm, pageWidthMm, resolvePaperSize } from "../config/defaults";
 import { BUNDLED_THEME_GRIDS, bundledThemePath, type ThemeGrid } from "../vendor/assets";
 import { THEME_STYLESHEET } from "./theme";
+import { TOC_FRONT_MATTER_CLASS } from "./toc";
 import { fontFaceRules } from "./fonts";
 
 /**
@@ -539,7 +540,17 @@ function pageNumberingCss(context: BuildContext): string {
   const mode = context.config.pageNumbering;
 
   if (mode === "none") {
-    return `:root { --vs-page--mbox-visibility: hidden; }`;
+    // A book that prints no folio has no page for a contents line to name.
+    // theme-base builds the leader and the number as one `::after`, so both
+    // go together; what is left is the title against the margin, which is
+    // what a contents page without page numbers looks like.
+    return `
+:root { --vs-page--mbox-visibility: hidden; }
+
+:is(#toc, [role='doc-toc']) li > a::after {
+  content: none;
+}
+`.trim();
   }
 
   // The page counter is incremented before an element's `counter-reset` is
@@ -564,6 +575,17 @@ ${reset}
     --vivlio-folio-own-box,
     counter(page, lower-roman)
   );
+}
+
+/* The contents page has to read the numbers the same way the pages print
+   them. theme-base takes the style from one variable set on the root, which
+   is the body's - so every front-matter line came out in arabic while the
+   page it pointed at was numbered in roman: a dedication printed iii was
+   listed as 3, and the list then appeared to count 3, 4, 6, 1 down the page.
+   The counter is the same one either way; only the style differs, so it is
+   set per entry (see TOC_FRONT_MATTER_CLASS). */
+:is(#toc, [role='doc-toc']) li.${TOC_FRONT_MATTER_CLASS} > a {
+  --vs-toc--page-counter-style: lower-roman;
 }
 `.trim();
 }

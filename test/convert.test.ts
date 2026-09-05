@@ -10,7 +10,7 @@ import { convertChapter } from "../src/build/vfm";
 import { bookStylesheet, themeUrlFor } from "../src/build/css";
 import { resolveVaultTheme, themeChoices, THEME_STYLESHEET } from "../src/build/theme";
 import { BOOK_STYLESHEET } from "../src/build/vfm";
-import { buildTocEntries, tocDocument } from "../src/build/toc";
+import { buildTocEntries, tocDocument, TOC_FRONT_MATTER_CLASS } from "../src/build/toc";
 import { colophonDocument, titlePageDocument } from "../src/build/sections";
 import { japaneseDate, kanjiDate } from "../src/util/kanji";
 import JSZip from "jszip";
@@ -18,6 +18,7 @@ import { epubStylesheet } from "../src/export/epub";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { baseBookConfig, DEFAULT_SETTINGS } from "../src/config/defaults";
+import { SECTION_SLOTS } from "../src/config/types";
 import { setLanguage } from "../src/i18n";
 
 function makeFile(path: string): TFile {
@@ -643,6 +644,119 @@ async function main(): Promise<void> {
       "toc entries are a plain nested list",
       tocHtml.includes('<li><a href="ch01.html#ch1">第一章</a>'),
       tocHtml,
+    ),
+  );
+
+  // A contents page lists what follows it. The parts laid out before it are
+  // leaves the reader has already turned past, and a line pointing backwards
+  // is one nobody can use - which is what made the page count iii, iv, vi
+  // downwards before reaching the body's 1.
+  const parts = makeContext();
+  parts.chapters = SECTION_SLOTS.map((slot) => ({
+    docName: `${slot.toLowerCase()}.html`,
+    file: null,
+    title: slot,
+    role: null,
+    slot,
+    isBody: false,
+    isFrontMatter: SECTION_SLOTS.indexOf(slot) < SECTION_SLOTS.indexOf("toc"),
+  }));
+  const listed = buildTocEntries(parts, parts.chapters).map((entry) => entry.label);
+  const inNav = buildTocEntries(parts, parts.chapters, "nav").map((entry) => entry.label);
+  checks.push(
+    check(
+      "the contents lists only what follows it",
+      JSON.stringify(listed) ===
+        JSON.stringify([
+          "preface",
+          "afterword",
+          "appendix",
+          "bibliography",
+          "acknowledgments",
+        ]),
+      JSON.stringify(listed),
+    ),
+    // The colophon follows the contents, but a Japanese book does not list it.
+    check("and never the colophon", !listed.includes("colophon")),
+    // A reader has to be able to reach every document in the file.
+    check(
+      "while the navigation keeps the parts the page drops",
+      ["halfTitle", "titlePage", "dedication", "epigraph", "colophon"].every((slot) =>
+        inNav.includes(slot),
+      ),
+      JSON.stringify(inNav),
+    ),
+  );
+
+  // Front matter and body count on the same page counter in two different
+  // styles, so a contents line has to say which half it points at. Without
+  // that the dedication printed iii was listed as 3, and the page appeared to
+  // count 3, 4, 6, 1 downwards.
+  const numbered = makeContext();
+  numbered.chapters = [
+    {
+      docName: "preface.html",
+      file: null,
+      title: "まえがき",
+      role: "doc-preface",
+      slot: "preface",
+      isBody: false,
+      isFrontMatter: true,
+    },
+    ...numbered.chapters,
+  ];
+  const numberedHtml = tocDocument(numbered, numbered.chapters);
+  const romanCss = bookStylesheet(numbered, "x.css");
+  checks.push(
+    check(
+      "a front-matter entry says so",
+      numberedHtml.includes(
+        `<li class="${TOC_FRONT_MATTER_CLASS}"><a href="preface.html#`,
+      ),
+      numberedHtml,
+    ),
+    check(
+      "a body entry does not",
+      numberedHtml.includes('<li><a href="ch01.html#'),
+      numberedHtml,
+    ),
+    check(
+      "and the front matter is numbered the way its pages are",
+      romanCss.includes(
+        `li.${TOC_FRONT_MATTER_CLASS} > a {
+  --vs-toc--page-counter-style: lower-roman;`,
+      ),
+      romanCss.slice(romanCss.indexOf("doc-toc")),
+    ),
+  );
+
+  // `> a`, not the item: a body chapter's headings nest under whichever part
+  // precedes them, so a rule on the item would hand the whole body the
+  // preface's numbering.
+  checks.push(
+    check(
+      "the rule cannot reach a nested body entry",
+      !romanCss.includes(`li.${TOC_FRONT_MATTER_CLASS} {`),
+      romanCss.slice(romanCss.indexOf("doc-toc")),
+    ),
+  );
+
+  // One counter, one style: nothing to say when both halves count the same
+  // way, and nothing to print when the book prints no folio at all.
+  const continuous = makeContext();
+  continuous.config.pageNumbering = "continuous";
+  const unnumbered = makeContext();
+  unnumbered.config.pageNumbering = "none";
+  const unnumberedCss = bookStylesheet(unnumbered, "x.css");
+  checks.push(
+    check(
+      "continuous numbering leaves the toc alone",
+      !bookStylesheet(continuous, "x.css").includes("--vs-toc--page-counter-style"),
+    ),
+    check(
+      "a book with no folios lists no page numbers",
+      /:is\(#toc, \[role='doc-toc'\]\) li > a::after \{\s*content: none;/.test(unnumberedCss),
+      unnumberedCss.slice(unnumberedCss.indexOf("mbox-visibility")),
     ),
   );
 

@@ -1,6 +1,7 @@
 import type { BuildContext, Chapter } from "./context";
 import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
+import { SECTION_SLOTS } from "../config/types";
 import { t } from "../i18n";
 
 /**
@@ -24,6 +25,16 @@ export interface TocEntry {
   href: string;
   label: string;
   level: number;
+  /**
+   * Whether the entry points into the front matter.
+   *
+   * The page number a contents line prints is `target-counter(..., page)`, and
+   * under `roman-then-arabic` the front matter counts in roman numerals while
+   * the body counts in arabic. It is one counter and two styles, so the line
+   * has to say which half of the book it points at (see pageNumberingCss in
+   * src/build/css.ts).
+   */
+  frontMatter: boolean;
   children: TocEntry[];
 }
 
@@ -40,8 +51,30 @@ export interface TocEntry {
  */
 export type TocAudience = "print" | "nav";
 
-/** Parts a printed contents page leaves out; the navigation keeps them. */
-const PRINT_ONLY_OMITS = new Set(["halfTitle", "titlePage", "colophon"]);
+/**
+ * Parts a printed contents page leaves out; the navigation keeps them.
+ *
+ * **A contents page lists what follows it.** Everything laid out before it -
+ * the half title, the title page, the dedication, the epigraph - is a leaf the
+ * reader has already turned past, and a line pointing backwards is a line
+ * nobody can use. So the set is read off SECTION_SLOTS, which is the order the
+ * parts are laid out in: a part that sits before `toc` is behind the reader by
+ * the time they reach it. Deriving it is what keeps a part added later to the
+ * front matter from silently appearing in the contents.
+ *
+ * Listing the dedication and the epigraph is what made a contents page count
+ * "iii, iv, vi, 1, 20 ..." downwards - two lines pointing back at pages before
+ * the one they were printed on (see the page-number styling below, which was
+ * the other half of that).
+ *
+ * The colophon is the exception the rule does not cover: it follows the
+ * contents, but a Japanese book does not list it. It is where the book says
+ * who made it, not a place anyone is looking up.
+ */
+const PRINT_ONLY_OMITS = new Set<string>([
+  ...SECTION_SLOTS.slice(0, SECTION_SLOTS.indexOf("toc")),
+  "colophon",
+]);
 
 /**
  * The entries of a book's table of contents, nested by heading level.
@@ -86,6 +119,7 @@ export function buildTocEntries(
         // and neither says which one goes to the picture.
         label: chapter.role === "doc-cover" ? t("section.cover") : chapter.title,
         level: 1,
+        frontMatter: chapter.isFrontMatter,
         children: [],
       });
       continue;
@@ -96,6 +130,7 @@ export function buildTocEntries(
         href: `${chapter.docName}#${heading.slug}`,
         label: heading.text,
         level: heading.level,
+        frontMatter: chapter.isFrontMatter,
         children: [],
       });
     }
@@ -141,15 +176,26 @@ function nest(entries: TocEntry[]): TocEntry[] {
   return root;
 }
 
+/**
+ * Class on the entries that point into the front matter.
+ *
+ * The counter style a line prints its page number in is set on the item's own
+ * anchor, which is where theme-base builds the leader and the number. On the
+ * item itself it would inherit into the list nested inside it - and a body
+ * chapter's headings are nested under whichever part precedes them, so the
+ * preface would have taken the whole body's numbering with it.
+ */
+export const TOC_FRONT_MATTER_CLASS = "vivlio-toc-front";
+
 function renderList(entries: TocEntry[]): string {
   if (entries.length === 0) return "";
   const items = entries
-    .map(
-      (entry) =>
-        `<li><a href="${escapeHtml(entry.href)}">${escapeHtml(entry.label)}</a>${renderList(
-          entry.children,
-        )}</li>`,
-    )
+    .map((entry) => {
+      const cls = entry.frontMatter ? ` class="${TOC_FRONT_MATTER_CLASS}"` : "";
+      return `<li${cls}><a href="${escapeHtml(entry.href)}">${escapeHtml(
+        entry.label,
+      )}</a>${renderList(entry.children)}</li>`;
+    })
     .join("\n");
   return `<ol>\n${items}\n</ol>`;
 }
