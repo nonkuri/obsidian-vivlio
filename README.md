@@ -124,12 +124,12 @@ at the trim size plus twice the bleed, which is the shape a Japanese printer
 means by 「トンボなし・塗り足し3mm」; the text block keeps its place relative to
 the trim.
 
-**Only the cover bleeds.** It is laid out as the sheet rather than inside the
-text block, so it fills the paper to the bleed edge on its own. A picture in
-the body is fitted to the text block and stops there, and neither the plugin
-nor the bundled themes paint a page background, so there is nothing else that
-reaches the edge. A bleeding illustration or a tinted page needs CSS of your
-own - `@page` for the paper, since `body` is only the text block.
+The cover image and a `coverPage` background reach the outer bleed edge with
+or without crop marks. Use `![[images/illustration.png|bleed]]` for a full-page
+bleeding illustration in the body. For a tinted page, put the class on the
+page element, for example
+`<div class="vivlio-bleed" style="background: #18202a"></div>`. Ordinary body
+images remain fitted inside the text block.
 
 ```yaml
 ---

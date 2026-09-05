@@ -229,6 +229,26 @@ svg {
   block-size: auto;
 }
 
+/* Full bleed is a property of a fixed sheet. In a reflowable reader the same
+   image remains a normal full-column image instead of retaining paper-sized
+   dimensions and forced page breaks. */
+.vivlio-bleed {
+  page: auto;
+  break-before: auto;
+  break-after: auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+  max-width: 100%;
+  max-height: none;
+}
+
+img.vivlio-bleed,
+svg.vivlio-bleed {
+  width: 100%;
+  height: auto;
+}
+
 :is(#toc, [role='doc-toc']) li > a::after {
   content: none;
 }

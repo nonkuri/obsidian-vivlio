@@ -83,6 +83,15 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
     root.push("--vs-page--marks: crop cross;");
     if (config.bleed) root.push(`--vs-page--bleed: ${config.bleed};`);
   }
+  // With crop marks, artwork has to leave the trim box by this much. Without
+  // marks sheetSize has already put that space inside the physical sheet, so
+  // a full-sheet box needs no further offset.
+  root.push(
+    `--vivlio-bleed-offset: ${config.cropMarks && config.bleed ? config.bleed : "0mm"};`,
+  );
+  const bleedExtent = fullBleedExtent(config);
+  root.push(`--vivlio-bleed-width: ${bleedExtent.width};`);
+  root.push(`--vivlio-bleed-height: ${bleedExtent.height};`);
 
   blocks.push(`:root {\n  ${root.join("\n  ")}\n}`);
 
@@ -91,6 +100,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
 
   blocks.push(NOTATION_CSS);
   blocks.push(imageBackstop(textBlockMm(config)));
+  blocks.push(bleedCss());
   blocks.push(coverCss(context));
   blocks.push(sectionCss(context));
   blocks.push(startSideCss(context));
@@ -123,11 +133,92 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
 function imageBackstop(block: TextBlockMm | null): string {
   if (!block) return "";
   return `
-img,
-svg {
+img:not(.vivlio-bleed),
+svg:not(.vivlio-bleed) {
   max-width: ${block.widthMm.toFixed(2)}mm;
   max-height: ${block.heightMm.toFixed(2)}mm;
 }`.trim();
+}
+
+/**
+ * A manuscript can dedicate one page to artwork or a ground colour with the
+ * `vivlio-bleed` class. The ordinary image cap intentionally excludes it.
+ *
+ * In an unmarked PDF the bleed is already part of the enlarged sheet. With
+ * crop marks it lies outside the trim box, so the box grows on all four sides
+ * and starts one bleed length above and to the left of the trim edge.
+ */
+function bleedCss(): string {
+  return `
+@page vivlio-bleed {
+  margin: 0;
+  width: auto;
+  height: auto;
+  --vs-page--mbox-visibility: hidden;
+}
+
+.vivlio-bleed {
+  page: vivlio-bleed;
+  break-before: page;
+  break-after: page;
+  box-sizing: border-box;
+  width: var(--vivlio-bleed-width);
+  height: var(--vivlio-bleed-height);
+  margin: calc(var(--vivlio-bleed-offset) * -1);
+  overflow: hidden;
+  max-inline-size: none;
+  max-block-size: none;
+  max-width: none;
+  max-height: none;
+}
+
+/* Vivliostyle discards an entirely empty box when it decides the page type.
+   Give a ground-colour-only page one zero-sized in-flow glyph so its named
+   page (zero margins, no folio) is retained. */
+.vivlio-bleed:empty::before {
+  content: "\\00a0";
+  display: block;
+  font-size: 0;
+  line-height: 0;
+}
+
+img.vivlio-bleed,
+svg.vivlio-bleed {
+  display: block;
+  object-fit: cover;
+}
+`.trim();
+}
+
+/** Definite paper dimensions keep a nested, empty ground-colour box tall. */
+function fullBleedExtent(config: BookConfig): { width: string; height: string } {
+  const width = pageWidthMm(config.size);
+  const height = pageHeightMm(config.size);
+  if (width === null || height === null) {
+    return {
+      width: `calc(100% + var(--vivlio-bleed-offset) + var(--vivlio-bleed-offset))`,
+      height: `calc(100% + var(--vivlio-bleed-offset) + var(--vivlio-bleed-offset))`,
+    };
+  }
+
+  const bleed = /^(\d+(?:\.\d+)?)mm$/.exec(config.bleed.trim());
+  if (bleed) {
+    const extra = Number(bleed[1]) * 2;
+    return {
+      width: `${(width + extra).toFixed(3)}mm`,
+      height: `${(height + extra).toFixed(3)}mm`,
+    };
+  }
+
+  // Non-mm bleed is supported by CSS when marks are present. Keep it as a
+  // calculation instead of pretending to know its physical conversion.
+  if (config.cropMarks && config.bleed) {
+    return {
+      width: `calc(${width}mm + ${config.bleed} + ${config.bleed})`,
+      height: `calc(${height}mm + ${config.bleed} + ${config.bleed})`,
+    };
+  }
+  return { width: `${width}mm`, height: `${height}mm` };
 }
 
 /**
@@ -512,12 +603,15 @@ function coverCss(context: BuildContext): string {
      typesetter did not act on, which is how the cover kept being laid out
      inside the text block however the page rule was written. */
   page: cover;
-  block-size: 100%;
-  inline-size: 100%;
-  margin: 0;
+  box-sizing: border-box;
+  width: var(--vivlio-bleed-width);
+  height: var(--vivlio-bleed-height);
+  margin: calc(var(--vivlio-bleed-offset) * -1);
+  overflow: hidden;
 }
 
-.cover img {
+.cover img,
+[role='doc-cover'] img {
   inline-size: 100%;
   block-size: 100%;
   /* The cover is not set inside the text block, it *is* the page: full bleed,

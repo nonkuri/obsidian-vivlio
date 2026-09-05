@@ -21,6 +21,7 @@ import { colophonDocument, titlePageDocument } from "../src/build/sections";
 import { japaneseDate, kanjiDate } from "../src/util/kanji";
 import JSZip from "jszip";
 import { epubStylesheet } from "../src/export/epub";
+import { preflight } from "../src/export/preflight";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { baseBookConfig, DEFAULT_SETTINGS } from "../src/config/defaults";
@@ -570,7 +571,7 @@ async function main(): Promise<void> {
     // asked for 100% however specific it was.
     check(
       "the backstop is physical and measured in millimetres",
-      /img,\s*svg \{\s*max-width: [\d.]+mm;\s*max-height: [\d.]+mm;/.test(css),
+      /img:not\(\.vivlio-bleed\),\s*svg:not\(\.vivlio-bleed\) \{\s*max-width: [\d.]+mm;\s*max-height: [\d.]+mm;/.test(css),
       css.slice(css.indexOf("max-width"), css.indexOf("max-width") + 120),
     ),
     check(
@@ -585,8 +586,55 @@ async function main(): Promise<void> {
     ),
     check(
       "so the cover image is free of the cap",
-      /\.cover img \{[\s\S]*?max-width: none;/.test(css),
+      /\.cover img,\s*\[role='doc-cover'\] img \{[\s\S]*?max-width: none;/.test(css),
       css.slice(css.indexOf(".cover img"), css.indexOf(".cover img") + 260),
+    ),
+    check(
+      "a body bleed element names a full-sheet page",
+      /@page vivlio-bleed \{[^}]*margin: 0;[^}]*width: auto;[^}]*height: auto;/.test(css) &&
+        /\.vivlio-bleed \{[^}]*page: vivlio-bleed;/.test(css) &&
+        css.includes('.vivlio-bleed:empty::before {'),
+      css.slice(css.indexOf("@page vivlio-bleed"), css.indexOf("@page vivlio-bleed") + 500),
+    ),
+  );
+
+  const bleeding = makeContext();
+  bleeding.config.bleed = "3mm";
+  const bleedingHtml = await convertChapter(
+    bleeding,
+    bleeding.chapters[0],
+    chapterOne,
+    '![[fig.png|bleed]]\n\n<div class="vivlio-bleed" style="background: #123456"></div>',
+  );
+  const bleedingAsset = [...bleeding.workspace.assets.values()][0];
+  bleeding.settings = { ...bleeding.settings, dpiWarnThreshold: 400, warnMissingFonts: false };
+  const bleedingIssues = await preflight(bleeding, { forEpub: false });
+  checks.push(
+    check(
+      "a wiki image can opt into full bleed",
+      /<img[^>]*class="vivlio-bleed"/.test(bleedingHtml),
+      bleedingHtml,
+    ),
+    check(
+      "the bleed image is lifted out of its text paragraph",
+      !/<p[^>]*>\s*<img[^>]*class="vivlio-bleed"/.test(bleedingHtml),
+      bleedingHtml,
+    ),
+    check(
+      "a bleed image is not sized back into the text block",
+      !/<img[^>]*class="vivlio-bleed"[^>]*style=/.test(bleedingHtml),
+      bleedingHtml,
+    ),
+    check(
+      "a manuscript element can carry a full-page ground colour",
+      /<div class="vivlio-bleed" style="background: #123456"><\/div>/.test(bleedingHtml),
+      bleedingHtml,
+    ),
+    check(
+      "preflight measures the picture across both bleed edges",
+      Math.abs((bleedingAsset?.displayWidthPx ?? 0) - (111 / 25.4) * 96) < 0.1 &&
+        bleedingIssues.some((issue) => issue.message.includes("fig.png")),
+      `${String(bleedingAsset?.displayWidthPx)}; ${bleedingIssues.map((issue) => issue.message).join(" | ")}`,
     ),
   );
 
@@ -768,8 +816,21 @@ async function main(): Promise<void> {
     check(
       "marks leave the sheet alone",
       markedCss.includes("--vs-page--size: A5;") &&
-        markedCss.includes("--vs-page--bleed: 3mm;"),
+        markedCss.includes("--vs-page--bleed: 3mm;") &&
+        markedCss.includes("--vivlio-bleed-offset: 3mm;"),
       markedCss.slice(0, 300),
+    ),
+    check(
+      "unmarked bleed already lives inside the enlarged sheet",
+      bledCss.includes("--vivlio-bleed-offset: 0mm;"),
+      bledCss.slice(0, 300),
+    ),
+    check(
+      "marked cover and body artwork cross the trim line",
+      markedCss.includes("--vivlio-bleed-width: 154.000mm;") &&
+        markedCss.includes("--vivlio-bleed-height: 216.000mm;") &&
+        markedCss.includes("margin: calc(var(--vivlio-bleed-offset) * -1);"),
+      markedCss.slice(markedCss.indexOf("@page vivlio-bleed"), markedCss.indexOf("@page cover")),
     ),
     // A length the plugin cannot measure is left alone rather than guessed at.
     check(

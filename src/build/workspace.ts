@@ -40,6 +40,8 @@ export interface AssetRef {
   height?: number;
   /** Widest on-paper placement requested for this asset, in px (dpi check). */
   displayWidthPx?: number;
+  /** At least one placement runs from one bleed edge to the other. */
+  fullBleed?: boolean;
   /** Human-readable origin, used in warnings. */
   label: string;
 }

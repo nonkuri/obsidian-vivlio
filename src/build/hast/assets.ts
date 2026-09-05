@@ -3,9 +3,11 @@ import { warn, type BuildContext } from "../context";
 import { textBlockMm, type TextBlockMm } from "../css";
 import { mmToPx, pxToMm } from "../../util/imageSize";
 import type { ImageWidthUnit } from "../../config/types";
+import { pageWidthMm } from "../../config/defaults";
 import {
   addClass,
   element,
+  hasClass,
   isElement,
   replaceTextNodes,
   text,
@@ -35,6 +37,8 @@ interface SizeHint {
   /** The unit written on this image; null follows the book's `imageWidthUnit`. */
   unit: ImageWidthUnit | null;
   caption: string | null;
+  /** A full-page picture which reaches the outer edge of the bleed. */
+  bleed: boolean;
 }
 
 /**
@@ -54,6 +58,7 @@ export function assetsPlugin(context: BuildContext, sourcePath: string) {
         });
       }
       rewriteImageElements(context, sourcePath, tree);
+      liftBleedImageParagraphs(tree);
     };
   };
 }
@@ -122,10 +127,10 @@ function rewriteImageElements(
     // Obsidian puts the size in the alt text: ![alt|300](fig.png)
     const alt = String(image.properties.alt ?? "");
     const pipe = alt.lastIndexOf("|");
-    let size: SizeHint = { width: null, height: null, unit: null, caption: null };
+    let size: SizeHint = emptySizeHint();
     if (pipe !== -1) {
       const parsed = parseSize(alt.slice(pipe + 1));
-      if (parsed.width !== null) {
+      if (parsed.width !== null || parsed.bleed) {
         size = parsed;
         image.properties.alt = alt.slice(0, pipe);
       }
@@ -159,8 +164,28 @@ function imageNode(context: BuildContext, file: TFile, size: SizeHint): UElement
     src: srcFor(context, asset),
     alt: size.caption ?? "",
   });
+  if (size.bleed) addClass(image, "vivlio-bleed");
   applySize(context, image, size, asset);
   return image;
+}
+
+/**
+ * An image-only Markdown paragraph is only parser scaffolding. Keeping it
+ * around would make the paragraph, rather than the picture, enter the named
+ * full-bleed page and leave the picture constrained by that paragraph's box.
+ */
+function liftBleedImageParagraphs(tree: UNode): void {
+  visit(tree, (node, index, parent) => {
+    if (!isElement(node, "p") || !parent || !Array.isArray(parent.children)) return;
+    const content = (node.children ?? []).filter(
+      (child) =>
+        child.type !== "text" ||
+        (typeof child.value === "string" && child.value.trim() !== ""),
+    );
+    if (content.length !== 1 || !isElement(content[0], "img")) return;
+    if (!hasClass(content[0], "vivlio-bleed")) return;
+    parent.children.splice(index, 1, content[0]);
+  });
 }
 
 function placeholder(label: string): UElement {
@@ -268,11 +293,23 @@ export function srcFor(context: BuildContext, asset: AssetRef): string {
  */
 function parseSize(suffix: string): SizeHint {
   const value = suffix.trim();
-  const none: SizeHint = { width: null, height: null, unit: null, caption: null };
+  const none = emptySizeHint();
   if (!value) return none;
 
+  // A full-bleed image is a page, not a figure in the text block. It has no
+  // requested width: the generated page rule supplies the physical size.
+  if (value.toLowerCase() === "bleed") return { ...none, bleed: true };
+
   const box = value.match(/^(\d+)x(\d+)$/);
-  if (box) return { width: Number(box[1]), height: Number(box[2]), unit: null, caption: null };
+  if (box) {
+    return {
+      width: Number(box[1]),
+      height: Number(box[2]),
+      unit: null,
+      caption: null,
+      bleed: false,
+    };
+  }
 
   const sized = value.match(/^(\d+(?:\.\d+)?)(%|mm|px)?$/);
   if (!sized) return { ...none, caption: value };
@@ -281,7 +318,12 @@ function parseSize(suffix: string): SizeHint {
     height: null,
     unit: sized[2] ? UNIT_BY_SUFFIX[sized[2]] : null,
     caption: null,
+    bleed: false,
   };
+}
+
+function emptySizeHint(): SizeHint {
+  return { width: null, height: null, unit: null, caption: null, bleed: false };
 }
 
 const UNIT_BY_SUFFIX: Record<string, ImageWidthUnit> = {
@@ -317,6 +359,17 @@ function applySize(
   size: SizeHint,
   asset: AssetRef,
 ): void {
+  // Full-bleed pictures are deliberately outside the text block. This also
+  // covers a raw HTML `<img class="vivlio-bleed">`, not just the wiki syntax.
+  if (hasClass(image, "vivlio-bleed")) {
+    asset.fullBleed = true;
+    const widthMm = fullBleedWidthMm(context);
+    if (widthMm !== null) {
+      asset.displayWidthPx = Math.max(asset.displayWidthPx ?? 0, mmToPx(widthMm));
+    }
+    return;
+  }
+
   const block = textBlockMm(context.config);
   const ratio =
     asset.width && asset.height ? asset.width / asset.height : null;
@@ -355,6 +408,14 @@ function applySize(
 
   addStyle(image, [widthDeclaration(context, widthMm, block), "height: auto"]);
   asset.displayWidthPx = Math.max(asset.displayWidthPx ?? 0, mmToPx(widthMm));
+}
+
+/** Physical width of artwork from one bleed edge to the other. */
+function fullBleedWidthMm(context: BuildContext): number | null {
+  const width = pageWidthMm(context.config.size);
+  if (width === null) return null;
+  const bleed = /^(\d+(?:\.\d+)?)mm$/.exec(context.config.bleed.trim());
+  return width + (bleed ? Number(bleed[1]) * 2 : 0);
 }
 
 /** The width the writer asked for, in millimetres, or null if they did not. */

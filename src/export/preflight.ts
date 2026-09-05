@@ -59,7 +59,10 @@ function checkResolution(context: BuildContext): PreflightIssue[] {
     if (asset.mime === "image/svg+xml") continue;
 
     const widthMm = asset.displayWidthPx ? pxToMm(asset.displayWidthPx) : measure;
-    const dpi = effectiveDpi(asset.width, Math.min(widthMm, measure));
+    // Ordinary images cannot escape the text-block cap. A cover or a body
+    // bleed placement deliberately does, so measuring it as though it stopped
+    // at the block would overstate its effective resolution.
+    const dpi = effectiveDpi(asset.width, asset.fullBleed ? widthMm : Math.min(widthMm, measure));
     if (dpi > 0 && dpi < threshold) {
       issues.push({
         level: "warning",

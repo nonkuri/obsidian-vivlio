@@ -4,6 +4,8 @@ import { htmlDocument } from "./document";
 import { registerVaultAsset, srcFor } from "./hast/assets";
 import { escapeHtml } from "./vfm";
 import type { AssetRef } from "./workspace";
+import { pageWidthMm } from "../config/defaults";
+import { mmToPx } from "../util/imageSize";
 
 export interface CoverResult {
   html: string;
@@ -30,6 +32,13 @@ export function buildCover(context: BuildContext): CoverResult | null {
   }
 
   const asset = registerVaultAsset(context, file);
+  asset.fullBleed = true;
+  const pageWidth = pageWidthMm(config.size);
+  const bleed = /^(\d+(?:\.\d+)?)mm$/.exec(config.bleed.trim());
+  if (pageWidth !== null) {
+    const widthMm = pageWidth + (bleed ? Number(bleed[1]) * 2 : 0);
+    asset.displayWidthPx = Math.max(asset.displayWidthPx ?? 0, mmToPx(widthMm));
+  }
   const body = `<section class="cover" role="doc-cover" id="${DOCUMENT_ANCHOR}">
 <img src="${escapeHtml(srcFor(context, asset))}" alt="">
 </section>`;
