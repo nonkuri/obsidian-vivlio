@@ -31,6 +31,7 @@ import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
 import { baseBookConfig } from "../src/config/defaults";
 import { setLanguage, t, type StringKey } from "../src/i18n";
+import { resolveBookLabels } from "../src/config/labels";
 
 /** The little of a build context that a contents list actually reads. */
 function tocContext(chapters: Chapter[]): BuildContext {
@@ -111,6 +112,42 @@ async function main(): Promise<void> {
   check("vivlio.yaml beats the settings tab", layered.config.tocDepth === 3);
   check("settings fill the gaps", layered.config.size === "A5", layered.config.size);
   check("yaml value survives", layered.config.author === "夏目漱石");
+
+  const labelled = resolveConfig({
+    settings: DEFAULT_SETTINGS,
+    yaml: {
+      lang: "en",
+      labels: { toc: "Table of Contents", colophon: { author: "Written by" } },
+    },
+  });
+  const resolvedLabels = resolveBookLabels(labelled.config);
+  check("book labels can be overridden in YAML", resolvedLabels.toc === "Table of Contents");
+  check("nested label overrides are merged", resolvedLabels.colophon.author === "Written by");
+  check("unoverridden labels still follow the book language", resolvedLabels.colophon.publisher === "Publisher");
+
+  const englishSections = resolveConfig({
+    settings: DEFAULT_SETTINGS,
+    yaml: { lang: "en" },
+  }).config.sections;
+  check(
+    "English books default to a front-matter copyright page",
+    englishSections.copyrightPage === "auto",
+    JSON.stringify(englishSections),
+  );
+  check(
+    "English books do not default to a Japanese-style colophon",
+    englishSections.colophon === "off",
+    JSON.stringify(englishSections),
+  );
+  const explicitEnglishSections = resolveConfig({
+    settings: DEFAULT_SETTINGS,
+    yaml: { lang: "en", sections: { copyrightPage: "off", colophon: "auto" } },
+  }).config.sections;
+  check(
+    "an English book can explicitly choose either publication part",
+    explicitEnglishSections.copyrightPage === "off" && explicitEnglishSections.colophon === "auto",
+    JSON.stringify(explicitEnglishSections),
+  );
 
   // --- flat frontmatter keys --------------------------------------------
   check("camel to kebab", camelToKebab("writingMode") === "writing-mode");
@@ -209,6 +246,7 @@ async function main(): Promise<void> {
       full,
     );
     check("it reaches the keys no step asked about", full.includes("printer:"), full);
+    check("it writes generated labels into the book", /^labels:$/m.test(full), full);
     check(
       "a chosen part is live, the rest are comments",
       /^ {2}preface: まえがき\.md$/m.test(full) && full.includes("#   colophon: auto"),
@@ -233,6 +271,37 @@ async function main(): Promise<void> {
       "an untouched file decides nothing",
       resolveConfig({ settings: DEFAULT_SETTINGS, yaml: empty }).issues.length === 0,
     );
+
+    const englishFile = configToYaml(
+      { lang: "en" },
+      configFromSettings(DEFAULT_SETTINGS),
+      { complete: true },
+    );
+    const englishParsed = loadYaml(englishFile) as Record<string, unknown>;
+    const englishLabels = (englishParsed.labels ?? {}) as Record<string, unknown>;
+    const englishColophon = (englishLabels.colophon ?? {}) as Record<string, unknown>;
+    const englishGeneratedSections = (englishParsed.sections ?? {}) as Record<string, unknown>;
+    check("English books generate an English contents label", englishLabels.toc === "Contents", englishFile);
+    check("English books generate English colophon labels", englishColophon.author === "Author", englishFile);
+    check(
+      "English publication text is generated as a template",
+      englishColophon.issuedEdition === "{version}, published {date}",
+      englishFile,
+    );
+    check(
+      "English YAML generates a copyright page instead of a colophon",
+      englishGeneratedSections.copyrightPage === "auto" &&
+        englishGeneratedSections.colophon === "off",
+      englishFile,
+    );
+
+    const japaneseFile = configToYaml(
+      { lang: "ja" },
+      configFromSettings(DEFAULT_SETTINGS),
+      { complete: true },
+    );
+    const japaneseLabels = ((loadYaml(japaneseFile) as Record<string, unknown>).labels ?? {}) as Record<string, unknown>;
+    check("Japanese books generate a Japanese contents label", japaneseLabels.toc === "目次", japaneseFile);
   }
 
   // --- presets -----------------------------------------------------------
@@ -240,6 +309,21 @@ async function main(): Promise<void> {
   // the theme thinks, and one that named a theme the picker does not offer
   // would make a book whose look could not then be adjusted.
   {
+    check(
+      "the English novel preset sets the book language",
+      PRESETS.find((preset) => preset.id === "englishNovel")?.values.lang === "en",
+    );
+    const englishPresetSections = PRESETS.find(
+      (preset) => preset.id === "englishNovel",
+    )?.values.sections;
+    check(
+      "the English novel preset chooses a copyright page rather than a colophon",
+      englishPresetSections?.copyrightPage === "auto" && englishPresetSections.colophon === "off",
+      JSON.stringify(englishPresetSections),
+    );
+    check("6x9 trade trim resolves to 152.4 mm wide", pageWidthMm("6x9") === 152.4);
+    check("6x9 trade trim resolves to 228.6 mm high", pageHeightMm("6x9") === 228.6);
+
     const unmeasured = PRESETS.filter(
       (preset) =>
         preset.values.size !== undefined &&
@@ -271,7 +355,10 @@ async function main(): Promise<void> {
   }
 
   const reference = referenceYaml(DEFAULT_SETTINGS);
-  check("the reference lists every part", reference.includes("colophon:"));
+  check(
+    "the reference lists every part",
+    reference.includes("copyrightPage:") && reference.includes("colophon:"),
+  );
   check("the reference is commented", reference.includes("# "));
   // startPage is resolved and used; it was simply named nowhere the writer
   // could find it.
@@ -302,6 +389,7 @@ async function main(): Promise<void> {
     const parts: Chapter[] = [
       { docName: "cover.html", file: null, title: "本の名", role: "doc-cover", slot: null, isBody: false, isFrontMatter: true },
       { docName: "titlepage.html", file: null, title: "扉", role: null, slot: "titlePage", isBody: false, isFrontMatter: true },
+      { docName: "copyrightpage.html", file: null, title: "Copyright page", role: null, slot: "copyrightPage", isBody: false, isFrontMatter: true },
       { docName: "toc.html", file: null, title: "目次", role: "doc-toc", slot: "toc", isBody: false, isFrontMatter: true },
       { docName: "colophon.html", file: null, title: "奥付", role: "doc-colophon", slot: "colophon", isBody: false, isFrontMatter: false },
     ];
@@ -311,8 +399,8 @@ async function main(): Promise<void> {
     const nav = buildTocEntries(tocContext(parts), parts, "nav");
     check("the printed contents lists none of the covers and closers",
       docs(printed) === "", docs(printed));
-    check("the navigation reaches the cover, the title page and the colophon",
-      docs(nav) === "cover.html titlepage.html colophon.html", docs(nav));
+    check("the navigation reaches the cover, title page, copyright page and colophon",
+      docs(nav) === "cover.html titlepage.html copyrightpage.html colophon.html", docs(nav));
     check("neither lists the contents itself",
       !docs(printed).includes("toc.html") && !docs(nav).includes("toc.html"));
     // The cover would otherwise carry the book's title, same as the title page.

@@ -23,13 +23,14 @@
 |---|---|
 | `vivlio:novel` | Vivlio 用に調整した日本語小説テーマ。縦組みの出発点 |
 | `vivlio:novel-2col` | 上を二段組にしたもの。B6・A5・新書の出発点 |
+| `vivlio:english-novel` | 6×9 インチの欧米向け英語小説。横組みの出発点 |
 | `vivlio:manual` | Vivlio 用の横組みテーマ。マニュアル・技術書の出発点 |
 | `vivlio:base` | Vivliostyle theme-base |
 | `vivlio:bunko` | Vivliostyle theme-bunko |
 | `vivlio:techbook` | Vivliostyle theme-techbook |
 | `vivlio:academic` | Vivliostyle theme-academic |
 
-テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel`（縦組み）、`novel-2col`（縦組み二段組）、`manual`（横組み）だけです。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
+テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel`（縦組み）、`novel-2col`（縦組み二段組）、`english-novel`（英語小説の横組み）、`manual`（横組み）です。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
 
 ## 最初の自作テーマ
 
@@ -175,6 +176,7 @@ theme: 装丁/遠雷.css
 | `p.vivlio-no-indent` | 字下げしない段落 |
 | `.vivlio-rendered` | Mermaid / Dataview 等の描画結果 |
 | `.titlepage` / `.halftitle` | 扉 / 半扉 |
+| `.copyright-page` / `.copyright-page-content` | 英語書籍の著作権・発行情報ページ |
 | `[role='doc-toc']` | 目次 |
 | `[role='doc-colophon']` | 奥付 |
 

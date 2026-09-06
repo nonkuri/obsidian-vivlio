@@ -8,6 +8,7 @@ import {
   type VivlioSettings,
 } from "./types";
 import { detectLocale } from "../i18n";
+import { defaultBookLabels, resolveBookLabels } from "./labels";
 
 type Locale = "ja" | "en";
 
@@ -62,6 +63,12 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
     en: "Language of the book (ja / en). Sets the typesetting language, and how the colophon writes its date",
   },
   version: { group: "book", ja: "版（第二版・改訂版など）", en: "Edition (e.g. second edition)" },
+  labels: {
+    group: "book",
+    yamlOnly: true,
+    ja: "自動生成ページの文字。lang に応じて作られ、目次見出し・著作権表示・奥付ラベルなどを本ごとに変更できる",
+    en: "Text on generated pages. Created from `lang`; customize contents headings, copyright-page text and colophon labels per book",
+  },
   colophonExtra: {
     group: "book",
     yamlOnly: true,
@@ -71,8 +78,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
 
   theme: {
     group: "layout",
-    ja: "テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス",
-    en: "Theme: novel (a vertical novel) | novel-2col (a vertical novel in two columns) | manual (a horizontal manual or tech book) | the path of a .css file in the vault",
+    ja: "テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス",
+    en: "Theme: novel (a vertical novel) | novel-2col (a vertical novel in two columns) | english-novel (an English trade paperback) | manual (a horizontal manual or tech book) | the path of a .css file in the vault",
   },
   writingMode: {
     group: "layout",
@@ -81,8 +88,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   },
   size: {
     group: "layout",
-    ja: "判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | JIS-B5 | B5 | A4 | letter | \"128mm 188mm\"",
-    en: "Page size: 文庫 (A6, 105x148mm) | 新書 | JIS-B6 | A5 | JIS-B5 | B5 | A4 | letter | \"128mm 188mm\"",
+    ja: "判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | JIS-B5 | B5 | A4 | 6x9 | letter | \"128mm 188mm\"",
+    en: "Page size: 文庫 (A6, 105x148mm) | 新書 | JIS-B6 | A5 | JIS-B5 | B5 | A4 | 6x9 | letter | \"128mm 188mm\"",
   },
   charsPerLine: {
     group: "layout",
@@ -174,8 +181,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   sections: {
     group: "structure",
     yamlOnly: true,
-    ja: "前付け・後付け。auto（プラグインが作る。半扉・扉・目次・奥付のみ）| 中身にするノートのパス | off",
-    en: "Front and back matter. auto (generated; half title, title page, contents and colophon only) | the path of a note to use | off",
+    ja: "前付け・後付け。auto（プラグインが作る。半扉・扉・著作権表示・目次・奥付のみ）| 中身にするノートのパス | off",
+    en: "Front and back matter. auto (generated; half title, title page, copyright page, contents and colophon only) | the path of a note to use | off",
   },
   pageNumbering: {
     group: "structure",
@@ -319,6 +326,10 @@ export function referenceYaml(settings: VivlioSettings): string {
       }
       continue;
     }
+    if (key === "labels") {
+      lines.push(emit(key, defaultBookLabels(config.lang)));
+      continue;
+    }
     lines.push(emit(key, config[key]));
   }
 
@@ -386,7 +397,23 @@ export function configToYaml(
     if (complete) lines.push(`# ${doc[language]}`);
 
     if (complete && key === "sections") {
-      lines.push(...sectionLines(values.sections ?? {}, defaults.sections));
+      const sections = { ...(values.sections ?? {}) };
+      const lang = String(values.lang || defaults.lang || "ja");
+      if (lang.trim().toLowerCase().startsWith("en")) {
+        sections.copyrightPage ??= "auto";
+        sections.colophon ??= "off";
+      }
+      lines.push(...sectionLines(sections, defaults.sections));
+      continue;
+    }
+    if (complete && key === "labels") {
+      const lang = String(values.lang || defaults.lang || "ja");
+      lines.push(
+        emit(
+          key,
+          resolveBookLabels({ lang, labels: values.labels ?? {} }),
+        ),
+      );
       continue;
     }
     if (chosen) lines.push(emit(key, value));

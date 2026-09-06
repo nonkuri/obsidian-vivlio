@@ -7,7 +7,7 @@ import { flattenBundledTheme, THEME_STYLESHEET } from "../build/theme";
 import { isFontPath, mimeType } from "../util/paths";
 import { throwIfAborted } from "../util/async";
 import type { AssetRef } from "../build/workspace";
-import { t } from "../i18n";
+import { resolveBookLabels } from "../config/labels";
 
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 const EPUB_NS = "http://www.idpf.org/2007/ops";
@@ -305,6 +305,7 @@ function navDocument(
   chapters: Chapter[],
   documents: { id: string; href: string; chapter: Chapter }[],
 ): string {
+  const labels = resolveBookLabels(context.config);
   // An EPUB's navigation is how a reader reaches any part of the file, so it
   // names the cover, the title page and the colophon too - none of which a
   // printed contents page would list.
@@ -316,6 +317,8 @@ function navDocument(
       const fallback =
         entry.chapter.slot === "titlePage"
           ? "titlepage"
+          : entry.chapter.slot === "copyrightPage"
+            ? "copyright-page"
           : entry.chapter.isBody
             ? undefined
             : undefined;
@@ -339,12 +342,12 @@ function navDocument(
 <html xmlns="${XHTML_NS}" xmlns:epub="${EPUB_NS}" lang="${escapeXml(context.config.lang)}">
 <head>
   <meta charset="utf-8"/>
-  <title>${escapeXml(t("toc.heading"))}</title>
+  <title>${escapeXml(labels.toc)}</title>
   <link rel="stylesheet" type="text/css" href="${BOOK_STYLESHEET}"/>
 </head>
 <body>
   <nav epub:type="toc" id="toc" role="doc-toc">
-    <h1>${escapeXml(t("toc.heading"))}</h1>
+    <h1>${escapeXml(labels.toc)}</h1>
 ${items}
   </nav>
   <nav epub:type="landmarks" hidden="hidden">
@@ -380,6 +383,7 @@ function packageDocument(
   assets: { id: string; href: string; mime: string; isCover: boolean }[],
 ): string {
   const { config } = context;
+  const labels = resolveBookLabels(config);
   const identifier = `urn:uuid:${uuidFrom(`${config.title}:${config.author}:${config.date}`)}`;
   const modified = new Date().toISOString().replace(/\.\d+Z$/, "Z");
 
@@ -407,7 +411,7 @@ function packageDocument(
 
   const meta: string[] = [
     `    <dc:identifier id="pub-id">${identifier}</dc:identifier>`,
-    `    <dc:title>${escapeXml(config.title || t("book.untitled"))}</dc:title>`,
+    `    <dc:title>${escapeXml(config.title || labels.untitled)}</dc:title>`,
     `    <dc:language>${escapeXml(config.lang || "ja")}</dc:language>`,
     `    <meta property="dcterms:modified">${modified}</meta>`,
   ];

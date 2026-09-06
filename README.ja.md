@@ -80,7 +80,7 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel、novel-2col、manual、または Vault 内の CSS のパス（「テーマを自作する」参照）
+theme: novel              # novel、novel-2col、english-novel、manual、または Vault 内の CSS のパス
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -120,6 +120,22 @@ vivlio-size: 文庫
 ノート自身の `title` も読むので、1 つのノートを単独で書き出すぶんには `vivlio-title` は要りません。書名とノートのタイトルを分けたいときに `vivlio-title` を書きます（そちらが優先されます）。`Vivlio: このノートに設定を追加` が挿入するのはこの形です。このコマンドが提示するキーはすべて `vivlio-` を付けた名前になるためです。
 
 `Vivlio: 本の設定を作成` は、これらのキーを一つずつ尋ねたうえで**全キーを書き出します**。**既定値を使う**のままにしたキーはコメント行として書かれるので、ファイルはその本に何が指定できるかの一覧を兼ね、しかも本は Vault の既定に追従し続けます。`#` を消せば、その項目だけこの本のものになります。
+
+欧米向けの英語小説は、ウィザードで英語小説のプリセットを選ぶか、次の設定から始められます。
+
+```yaml
+lang: en
+theme: english-novel
+writingMode: horizontal-tb
+size: 6x9
+sections:
+  titlePage: auto
+  copyrightPage: auto
+  toc: auto
+  colophon: off
+```
+
+英語本では、文章形式の copyright page を扉の直後に置き、日本語式の奥付 `colophon` は独立した任意の巻末部位として扱います。両方を省略した場合、`lang: en` なら上記の値が既定になります。ウィザードは目次見出しや copyright page の文章を含む `labels:` も選択言語に合わせて書き出すので、テーマを変更せず文言だけ編集できます。
 
 ```yaml
 # --- 組版 ---
@@ -187,7 +203,7 @@ linesPerPage: 17   # 1 段の行数
 
 セットアップウィザードのプリセットにも「新書 縦組み二段組」「B6 縦組み二段組」「A5 縦組み二段組」が並びます。判型と段数から本文の文字サイズが逆算されるので、字詰めと行数を書き換えれば紙面はそれに追従します。
 
-扉・目次・奥付・表紙は段組にしません。段に割れた奥付は奥付ではないからです。脚注（`gcpm`）はページの地、両方の段にまたがって置かれます。
+扉・copyright page・目次・奥付・表紙は段組にしません。段に割れた奥付は奥付ではないからです。脚注（`gcpm`）はページの地、両方の段にまたがって置かれます。
 
 段組の本文に表がある場合は警告が出ます。狭い段ではセル内の文字が極端に折り返されたり、表が紙面からはみ出したりするためです。警告は書き出しを止めないので、プレビューで確認し、収まらなければその原稿を一段組にしてください。EPUB は段組を解除するため、この警告を出しません。
 
@@ -214,11 +230,11 @@ linesPerPage: 17   # 1 段の行数
 theme: 装丁/私の本.css
 ```
 
-テーマの選択欄には、このプラグインのために作られた 3 つのテーマ —— `novel`（小説を縦組みで）、`novel-2col`（小説を縦組み二段組で）、`manual`（マニュアル・技術書を横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
+テーマの選択欄には、このプラグインのために作られた 4 つのテーマ —— `novel`（小説を縦組みで）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
 
 これ以外の `@import` は通常の取り込みで、書いたファイルからの相対パスとして Vault から読まれます。各ファイルは一度だけ辿るので、import が輪になっていても問題ありません。使う前に 1 枚のスタイルシートに畳まれるので、プレビューと EPUB がまったく同じ内容を読みます。
 
-書くときに知っておくとよいクラス: `.boten`、`.tcy`、`.callout` と `.callout-<種別>`、`.task-list`、`.vivlio-page-break`、`.vivlio-blank-lines`、`.vivlio-no-indent`、`.vivlio-rendered`。
+書くときに知っておくとよいクラス: `.boten`、`.tcy`、`.callout` と `.callout-<種別>`、`.task-list`、`.vivlio-page-break`、`.vivlio-blank-lines`、`.vivlio-no-indent`、`.vivlio-rendered`、`.copyright-page`、`.copyright-page-content`。
 
 ## ビルド
 

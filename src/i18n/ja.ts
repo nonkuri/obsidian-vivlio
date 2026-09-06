@@ -122,6 +122,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "preset.shinsho2": "新書 縦組み二段組（1段 24字×14行）",
   "preset.b62col": "B6 縦組み二段組（1段 23字×17行）",
   "preset.a52col": "A5 縦組み二段組（1段 26字×19行）",
+  "preset.englishNovel": "英語小説（6×9インチ・横組み）",
   "preset.manual": "マニュアル・技術書（A5 横組み）",
   "preset.custom": "カスタム",
 
@@ -141,7 +142,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.defaultPreset.desc": "本の設定を新規に作るときの初期値。",
   "settings.theme": "既定テーマ",
   "settings.theme.desc":
-    "同梱テーマは novel（縦組みの小説）と manual（横組みのマニュアル・技術書）の 2 つです。Vault のどこかに .css ファイルを置けば、そのパスでこの一覧に並びます —— 自作テーマは冒頭に @import url(\"vivlio:novel\"); と書けば、一から書かずに同梱テーマを土台にできます。",
+    "同梱テーマは novel、novel-2col、english-novel、manual の 4 つです。english-novel は欧米の英語小説向けです。Vault のどこかに .css ファイルを置けば、そのパスでこの一覧に並びます —— 自作テーマは vivlio: 形式の import で同梱テーマを土台にできます。",
   "settings.size": "既定用紙サイズ",
   "settings.writingMode": "既定書字方向",
   "settings.writingMode.vertical-rl": "縦組み・右から左へ読み進む（vertical-rl）",
@@ -182,6 +183,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "paper.jisB5": "B5・JIS（182×257mm）",
   "paper.b5": "B5・ISO（176×250mm）",
   "paper.a4": "A4（210×297mm）",
+  "paper.6x9": "トレード・ペーパーバック（6×9インチ・152×229mm）",
   "paper.letter": "レター（216×279mm）",
   "settings.footnote": "既定の脚注モード",
   "settings.footnote.desc": "脚注をどこに、どんなマークアップで出すか。",
@@ -290,6 +292,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "section.titlePage": "扉",
   "section.titlePage.desc":
     "本の顔になるページ。シリーズ名・書名・副題を掲げ、その下に著者名と発行所を置きます。",
+  "section.copyrightPage": "著作権表示",
+  "section.copyrightPage.desc":
+    "英語書籍で扉の直後に置く、著者・版・発行所・権利情報のページ。",
   "section.dedication": "献辞",
   "section.dedication.desc": "「〜に捧ぐ」の一行を、一ページ使って置きます。",
   "section.epigraph": "題辞",
@@ -312,6 +317,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "book.untitled": "無題",
   "theme.novel": "novel —— 小説を縦組みで",
   "theme.novel-2col": "novel-2col —— 小説を縦組み二段組で",
+  "theme.english-novel": "english-novel —— 英語小説を欧米のペーパーバック風に",
   "theme.manual": "manual —— マニュアル・技術書を横組みで",
 
   "book.theme": "テーマ",

@@ -17,7 +17,12 @@ import {
 import { bundledThemePath } from "../src/vendor/assets";
 import { BOOK_STYLESHEET } from "../src/build/vfm";
 import { buildTocEntries, tocDocument, TOC_FRONT_MATTER_CLASS } from "../src/build/toc";
-import { colophonDocument, titlePageDocument } from "../src/build/sections";
+import {
+  colophonDocument,
+  copyrightPageDocument,
+  englishPublicationDate,
+  titlePageDocument,
+} from "../src/build/sections";
 import { japaneseDate, kanjiDate } from "../src/util/kanji";
 import JSZip from "jszip";
 import { epubStylesheet } from "../src/export/epub";
@@ -755,7 +760,7 @@ async function main(): Promise<void> {
     check(
       "the pages before the contents carry no folio",
       blind.includes(
-        `@page titlepage, halftitle, dedication, epigraph, colophon {
+        `@page titlepage, halftitle, copyrightpage, dedication, epigraph, colophon {
   --vs-page--mbox-visibility: hidden;`,
       ),
       blind.slice(blind.indexOf("@page titlepage")),
@@ -773,7 +778,7 @@ async function main(): Promise<void> {
   checks.push(
     check(
       "a chapter can be made to open on one side",
-      /h2,\s*#vivlio-start:not\(\.cover\) > :first-child,\s*#toc > :first-child,\s*\.halftitle > :first-child \{\s*break-before: left;/.test(
+      /h2,\s*#vivlio-start:not\(\.cover\):not\(\.copyright-page\) > :first-child,\s*#toc > :first-child,\s*\.halftitle > :first-child \{\s*break-before: left;/.test(
         sidedCss,
       ),
       sidedCss.slice(sidedCss.indexOf("break-before: left") - 120),
@@ -783,7 +788,7 @@ async function main(): Promise<void> {
     // open for it, so the break has to go one box further in.
     check(
       "the break goes inside the part, not on it",
-      sidedCss.includes("#vivlio-start:not(.cover) > :first-child"),
+      sidedCss.includes("#vivlio-start:not(.cover):not(.copyright-page) > :first-child"),
     ),
     check("and a book that says nothing is not broken at all", !anySide.includes("break-before: left")),
     // The leaf that goes in is a page of the book, and carries nothing.
@@ -979,6 +984,64 @@ async function main(): Promise<void> {
     ),
   );
 
+  const copyright = makeContext();
+  copyright.config.lang = "en";
+  copyright.config.writingMode = "horizontal-tb";
+  copyright.config.startSide = "right";
+  copyright.config.title = "The Adventures of Sherlock Holmes";
+  copyright.config.author = "Arthur Conan Doyle";
+  copyright.config.publisher = "nonkuri eBook";
+  copyright.config.website = "https://note.com/nonkuri_yubiri";
+  copyright.config.date = "2026-09-06";
+  copyright.config.version = "First published in 2026";
+  const copyrightHtml = copyrightPageDocument(copyright);
+  checks.push(
+    check(
+      "the English copyright page is prose, not a colophon table",
+      copyrightHtml.includes("<p class=\"copyright-title\">The Adventures of Sherlock Holmes</p>") &&
+        copyrightHtml.includes("<p class=\"copyright-byline\">By Arthur Conan Doyle</p>") &&
+        copyrightHtml.includes(
+          '<p class="copyright-publication">This edition published September 6, 2026 by nonkuri eBook</p>',
+        ) &&
+        !copyrightHtml.includes("<dl") &&
+        !copyrightHtml.includes("<dt>"),
+      copyrightHtml,
+    ),
+    check(
+      "the copyright page links the publisher website",
+      copyrightHtml.includes(
+        '<a href="https://note.com/nonkuri_yubiri">https://note.com/nonkuri_yubiri</a>',
+      ),
+      copyrightHtml,
+    ),
+    check(
+      "the copyright page carries EPUB copyright semantics",
+      copyrightHtml.includes('epub:type="copyright-page"'),
+      copyrightHtml,
+    ),
+    check(
+      "an ISO publication date becomes long-form English",
+      englishPublicationDate("2026-09-06") === "September 6, 2026" &&
+        englishPublicationDate("not a date") === "not a date" &&
+        englishPublicationDate("2026-02-31") === "2026-02-31",
+    ),
+  );
+
+  const copyrightCss = bookStylesheet(copyright, "x.css");
+  checks.push(
+    check(
+      "the copyright page has its own unnumbered named page",
+      copyrightCss.includes(".copyright-page {\n  page: copyrightpage;") &&
+        copyrightCss.includes("@page titlepage, halftitle, copyrightpage"),
+      copyrightCss.slice(copyrightCss.indexOf(".copyright-page"), copyrightCss.indexOf(".copyright-page") + 500),
+    ),
+    check(
+      "start-side does not push the copyright page away from the title-page verso",
+      copyrightCss.includes(":not(.copyright-page) > :first-child"),
+      copyrightCss.slice(copyrightCss.indexOf("break-before: right") - 200),
+    ),
+  );
+
   // The colophon: a head naming the book, then only the lines the book has.
   const colophon = makeContext();
   colophon.config.title = "テスト本";
@@ -1020,12 +1083,52 @@ async function main(): Promise<void> {
   const english = makeContext();
   english.config.writingMode = "horizontal-tb";
   english.config.lang = "en";
+  english.config.title = "English book";
+  english.config.author = "Jane Writer";
+  english.config.publisher = "Example Press";
   english.config.date = "2026-09-02";
+  english.config.version = "First edition";
+  const englishColophon = colophonDocument(english);
+  const englishToc = tocDocument(english, english.chapters);
   checks.push(
     check(
       "a book in another language keeps the date it wrote",
-      colophonDocument(english).includes("2026-09-02"),
-      colophonDocument(english),
+      englishColophon.includes("2026-09-02"),
+      englishColophon,
+    ),
+    check(
+      "generated contents follows the book language, not the Japanese UI",
+      englishToc.includes("<h1>Contents</h1>") && !englishToc.includes("目次"),
+      englishToc,
+    ),
+    check(
+      "generated colophon labels follow the book language",
+      englishColophon.includes("<dt>Author</dt>") &&
+        englishColophon.includes("<dt>Publisher</dt>") &&
+        englishColophon.includes("First edition, published 2026-09-02") &&
+        !englishColophon.includes("発行"),
+      englishColophon,
+    ),
+  );
+
+  english.config.labels = {
+    toc: "Table of Contents",
+    colophon: {
+      author: "Written by",
+      issuedEdition: "Released {date} — {version}",
+    },
+  };
+  const customEnglishColophon = colophonDocument(english);
+  checks.push(
+    check(
+      "YAML can override the generated contents heading",
+      tocDocument(english, english.chapters).includes("<h1>Table of Contents</h1>"),
+    ),
+    check(
+      "YAML can override colophon labels and publication text",
+      customEnglishColophon.includes("<dt>Written by</dt>") &&
+        customEnglishColophon.includes("Released 2026-09-02 — First edition"),
+      customEnglishColophon,
     ),
   );
 

@@ -42,6 +42,7 @@ export type Language = "ja" | "en" | "auto";
 export const SECTION_SLOTS = [
   "halfTitle",
   "titlePage",
+  "copyrightPage",
   "dedication",
   "epigraph",
   "toc",
@@ -60,6 +61,7 @@ export type SectionSlot = (typeof SECTION_SLOTS)[number];
 export const AUTO_CAPABLE_SLOTS: SectionSlot[] = [
   "halfTitle",
   "titlePage",
+  "copyrightPage",
   "toc",
   "colophon",
 ];
@@ -68,6 +70,7 @@ export const AUTO_CAPABLE_SLOTS: SectionSlot[] = [
 export const FRONT_MATTER_SLOTS: SectionSlot[] = [
   "halfTitle",
   "titlePage",
+  "copyrightPage",
   "dedication",
   "epigraph",
   "toc",
@@ -141,6 +144,63 @@ export interface ColophonEntry {
   value: string;
 }
 
+/** Text inserted by the generated front and back matter. */
+export interface BookLabels {
+  /** Fallback used when a generated page has no book title. */
+  untitled: string;
+  /** Name used for a cover in generated navigation. */
+  cover: string;
+  /** Name used for a generated half title in navigation. */
+  halfTitle: string;
+  /** Name used for a generated title page in navigation. */
+  titlePage: string;
+  /** Heading of the generated table of contents. */
+  toc: string;
+  /** Role appended to an author on a title page that also has a translator. */
+  authorRole: string;
+  /** Role appended to a translator on the title page. */
+  translatorRole: string;
+  copyrightPage: {
+    /** Accessible/document title of the generated copyright page. */
+    heading: string;
+    /** Author line. Supports `{author}`. */
+    by: string;
+    /** Translator line. Supports `{translator}`. */
+    translatedBy: string;
+    /** Publication statement. Supports `{date}` and `{version}`. */
+    published: string;
+    /** Publisher-only statement. Supports `{publisher}`. */
+    publisher: string;
+    /** Publication statement with a publisher. Also supports `{publisher}`. */
+    publishedBy: string;
+  };
+  colophon: {
+    /** Accessible/document title of the generated colophon. */
+    heading: string;
+    author: string;
+    translator: string;
+    publisher: string;
+    printer: string;
+    /** Publication line. `{date}` is replaced with the configured date. */
+    issued: string;
+    /** Publication line when an edition is present. Supports `{date}` and `{version}`. */
+    issuedEdition: string;
+  };
+}
+
+/** A YAML file may override only the generated strings it needs to change. */
+export interface BookLabelOverrides {
+  untitled?: string;
+  cover?: string;
+  halfTitle?: string;
+  titlePage?: string;
+  toc?: string;
+  authorRole?: string;
+  translatorRole?: string;
+  copyrightPage?: Partial<BookLabels["copyrightPage"]>;
+  colophon?: Partial<BookLabels["colophon"]>;
+}
+
 /**
  * A fully resolved book configuration. Every field is required here; the
  * layers above hand in `Partial<BookConfig>` and `resolveConfig` fills the
@@ -164,6 +224,8 @@ export interface BookConfig {
   date: string;
   lang: string;
   version: string;
+  /** Language defaults plus per-book overrides are resolved at render time. */
+  labels: BookLabelOverrides;
   /**
    * Lines the book adds to its own colophon (SPEC 5.11).
    *

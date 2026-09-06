@@ -123,6 +123,7 @@ export const en = {
   "preset.shinsho2": "Shinsho 103 × 182 mm, vertical, two columns (24 x 14 each)",
   "preset.b62col": "B6, vertical, two columns (23 x 17 each)",
   "preset.a52col": "A5, vertical, two columns (26 x 19 each)",
+  "preset.englishNovel": "English novel (6 × 9 in, horizontal)",
   "preset.manual": "Manual or tech book (A5, horizontal)",
   "preset.custom": "Custom",
 
@@ -142,7 +143,7 @@ export const en = {
   "settings.defaultPreset.desc": "Starting point for new book configurations.",
   "settings.theme": "Default theme",
   "settings.theme.desc":
-    "Two themes ship with the plugin: novel, for a novel set vertically, and manual, for a manual or tech book set across the page. Put a .css file anywhere in the vault and it joins this list under its own path \u2014 begin it with @import url(\"vivlio:novel\"); to build on a bundled theme rather than from nothing.",
+    "Four themes ship with the plugin: novel and novel-2col for Japanese fiction, english-novel for a western trade paperback, and manual for a manual or tech book. Put a .css file anywhere in the vault and it joins this list under its own path \u2014 use a vivlio: import to build on a bundled theme rather than from nothing.",
   "settings.size": "Default paper size",
   "settings.writingMode": "Default writing mode",
   "settings.writingMode.vertical-rl": "Vertical, read right to left (vertical-rl)",
@@ -183,6 +184,7 @@ export const en = {
   "paper.jisB5": "B5, JIS \u2014 182 \u00d7 257 mm",
   "paper.b5": "B5, ISO \u2014 176 \u00d7 250 mm",
   "paper.a4": "A4 \u2014 210 \u00d7 297 mm",
+  "paper.6x9": "Trade paperback — 6 × 9 in (152 × 229 mm)",
   "paper.letter": "Letter \u2014 216 \u00d7 279 mm",
   "settings.footnote": "Default footnote mode",
   "settings.footnote.desc": "Where a footnote is printed, and how it is marked up.",
@@ -295,6 +297,9 @@ export const en = {
   "section.titlePage": "Title page",
   "section.titlePage.desc":
     "The book's own front page: the series, the title and the subtitle, with the author and the publisher below them.",
+  "section.copyrightPage": "Copyright page",
+  "section.copyrightPage.desc":
+    "Publication and rights information placed after the title page in an English-language book.",
   "section.dedication": "Dedication",
   "section.dedication.desc": "The \u201cfor \u2026\u201d line, on a page to itself.",
   "section.epigraph": "Epigraph",
@@ -318,6 +323,7 @@ export const en = {
   "book.untitled": "Untitled",
   "theme.novel": "novel — a novel, set vertically",
   "theme.novel-2col": "novel-2col — a novel, set vertically in two columns",
+  "theme.english-novel": "english-novel — an English trade paperback",
   "theme.manual": "manual — a manual or tech book, set across the page",
 
   "book.theme": "Theme",

@@ -3,8 +3,8 @@ import { warn, type BuildContext } from "./context";
 import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
 import { DOCUMENT_ANCHOR } from "./toc";
-import { t } from "../i18n";
 import { japaneseDate, kanjiDate } from "../util/kanji";
+import { formatBookLabel, resolveBookLabels } from "../config/labels";
 import {
   AUTO_CAPABLE_SLOTS,
   FRONT_MATTER_SLOTS,
@@ -86,13 +86,14 @@ export function planSections(context: BuildContext): SectionPlan[] {
 /** `title` alone, on its own page. */
 export function halfTitleDocument(context: BuildContext, resetPage = false): string {
   const { config } = context;
+  const labels = resolveBookLabels(config);
   return htmlDocument({
     writingMode: config.writingMode,
     lang: config.lang,
-    title: config.title || t("book.untitled"),
+    title: config.title || labels.untitled,
     rootClass: "vivlio-front-matter",
     body: `<section class="halftitle vivlio-front${resetPage ? " vivlio-page-reset" : ""}">
-<p class="title">${escapeHtml(config.title || t("book.untitled"))}</p>
+<p class="title">${escapeHtml(config.title || labels.untitled)}</p>
 </section>`,
   });
 }
@@ -113,10 +114,11 @@ function named(cls: string, name: string, role: string): string {
 
 export function titlePageDocument(context: BuildContext, resetPage = false): string {
   const { config } = context;
+  const labels = resolveBookLabels(config);
   const parts: string[] = [];
 
   if (config.series) parts.push(`<p class="series">${escapeHtml(config.series)}</p>`);
-  parts.push(`<p class="title">${escapeHtml(config.title || t("book.untitled"))}</p>`);
+  parts.push(`<p class="title">${escapeHtml(config.title || labels.untitled)}</p>`);
   if (config.subtitle) parts.push(`<p class="subtitle">${escapeHtml(config.subtitle)}</p>`);
 
   // A name on its own is the author, and a Japanese title page says so by
@@ -126,10 +128,10 @@ export function titlePageDocument(context: BuildContext, resetPage = false): str
   const translated = Boolean(config.translator);
   const byline: string[] = [];
   if (config.author) {
-    byline.push(named("author", config.author, translated ? t("role.author") : ""));
+    byline.push(named("author", config.author, translated ? labels.authorRole : ""));
   }
   if (config.translator) {
-    byline.push(named("translator", config.translator, t("role.translator")));
+    byline.push(named("translator", config.translator, labels.translatorRole));
   }
 
   const imprint: string[] = [];
@@ -142,9 +144,120 @@ export function titlePageDocument(context: BuildContext, resetPage = false): str
   return htmlDocument({
     writingMode: config.writingMode,
     lang: config.lang,
-    title: config.title || t("book.untitled"),
+    title: config.title || labels.untitled,
     rootClass: "vivlio-front-matter",
     body: `<section class="titlepage vivlio-front${resetPage ? " vivlio-page-reset" : ""}" epub:type="titlepage" id="${DOCUMENT_ANCHOR}">\n${parts.join("\n")}\n</section>`,
+  });
+}
+
+const ENGLISH_MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
+
+/** Turn an ISO date into the long form used by the English copyright page. */
+export function englishPublicationDate(value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
+  if (!match) return value;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return value;
+  }
+  return `${ENGLISH_MONTHS[month - 1]} ${day}, ${year}`;
+}
+
+/**
+ * The publication/copyright page used by an English-language book.
+ *
+ * Unlike the Japanese colophon, it belongs immediately after the title page
+ * and reads as prose: no label column, no repeated bibliographic table.
+ */
+export function copyrightPageDocument(context: BuildContext, resetPage = false): string {
+  const { config } = context;
+  const labels = resolveBookLabels(config);
+  const text = labels.copyrightPage;
+  const values = {
+    author: config.author,
+    translator: config.translator,
+    publisher: config.publisher,
+    date: config.lang.toLowerCase().startsWith("en")
+      ? englishPublicationDate(config.date)
+      : colophonDate(config),
+    version: config.version,
+  };
+  const lines: string[] = [];
+
+  lines.push(
+    `<p class="copyright-title">${escapeHtml(config.title || labels.untitled)}</p>`,
+  );
+  if (config.author.trim()) {
+    lines.push(
+      `<p class="copyright-byline">${escapeHtml(formatBookLabel(text.by, values))}</p>`,
+    );
+  }
+  if (config.translator.trim()) {
+    lines.push(
+      `<p class="copyright-translator">${escapeHtml(
+        formatBookLabel(text.translatedBy, values),
+      )}</p>`,
+    );
+  }
+  if (values.date || config.publisher.trim()) {
+    const template = values.date
+      ? config.publisher.trim()
+        ? text.publishedBy
+        : text.published
+      : text.publisher;
+    lines.push(
+      `<p class="copyright-publication">${escapeHtml(formatBookLabel(template, values))}</p>`,
+    );
+  }
+  if (config.contact.trim()) {
+    lines.push(`<p class="copyright-contact">${escapeHtml(config.contact)}</p>`);
+  }
+  if (config.website.trim()) {
+    const website = escapeHtml(config.website);
+    const linked = /^(?:https?:\/\/|mailto:)/i.test(config.website.trim())
+      ? `<a href="${website}">${website}</a>`
+      : website;
+    lines.push(`<p class="copyright-website">${linked}</p>`);
+  }
+  for (const entry of config.colophonExtra) {
+    const label = entry.label.trim() ? `${entry.label.trim()}: ` : "";
+    lines.push(
+      `<p class="copyright-extra"><span class="copyright-extra-label">${escapeHtml(
+        label,
+      )}</span>${escapeHtml(entry.value)}</p>`,
+    );
+  }
+
+  return htmlDocument({
+    writingMode: config.writingMode,
+    lang: config.lang,
+    title: text.heading,
+    rootClass: "vivlio-front-matter vivlio-copyright-page",
+    body: `<section class="copyright-page vivlio-front${resetPage ? " vivlio-page-reset" : ""}" epub:type="copyright-page" id="${DOCUMENT_ANCHOR}">
+<div class="copyright-page-content">
+${lines.join("\n")}
+</div>
+</section>`,
   });
 }
 
@@ -176,6 +289,7 @@ function colophonDate(config: BookConfig): string {
 
 export function colophonDocument(context: BuildContext, resetPage = false): string {
   const { config } = context;
+  const labels = resolveBookLabels(config);
 
   // The colophon is written in groups, not as one ladder of labelled lines.
   // Every entry starting at the same point and running the same way is what
@@ -211,8 +325,8 @@ export function colophonDocument(context: BuildContext, resetPage = false): stri
     line(
       published,
       config.version
-        ? t("colophon.issuedEdition", { date, version: config.version })
-        : t("colophon.issued", { date }),
+        ? formatBookLabel(labels.colophon.issuedEdition, { date, version: config.version })
+        : formatBookLabel(labels.colophon.issued, { date }),
     );
   } else if (config.version) {
     line(published, config.version);
@@ -220,21 +334,21 @@ export function colophonDocument(context: BuildContext, resetPage = false): stri
 
   // Who made it.
   const people = group();
-  add(people, t("colophon.author"), config.author);
-  add(people, t("colophon.translator"), config.translator);
+  add(people, labels.colophon.author, config.author);
+  add(people, labels.colophon.translator, config.translator);
 
   // Who published it. The address and the website belong under the publisher
   // rather than beside it: they are how to reach that name, not two more
   // parties to the book, and giving each its own label made the column of
   // labels longer than the column of answers.
   const house = group();
-  add(house, t("colophon.publisher"), config.publisher);
+  add(house, labels.colophon.publisher, config.publisher);
   for (const detail of [config.contact, config.website]) {
     if (detail.trim()) {
       house.push(`<div class="colophon-row colophon-detail"><dd>${escapeHtml(detail)}</dd></div>`);
     }
   }
-  add(house, t("colophon.printer"), config.printer);
+  add(house, labels.colophon.printer, config.printer);
 
   // Whatever else the book wants to name.
   const extra = group();
@@ -245,13 +359,13 @@ export function colophonDocument(context: BuildContext, resetPage = false): stri
     head.push(`<p class="colophon-series">${escapeHtml(config.series)}</p>`);
   }
   head.push(
-    `<p class="colophon-title">${escapeHtml(config.title || t("book.untitled"))}</p>`,
+    `<p class="colophon-title">${escapeHtml(config.title || labels.untitled)}</p>`,
   );
 
   return htmlDocument({
     writingMode: config.writingMode,
     lang: config.lang,
-    title: t("section.colophon"),
+    title: labels.colophon.heading,
     body: `<section role="doc-colophon" id="${DOCUMENT_ANCHOR}"${resetPage ? ' class="vivlio-page-reset"' : ""}>
 <div class="colophon">
 ${head.join("\n")}

@@ -209,10 +209,9 @@ export class SetupWizard extends Modal {
         // Book information the user already typed is kept.
         const { title, subtitle, series, author, translator, publisher, printer } =
           this.values;
-        const { contact, website, date, lang, version, sections } = this.values;
+        const { contact, website, date, lang, version, labels, sections } = this.values;
         this.values = {
           ...findPreset(value)?.values,
-          sections,
           title,
           subtitle,
           series,
@@ -223,8 +222,10 @@ export class SetupWizard extends Modal {
           contact,
           website,
           date,
-          lang,
           version,
+          labels,
+          ...(sections === undefined ? {} : { sections }),
+          ...(lang === undefined ? {} : { lang }),
         };
       });
     });

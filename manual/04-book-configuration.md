@@ -40,7 +40,7 @@ vivlio:
 ---
 ```
 
-**Vivlio: このノートに設定を追加**を実行すると、選択した項目を `vivlio-ケバブケース` の名前で追加します。`sections`、`colophonExtra`、`embedFonts`、`vfm` のような入れ子が必要な項目はこのコマンドに出ず、`vivlio.yaml` へ書きます。
+**Vivlio: このノートに設定を追加**を実行すると、選択した項目を `vivlio-ケバブケース` の名前で追加します。`sections`、`labels`、`colophonExtra`、`embedFonts`、`vfm` のような入れ子が必要な項目はこのコマンドに出ず、`vivlio.yaml` へ書きます。
 
 ## 設定例
 
@@ -73,6 +73,7 @@ coverInPdf: true
 sections:
   halfTitle: off
   titlePage: auto
+  copyrightPage: off
   dedication: 本/遠雷/献辞.md
   toc: auto
   preface: off
@@ -104,7 +105,27 @@ output: _output/遠雷.pdf
 | `date` | `2026-09-04` など | 発行日。`lang` が日本語なら、縦組みは漢数字、横組みは `2026年9月4日` に整形されます。日付として読めない文字列は書いたまま出ます。 |
 | `lang` | `ja` など | 文書の言語。未指定時は `ja`。 |
 | `version` | `初版`、`2` など | 版。 |
-| `colophonExtra` | マッピングまたは配列 | 奥付へ任意行を追加。下記参照。 |
+| `labels` | 入れ子のマッピング | 自動生成する目次・題扉・copyright page・奥付の文字。未指定項目は `lang` に応じて日本語または英語になります。`vivlio.yaml` 専用。 |
+| `colophonExtra` | マッピングまたは配列 | 奥付へ任意行を追加。英語の copyright page では `Label: value` の文章行として追加。下記参照。 |
+
+`labels` は一部だけ上書きできます。`issued` では `{date}`、`issuedEdition` では `{date}` と `{version}` が実際の値に置き換わります。
+
+```yaml
+lang: en
+labels:
+  toc: Table of Contents
+  copyrightPage:
+    by: "By {author}"
+    translatedBy: "Translated by {translator}"
+    published: "This edition published {date}"
+    publisher: "Published by {publisher}"
+    publishedBy: "This edition published {date} by {publisher}"
+  colophon:
+    author: Written by
+    publisher: Published by
+    issued: "Published {date}"
+    issuedEdition: "{version}, published {date}"
+```
 
 `colophonExtra` は短いマッピング形式:
 
@@ -128,9 +149,9 @@ colophonExtra:
 
 | キー | 値・例 | 説明 |
 |---|---|---|
-| `theme` | `novel`、`novel-2col`、`manual`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`novel-2col`（縦組み二段組の小説）、`manual`（横組みのマニュアル・技術書）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
+| `theme` | `novel`、`novel-2col`、`english-novel`、`manual`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`novel-2col`（縦組み二段組の小説）、`english-novel`（英語小説）、`manual`（横組みのマニュアル・技術書）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
 | `writingMode` | `vertical-rl` / `horizontal-tb` | 縦組み / 横組み。 |
-| `size` | `文庫`、`四六判`、`A5`、`128mm 188mm` | 判型。`文庫`・`新書`・`JIS-B6`・`四六判`（127×188mm）・`A5`・`JIS-B5`・`B5`・`A4`・`letter`。`文庫` と `A6` は同じ `105mm 148mm` なので、選択欄には `文庫・A6（105×148mm）` として一つだけ出ます。任意の CSS `size` 値も可。 |
+| `size` | `文庫`、`四六判`、`A5`、`6x9`、`128mm 188mm` | 判型。`文庫`・`新書`・`JIS-B6`・`四六判`（127×188mm）・`A5`・`JIS-B5`・`B5`・`A4`・`6x9`（152.4×228.6mm）・`letter`。`文庫` と `A6` は同じ `105mm 148mm` なので、選択欄には `文庫・A6（105×148mm）` として一つだけ出ます。任意の CSS `size` 値も可。 |
 | `charsPerLine` | 数値 / `null` | 1 行の字数（二段組なら 1 段の字詰め）。`linesPerPage` と組で指定します。 |
 | `linesPerPage` | 数値 / `null` | 1 段の行数（一段組なら 1 ページの行数）。 |
 | `columns` | 1 以上の整数 / `null` | 本文の段数。空はテーマ任せ（`novel-2col` は 2）。上の 2 つは 1 段あたりの数になります。 |
@@ -195,6 +216,7 @@ embedFonts:
 sections:
   halfTitle: auto
   titlePage: auto
+  copyrightPage: off
   dedication: 献辞.md
   epigraph: 題辞.md
   toc: auto
@@ -206,9 +228,11 @@ sections:
   colophon: auto
 ```
 
-各値は `auto`、`off`、ノートパスのいずれかです。ただし `auto` で内容を生成できるのは `halfTitle`、`titlePage`、`toc`、`colophon` だけです。
+各値は `auto`、`off`、ノートパスのいずれかです。ただし `auto` で内容を生成できるのは `halfTitle`、`titlePage`、`copyrightPage`、`toc`、`colophon` だけです。
 
 配置順は上の並びどおりで、`preface` の後に本文、本文の後に `afterword` 以降が続きます。
+
+`lang: en` の本が `copyrightPage` と `colophon` を明示していない場合は、`copyrightPage: auto`、`colophon: off` が既定になります。英語の copyright page は扉の直後（紙の本では扉の裏）に文章形式で置かれます。日本語の本は従来どおり巻末の `colophon` が既定です。両方を明示すれば、言語に関係なく個別にオン・オフできます。
 
 **部位に指定したノートは、本文の章としては組まれません。** 本のフォルダに置いた `まえがき.md` を `preface` に指定しても、同じ文章が二度出ることはありません（`coverPage` も同じです）。
 
@@ -311,15 +335,15 @@ syntax:
 
 ## ウィザードが書き出す `vivlio.yaml`
 
-コマンド **Vivlio: 本の設定を作成**は、ここに挙げたキーを（入れ子が必要な `colophonExtra`、`embedFonts`、`syntax`、`vfm` を除いて）すべて尋ね、**全キーをファイルに書き出します**。
+コマンド **Vivlio: 本の設定を作成**は、ここに挙げたキーを（入れ子が必要な `colophonExtra`、`embedFonts`、`syntax`、`vfm` を除いて）すべて尋ね、**全キーをファイルに書き出します**。`labels` は質問項目にはせず、選択した `lang` に対応する日本語または英語の一式を自動で値として書きます。
 
 どの項目にも **既定値を使う** という選択肢があり、これを選んだキーは**コメント行**として書かれます。
 
 ```yaml
 # --- 組版 ---
-# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス
+# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス
 # theme: novel
-# 判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | ...
+# 判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | 6x9 | ...
 # size: 文庫
 # 1行あたりの文字数（二段組なら1段の字詰め）。空ならテーマが判型と文字サイズから決める
 charsPerLine: 39
@@ -329,6 +353,7 @@ charsPerLine: 39
 - `#` を消せば、その項目だけこの本の値になります。値は隣に書いてあるので、書き換えるだけで済みます。
 - キーごとの説明がコメントとして付くので、このファイル自体が「この本に何が指定できるか」の一覧になります。
 - `sections:` の行だけは、全部位がコメントでも値行として残ります。部位を一つ足すときは、その行の `#` を外すだけで済みます。
+- `labels:` はコメントアウトせず、`lang` に対応する値が入ります。目次見出しや奥付の語句を変えたいときは、その文字列だけ編集します。
 
 ## 設定リファレンスを自動生成する
 

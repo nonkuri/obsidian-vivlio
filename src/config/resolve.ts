@@ -9,6 +9,7 @@ import type {
   VivlioSettings,
 } from "./types";
 import { SECTION_SLOTS } from "./types";
+import { mergeBookLabelOverrides } from "./labels";
 
 /** `writingMode` -> `vivlio-writing-mode` */
 export function camelToKebab(key: string): string {
@@ -153,6 +154,15 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
       config.colophonExtra = colophonEntries(value);
       continue;
     }
+    if (key === "labels") {
+      if (value && typeof value === "object") {
+        config.labels = mergeBookLabelOverrides(
+          config.labels,
+          value,
+        );
+      }
+      continue;
+    }
     if (key === "embedFonts") {
       if (Array.isArray(value)) config.embedFonts = value as BookConfig["embedFonts"];
       continue;
@@ -240,6 +250,17 @@ export interface ResolvedConfig {
   issues: ConfigIssue[];
 }
 
+/** Whether a book-level layer deliberately chose one section's behaviour. */
+function hasSectionChoice(
+  raw: Record<string, unknown> | null | undefined,
+  slot: SectionSlot,
+): boolean {
+  const sections = raw?.sections;
+  if (!sections || typeof sections !== "object" || Array.isArray(sections)) return false;
+  const value = (sections as Record<string, unknown>)[slot];
+  return value !== undefined && value !== null && value !== "";
+}
+
 /** Merge the three configuration layers (SPEC 5.4). Lower layers win. */
 export function resolveConfig(layers: ResolveLayers): ResolvedConfig {
   const config = configFromSettings(layers.settings);
@@ -256,5 +277,24 @@ export function resolveConfig(layers: ResolveLayers): ResolvedConfig {
 
   config.autoTcy = config.syntax.autoTcy && config.autoTcy;
   if (!config.lang) config.lang = "ja";
+
+  // An English copyright page and a Japanese colophon are different parts of
+  // a book, not translations of one another. Apply the English convention to
+  // books that did not make an explicit per-book choice; YAML can still turn
+  // either part on or off independently.
+  if (config.lang.trim().toLowerCase().startsWith("en")) {
+    if (
+      !hasSectionChoice(layers.yaml, "copyrightPage") &&
+      !hasSectionChoice(layers.frontmatter, "copyrightPage")
+    ) {
+      config.sections.copyrightPage = "auto";
+    }
+    if (
+      !hasSectionChoice(layers.yaml, "colophon") &&
+      !hasSectionChoice(layers.frontmatter, "colophon")
+    ) {
+      config.sections.colophon = "off";
+    }
+  }
   return { config, issues };
 }

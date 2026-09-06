@@ -1,0 +1,494 @@
+/*
+ * Vivlio — English novel
+ *
+ * A restrained trade-paperback design for an English-language novel. The
+ * theme is tuned for a 6 x 9 inch sheet, but the page size remains a book
+ * setting so the same design can be used at another trim size.
+ */
+
+@import url(../@vivliostyle/theme-base/theme-all.css);
+
+:root {
+  --vs-writing-mode: horizontal-tb;
+  --vs-font-family: Georgia, 'Times New Roman', Times, serif;
+  --vs--heading-font-family: Georgia, 'Times New Roman', Times, serif;
+  --vs--monospace-font-family: Consolas, 'Courier New', monospace;
+  --vs--html-font-size: 10.5pt;
+  --vs-line-height: 1.48;
+  --vs-widows-orphans: 2;
+  --vs-hyphens: auto;
+
+  --vs-page--margin-top: 20mm;
+  --vs-page--margin-bottom: 22mm;
+  --vs-page--margin-inner: 21mm;
+  --vs-page--margin-outer: 17mm;
+  --vs-page--mbox-font-family: Georgia, 'Times New Roman', Times, serif;
+  --vs-page--mbox-font-size: 7.5pt;
+  --vs-page--mbox-font-variant: small-caps;
+  --vs-page--mbox-letter-spacing: 0.08em;
+  --vs-page--mbox-color-body: #55514b;
+
+  --vs--p-margin-block: 0;
+  --vs--p-text-align: justify;
+  --vs--p-text-indent: 1.35em;
+  --vs--p-hanging-punctuation: first allow-end last;
+  --vs--p-hyphens: auto;
+
+  --vs--heading-font-weight: 400;
+  --vs--h1-font-size: 1.55rem;
+  --vs--h1-line-height: 1.25;
+  --vs--h1-letter-spacing: 0.055em;
+  --vs--h1-text-align: center;
+  --vs--h1-margin-block: 8.5rem 2.5rem;
+  --vs--h2-font-size: 1rem;
+  --vs--h2-line-height: 1.35;
+  --vs--h2-letter-spacing: 0.14em;
+  --vs--h2-text-align: center;
+  --vs--h2-margin-block: 3.2rem 1.4rem;
+  --vs--h3-font-size: 1rem;
+  --vs--h3-line-height: 1.35;
+  --vs--h3-font-weight: 700;
+  --vs--h3-margin-block: 2.4rem 0.7rem;
+  --vs--h4-font-size: 0.92rem;
+  --vs--h4-font-weight: 700;
+  --vs--h4-margin-block: 1.8rem 0.55rem;
+
+  --vs--blockquote-font-size: 0.96rem;
+  --vs--blockquote-margin-block: 1.3rem;
+  --vs--blockquote-margin-inline: 2.2rem;
+  --vs--figure-display: block;
+  --vs--figure-margin-block: 1.6rem;
+  --vs--figcaption-font-size: 0.82rem;
+  --vs--figcaption-margin-block: 0.45rem 0;
+  --vs--figcaption-text-indent: 0;
+
+  --vs-toc--ol-indent-size: 1.25rem;
+  --vs-toc--page-leader-content: leader('.') ' ';
+
+  --vivlio-english-novel--secondary-ink: #55514b;
+  --vivlio-english-novel--rule-ink: #b9b2a8;
+  --vivlio-folio: counter(page);
+  --vivlio-folio-own-box: none;
+  --vivlio-running-title: none;
+  --vivlio-running-chapter: none;
+}
+
+/* Running heads and folios ------------------------------------------------ */
+
+.vivlio-chapter-title {
+  string-set: vivlio-chapter content();
+}
+
+[data-vivlio-chapter] {
+  string-set: vivlio-chapter attr(data-vivlio-chapter);
+}
+
+:root.vivlio-body {
+  --vivlio-running-title: var(--vivlio-book-title, string(vivlio-chapter));
+  --vivlio-running-chapter: string(vivlio-chapter);
+}
+
+@page {
+  @top-left {
+    margin-block-end: 5mm;
+  }
+
+  @top-right {
+    margin-block-end: 5mm;
+  }
+
+  @bottom-left {
+    margin-block-start: 5mm;
+  }
+
+  @bottom-right {
+    margin-block-start: 5mm;
+  }
+}
+
+/* A western spread conventionally carries the book title on the verso and
+   the current chapter on the recto. Folios sit at the outside corners. */
+@page :left {
+  --vs-page--mbox-content-top-left: var(--vivlio-running-title);
+  --vs-page--mbox-content-bottom-left: var(--vivlio-folio);
+}
+
+@page :right {
+  --vs-page--mbox-content-top-right: var(--vivlio-running-chapter);
+  --vs-page--mbox-content-bottom-right: var(--vivlio-folio);
+}
+
+/* Every chapter is a separate publication document. Its first page is an
+   opener, so it carries neither a running head nor a folio. */
+@page :nth(1) {
+  --vs-page--mbox-content-top-left: none;
+  --vs-page--mbox-content-top-right: none;
+  --vs-page--mbox-content-bottom-left: none;
+  --vs-page--mbox-content-bottom-right: none;
+
+  @top-left {
+    content: none;
+  }
+
+  @top-right {
+    content: none;
+  }
+
+  @bottom-left {
+    content: none;
+  }
+
+  @bottom-right {
+    content: none;
+  }
+}
+
+:root.vivlio-toc {
+  --vs-page--mbox-visibility: hidden;
+}
+
+/* Body typography -------------------------------------------------------- */
+
+p {
+  orphans: 2;
+  widows: 2;
+}
+
+/* The white space after a heading already marks a new paragraph. */
+:is(h1, h2, h3, h4, h5, h6, hr) + p,
+p.vivlio-no-indent {
+  text-indent: 0;
+}
+
+h1,
+h2 {
+  font-variant-caps: small-caps;
+  text-wrap: balance;
+}
+
+h1 {
+  break-before: page;
+  break-after: avoid;
+  max-inline-size: 22em;
+  margin-inline: auto;
+}
+
+h2,
+h3,
+h4 {
+  break-after: avoid;
+}
+
+/* A short section number should read as a deliberate ornament rather than
+   as a stranded line of body text. */
+h2::after {
+  content: '';
+  display: block;
+  inline-size: 2.5rem;
+  margin: 0.8rem auto 0;
+  border-block-start: 1px solid var(--vivlio-english-novel--rule-ink);
+}
+
+hr {
+  inline-size: 2.8rem;
+  margin-block: 2.2rem;
+  margin-inline: auto;
+  border: 0;
+  border-block-start: 1px solid var(--vivlio-english-novel--rule-ink);
+}
+
+blockquote {
+  color: #2f2d2a;
+  font-style: italic;
+}
+
+blockquote p {
+  text-indent: 0;
+  margin-block: 0.65rem;
+}
+
+figure {
+  text-align: center;
+}
+
+figure img {
+  display: block;
+  margin-inline: auto;
+}
+
+figcaption {
+  color: var(--vivlio-english-novel--secondary-ink);
+  text-align: center;
+}
+
+.footnote,
+[role='doc-footnote'],
+.footnotes,
+[role='doc-endnotes'] {
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.footnotes,
+[role='doc-endnotes'] {
+  margin-block-start: 2rem;
+}
+
+.footnotes > hr,
+[role='doc-endnotes'] > hr {
+  inline-size: 3rem;
+  margin-inline: 0;
+}
+
+/* Title and half-title pages -------------------------------------------- */
+
+.titlepage,
+.halftitle {
+  text-align: center;
+}
+
+.titlepage p,
+.halftitle p {
+  text-align: inherit;
+  text-indent: 0;
+}
+
+.titlepage {
+  padding-block-start: 17vh;
+}
+
+.halftitle {
+  padding-block-start: 28vh;
+}
+
+.titlepage .series {
+  margin-block: 0 1.8rem;
+  color: var(--vivlio-english-novel--secondary-ink);
+  font-size: 0.78rem;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.16em;
+}
+
+.titlepage .title,
+.halftitle .title {
+  margin-block: 0;
+  font-size: 2.15rem;
+  font-weight: 400;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.055em;
+  line-height: 1.18;
+  text-wrap: balance;
+}
+
+.titlepage .title::after {
+  content: '';
+  display: block;
+  inline-size: 3.4rem;
+  margin: 1.8rem auto 0;
+  border-block-start: 1px solid var(--vivlio-english-novel--rule-ink);
+}
+
+.halftitle .title {
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+}
+
+.titlepage .subtitle {
+  margin-block: 1.4rem 0;
+  color: var(--vivlio-english-novel--secondary-ink);
+  font-size: 0.95rem;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.titlepage .imprint {
+  margin-block-start: 6.5rem;
+}
+
+.titlepage .byline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.titlepage .author,
+.titlepage .translator {
+  margin-block: 0;
+  font-size: 1.05rem;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.08em;
+}
+
+.titlepage .role {
+  display: block;
+  margin-block-end: 0.2rem;
+  color: var(--vivlio-english-novel--secondary-ink);
+  font-size: 0.68em;
+  font-variant-caps: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.titlepage .publisher {
+  margin-block-start: 4rem;
+  color: var(--vivlio-english-novel--secondary-ink);
+  font-size: 0.82rem;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.14em;
+}
+
+/* Contents --------------------------------------------------------------- */
+
+#toc,
+nav[role='doc-toc'] {
+  font-size: 0.94rem;
+}
+
+:is(#toc, [role='doc-toc']) > ol {
+  --vs--ol-padding-inline-start: 0;
+}
+
+:is(#toc, [role='doc-toc']) ol ol {
+  --vs--ol-padding-inline-start: var(--vs-toc--ol-indent-size);
+}
+
+:is(#toc, [role='doc-toc']) li {
+  padding-inline-start: 0;
+  text-indent: 0;
+  line-height: 1.35;
+  break-inside: auto;
+}
+
+:is(#toc, [role='doc-toc']) li > a {
+  break-inside: avoid;
+  text-decoration: none;
+}
+
+:is(#toc, [role='doc-toc']) > ol > li {
+  margin-block: 0.72rem;
+}
+
+:is(#toc, [role='doc-toc']) ol ol > li {
+  margin-block: 0.35rem;
+  color: var(--vivlio-english-novel--secondary-ink);
+  font-size: 0.92em;
+}
+
+/* Copyright page --------------------------------------------------------- */
+
+.copyright-page {
+  padding-block-start: 2.5rem;
+  font-size: 0.84rem;
+}
+
+.copyright-page-content {
+  max-inline-size: 36em;
+}
+
+.copyright-page p {
+  margin-block: 0 0.38rem;
+  text-align: start;
+  text-indent: 0;
+}
+
+.copyright-title {
+  font-size: 1.08em;
+  font-weight: 700;
+}
+
+.copyright-byline,
+.copyright-translator,
+.copyright-publication,
+.copyright-contact,
+.copyright-website {
+  font-style: italic;
+}
+
+.copyright-website a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 0.06em;
+  text-underline-offset: 0.12em;
+}
+
+.copyright-extra {
+  margin-block-start: 0.9rem;
+}
+
+.copyright-extra + .copyright-extra {
+  margin-block-start: 0;
+}
+
+.copyright-extra-label {
+  font-weight: 600;
+}
+
+/* Colophon --------------------------------------------------------------- */
+
+[role='doc-colophon'] {
+  padding-block-start: 48vh;
+  font-size: 0.82rem;
+}
+
+[role='doc-colophon'] p {
+  text-align: start;
+  text-indent: 0;
+}
+
+.colophon {
+  max-inline-size: 31em;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--vivlio-english-novel--rule-ink);
+}
+
+.colophon-series {
+  margin-block: 0 0.35rem;
+  color: var(--vivlio-english-novel--secondary-ink);
+  font-size: 0.84em;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.08em;
+}
+
+.colophon-title {
+  margin-block: 0 1rem;
+  font-size: 1.08em;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.06em;
+}
+
+.colophon-group {
+  margin-block-end: 0.8rem;
+}
+
+.colophon-row {
+  display: flex;
+  gap: 1em;
+  margin-block: 0.2rem;
+}
+
+.colophon-row dt {
+  flex: 0 0 6.5em;
+  color: var(--vivlio-english-novel--secondary-ink);
+  font-weight: 400;
+  font-variant-caps: small-caps;
+}
+
+.colophon-row dd {
+  margin-inline-start: 0;
+}
+
+.colophon-detail dd {
+  margin-inline-start: 7.5em;
+  color: var(--vivlio-english-novel--secondary-ink);
+}
+
+.colophon-line {
+  margin-block: 0.2rem;
+}
+
+@media screen {
+  :root {
+    --vs--anchor-color: #354c68;
+    --vs--anchor-text-decoration: none;
+  }
+}

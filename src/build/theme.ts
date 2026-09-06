@@ -16,9 +16,10 @@ import { t, type StringKey } from "../i18n";
  * want to do first and cannot do with a relative path - the bundled themes are
  * embedded in the plugin, not files in the vault.
  *
- * A theme of one's own starts from a bundled one by importing `vivlio:novel`,
- * or `vivlio:base`, `vivlio:bunko`, `vivlio:techbook`, `vivlio:academic`. All
- * five still resolve; the picker offers only the ones in `SELECTABLE_THEMES`.
+ * A theme of one's own starts from a bundled one by importing, for example,
+ * `vivlio:novel`, `vivlio:english-novel` or `vivlio:base`. Every name in the
+ * resolution table remains available; the picker offers only the ones in
+ * `SELECTABLE_THEMES`.
  *
  * Anything else is an ordinary import: a path relative to the importing file,
  * read from the vault.

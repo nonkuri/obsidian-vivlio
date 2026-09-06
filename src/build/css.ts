@@ -680,6 +680,52 @@ function sectionCss(context: BuildContext): string {
   page: halftitle;
 }
 
+.copyright-page {
+  page: copyrightpage;
+  padding-block-start: 2.5rem;
+  font-size: 0.84rem;
+}
+
+.copyright-page-content {
+  max-inline-size: 36em;
+}
+
+.copyright-page p {
+  margin-block: 0 0.38rem;
+  text-align: start;
+  text-indent: 0;
+}
+
+.copyright-title {
+  font-size: 1.08em;
+  font-weight: 700;
+}
+
+.copyright-byline,
+.copyright-translator,
+.copyright-publication,
+.copyright-contact,
+.copyright-website {
+  font-style: italic;
+}
+
+.copyright-website a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.copyright-extra {
+  margin-block-start: 0.9rem;
+}
+
+.copyright-extra + .copyright-extra {
+  margin-block-start: 0;
+}
+
+.copyright-extra-label {
+  font-weight: 600;
+}
+
 [role='doc-colophon'] {
   page: colophon;
 }
@@ -697,12 +743,13 @@ function sectionCss(context: BuildContext): string {
  *
  * theme-base gives the dedication and the epigraph a named page from their
  * DPUB role, so naming those pages here is all it takes. */
-@page titlepage, halftitle, dedication, epigraph, colophon {
+@page titlepage, halftitle, copyrightpage, dedication, epigraph, colophon {
   --vs-page--mbox-visibility: hidden;
 }
 
 .titlepage,
-.halftitle {
+.halftitle,
+.copyright-page {
   break-after: page;
 }
 
@@ -746,7 +793,7 @@ function startSideCss(context: BuildContext): string {
   if (side !== "left" && side !== "right") return "";
   return `
 h2,
-#${DOCUMENT_ANCHOR}:not(.cover) > :first-child,
+#${DOCUMENT_ANCHOR}:not(.cover):not(.copyright-page) > :first-child,
 #toc > :first-child,
 .halftitle > :first-child {
   break-before: ${side};

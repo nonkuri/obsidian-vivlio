@@ -2,7 +2,7 @@ import type { BuildContext, Chapter } from "./context";
 import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
 import { SECTION_SLOTS } from "../config/types";
-import { t } from "../i18n";
+import { resolveBookLabels } from "../config/labels";
 
 /**
  * True when a heading is the book's own title, already printed on the title
@@ -90,6 +90,7 @@ export function buildTocEntries(
   audience: TocAudience = "print",
 ): TocEntry[] {
   const depth = Math.max(1, Math.min(6, context.config.tocDepth || 2));
+  const labels = resolveBookLabels(context.config);
   const entries: TocEntry[] = [];
 
   for (const chapter of chapters) {
@@ -117,7 +118,7 @@ export function buildTocEntries(
         // The cover carries the book's title, which the title page carries
         // too: in a navigation list those are two lines reading the same,
         // and neither says which one goes to the picture.
-        label: chapter.role === "doc-cover" ? t("section.cover") : chapter.title,
+        label: chapter.role === "doc-cover" ? labels.cover : chapter.title,
         level: 1,
         frontMatter: chapter.isFrontMatter,
         children: [],
@@ -148,15 +149,16 @@ export function buildTocEntries(
  * numbers appear on their own.
  */
 export function tocDocument(context: BuildContext, chapters: Chapter[], resetPage = false): string {
+  const heading = resolveBookLabels(context.config).toc;
   const body = `<nav role="doc-toc" id="toc" class="vivlio-front${resetPage ? " vivlio-page-reset" : ""}">
-<h1>${escapeHtml(t("toc.heading"))}</h1>
+<h1>${escapeHtml(heading)}</h1>
 ${renderList(buildTocEntries(context, chapters))}
 </nav>`;
 
   return htmlDocument({
     writingMode: context.config.writingMode,
     lang: context.config.lang,
-    title: t("toc.heading"),
+    title: heading,
     rootClass: "vivlio-front-matter vivlio-toc",
     body,
   });

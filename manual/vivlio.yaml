@@ -1,14 +1,168 @@
-theme: manual
-writingMode: horizontal-tb
-size: A5
-fontFamily: "'Hiragino Sans', 'Noto Sans CJK JP', 'Yu Gothic', sans-serif"
-headingFontFamily: "'Hiragino Sans', 'Noto Sans CJK JP', 'Yu Gothic', sans-serif"
+# この本の設定。# で始まる行は Vault の既定値のままという意味で、
+# 行頭の # を外すと、この本だけの値になります。
 
+# --- 本の情報 ---
+# 書名
 title: Vivlio プラグイン詳細マニュアル
-subtitle: Obsidian のノートを Vivliostyle で組版する — 0.2.0 対応
+# 副題
+subtitle: Obsidian のノートを Vivliostyle で組版する — 0.8.0 対応
+# シリーズ名（奥付・扉に出る）
+# series: ""
+# 著者
 author: nonkuri
+# 訳者
+# translator: ""
+# 発行所
+# publisher: ""
+# 印刷所（日本の奥付は発行所と別に刷る）
+# printer: ""
+# 連絡先（住所・メール）
+# contact: ""
+# WEB サイト
+website: https://note.com/nonkuri_yubiri
+# 発行日。2026-09-05 と書くと、縦組みの奥付では二〇二六年九月五日に組み替わる
+date: "2026-09-06"
+# 本の言語（ja / en）。組版の言語指定になり、奥付の日付の書き方も決まる
+lang: ja
+# 版（第二版・改訂版など）
 version: 初版
-
+# 自動生成ページの文字。lang に応じて作られ、目次見出し・著作権表示・奥付ラベルなどを本ごとに変更できる
+labels:
+  untitled: 無題
+  cover: 表紙
+  halfTitle: 半扉
+  titlePage: 扉
+  toc: 目次
+  authorRole: 著
+  translatorRole: 訳
+  copyrightPage:
+    heading: 著作権表示
+    by: "{author} 著"
+    translatedBy: "{translator} 訳"
+    published: "{date} 発行"
+    publisher: "{publisher} 発行"
+    publishedBy: "{date} {publisher} 発行"
+  colophon:
+    heading: 奥付
+    author: 著者
+    translator: 訳者
+    publisher: 発行所
+    printer: 印刷
+    issued: "{date}　発行"
+    issuedEdition: "{date}　{version}発行"
+# 奥付に足す任意の項目: [{ label: 装丁, value: 山田花子 }] または { 装丁: 山田花子 }
 colophonExtra:
-  対応バージョン: 0.2.0
-date: 2026-09-04
+  対応バージョン: 0.8.0
+
+# --- 組版 ---
+# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス
+theme: manual
+# vertical-rl（縦組み）| horizontal-tb（横組み）
+writingMode: horizontal-tb
+# 判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | JIS-B5 | B5 | A4 | 6x9 | letter | "128mm 188mm"
+size: A5
+# 1行あたりの文字数（二段組なら1段の字詰め）。空ならテーマが判型と文字サイズから決める
+# charsPerLine: null
+# 1段あたりの行数。空ならテーマが判型と文字サイズから決める
+# linesPerPage: null
+# 本文の段数（1以上の整数）。空はテーマ任せ。横組み・縦組みとも有効で、字詰めと行数は1段あたりの数になる
+# columns: null
+# 章・各部を始めるページ: any（なりゆき）| left（左ページ＝奇数）| right。必要なら空白ページが入る（ノンブルは刷らない。表紙裏以外はページ数に数える）
+# startSide: any
+# 基準の文字サイズ（9pt など）。空ならテーマ任せ
+# baseFontSize: ""
+# 段落の字下げ。原稿が全角スペースで字下げ済みなら 0（空ならテーマ任せ）
+# paragraphIndent: ""
+# 字下げする段落: auto（原稿に従う）| manuscript（全角スペースのある段落だけ）| brackets（始め括弧の段落以外）| all（すべて）
+# paragraphIndentMode: auto
+# gcpm（ページ下）| pandoc（章末）| dpub
+# footnote: gcpm
+# ==ハイライト== の扱い: boten | strong | mark | off
+highlight: mark
+# 2 桁の半角数字を自動で縦中横にする
+autoTcy: false
+# 単位のない ![[fig.png|300]] の 300 の解釈: px | percent | mm。いずれも紙面での画像の幅。画像ごとに ![[fig.png|60%]] ![[fig.png|80mm]] と書けばそちらが優先
+# imageWidthUnit: px
+
+# --- 表紙 ---
+# 表紙画像
+# cover: ""
+# 表紙として組むノート（cover より優先）
+# coverPage: ""
+# 表紙画像の合わせ方: cover（判型いっぱいに広げ、はみ出しを裁ち落とす）| contain（画像全体を収め、余白を出す）
+# coverFit: cover
+# PDF に表紙を含める
+# coverInPdf: true
+
+# --- フォント ---
+# 本文フォント
+fontFamily: "'游ゴシック Medium', 'Yu Gothic Medium', 'YuGothic', 'Yu Gothic UI', 'Hiragino Sans', 'ヒラギノ角ゴシック', 'Noto Sans CJK JP', 'Noto Sans JP', 'Meiryo', sans-serif"
+# 見出しフォント
+headingFontFamily: "'游ゴシック Medium', 'Yu Gothic Medium', 'YuGothic', 'Yu Gothic UI', 'Hiragino Sans', 'ヒラギノ角ゴシック', 'Noto Sans CJK JP', 'Noto Sans JP', 'Meiryo', sans-serif"
+# 等幅フォント
+# monospaceFontFamily: "'Consolas', 'BIZ UDGothic', 'SFMono-Regular', 'Menlo', 'Noto Sans Mono CJK JP', monospace"
+# ノンブル・柱のフォント
+# mboxFontFamily: ""
+# 縦中横のフォント
+# tcyFontFamily: ""
+# OpenType 機能（縦組みで 'vert' 1 等）
+# fontFeatureSettings: ""
+# ルビの文字サイズ
+# rubyFontSize: ""
+# Vault 内のフォントファイルを埋め込む: [{ family, src, weight }]
+# embedFonts: []
+
+# --- 前付け・後付け ---
+# 前付け・後付け。auto（プラグインが作る。半扉・扉・著作権表示・目次・奥付のみ）| 中身にするノートのパス | off
+sections:
+#   halfTitle: off
+#   titlePage: auto
+#   copyrightPage: off
+#   dedication: off
+#   epigraph: off
+#   toc: auto
+#   preface: off
+#   afterword: off
+#   appendix: off
+#   bibliography: off
+#   acknowledgments: off
+#   colophon: auto
+# continuous（既定）| roman-then-arabic | none
+# pageNumbering: continuous
+# 目次に拾う見出しの深さ
+# tocDepth: 2
+# ノンブルの開始番号（0以下は数えるが表示しない。通し番号では表紙の次、別ノンブルでは本文）
+# startPage: null
+# 目次ノート自身を本文に含める
+# includeToc: false
+
+# --- 出力 ---
+# この本の書き出し先（Vault 相対 / 絶対パス）。空なら設定タブの出力フォルダ
+# output: ""
+# トンボ（断裁位置の印）を付ける。入稿では塗り足しとセットで求められる
+# cropMarks: false
+# 塗り足し。断裁位置より外へ絵柄をはみ出させる幅（3mm など）
+# bleed: ""
+# 追加 CSS（テーマの後に注入）
+# css: ""
+# この本だけの記法スイッチ。書いたものだけが設定タブより優先される
+# syntax:
+#   embed: true
+#   dynamic: true
+#   boten: true
+#   aozoraRuby: true
+#   tcy: true
+#   autoTcy: true
+#   highlight: true
+#   imageEmbed: true
+#   wikilink: true
+#   callout: true
+#   taskList: true
+#   keepTags: false
+#   stripComments: true
+#   stripBlockIds: true
+#   stripLeadingSpace: true
+#   pageBreak: true
+#   blankLines: true
+# VFM にそのまま渡すオプション
+# vfm: {}

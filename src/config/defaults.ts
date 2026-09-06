@@ -72,6 +72,7 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
   sectionDefaults: {
     halfTitle: "off",
     titlePage: "auto",
+    copyrightPage: "off",
     dedication: "off",
     epigraph: "off",
     toc: "auto",
@@ -120,6 +121,7 @@ export function baseBookConfig(): BookConfig {
     date: "",
     lang: "ja",
     version: "",
+    labels: {},
     colophonExtra: [],
 
     theme: "novel",
@@ -179,6 +181,7 @@ export const PAPER_SIZES: Record<string, string> = {
   A6: "105mm 148mm",
   文庫: "105mm 148mm",
   新書: "103mm 182mm",
+  "6x9": "152.4mm 228.6mm",
   letter: "letter",
 };
 
@@ -201,6 +204,7 @@ export const PAPER_SIZE_CHOICES: { value: string; labelKey: string }[] = [
   { value: "JIS-B5", labelKey: "paper.jisB5" },
   { value: "B5", labelKey: "paper.b5" },
   { value: "A4", labelKey: "paper.a4" },
+  { value: "6x9", labelKey: "paper.6x9" },
   { value: "letter", labelKey: "paper.letter" },
 ];
 

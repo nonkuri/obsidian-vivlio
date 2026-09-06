@@ -26,13 +26,14 @@ import { BOOK_STYLESHEET, convertChapter } from "./vfm";
 import { buildCover } from "./cover";
 import {
   colophonDocument,
+  copyrightPageDocument,
   halfTitleDocument,
   planSections,
-  roleFor,
   titlePageDocument,
 } from "./sections";
 import { tocDocument } from "./toc";
 import { publicationManifest } from "./manifest";
+import { resolveBookLabels } from "../config/labels";
 import { throwIfAborted } from "../util/async";
 import { joinPosix, stripExtension } from "../util/paths";
 import { log } from "../util/log";
@@ -145,9 +146,10 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   throwIfAborted(signal);
 
   if (!config.title) {
+    const labels = resolveBookLabels(config);
     config.title =
       target.kind === "folder"
-        ? target.folder.name || t("book.untitled")
+        ? target.folder.name || labels.untitled
         : titleOf(app, target.file);
   }
 
@@ -219,6 +221,15 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
  */
 function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
   const { app, config } = context;
+  const labels = resolveBookLabels(config);
+  const generatedTitle = (slot: string): string => {
+    if (slot === "halfTitle") return labels.halfTitle;
+    if (slot === "titlePage") return labels.titlePage;
+    if (slot === "copyrightPage") return labels.copyrightPage.heading;
+    if (slot === "toc") return labels.toc;
+    if (slot === "colophon") return labels.colophon.heading;
+    return t(`section.${slot}` as never);
+  };
   const chapters: Chapter[] = [];
 
   // --- cover -------------------------------------------------------------
@@ -277,7 +288,7 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
     chapters.push({
       docName: `${plan.slot.toLowerCase()}.html`,
       file: plan.file,
-      title: t(`section.${plan.slot}` as never),
+      title: generatedTitle(plan.slot),
       role: plan.role,
       slot: plan.slot,
       isBody: false,
@@ -307,7 +318,7 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
     chapters.push({
       docName: `${plan.slot.toLowerCase()}.html`,
       file: plan.file,
-      title: t(`section.${plan.slot}` as never),
+      title: generatedTitle(plan.slot),
       role: plan.role,
       slot: plan.slot,
       isBody: false,
@@ -340,6 +351,11 @@ function generateDocument(
       );
     case "titlePage":
       return titlePageDocument(
+        context,
+        context.config.pageNumbering === "roman-then-arabic" && chapter.startPage !== undefined,
+      );
+    case "copyrightPage":
+      return copyrightPageDocument(
         context,
         context.config.pageNumbering === "roman-then-arabic" && chapter.startPage !== undefined,
       );

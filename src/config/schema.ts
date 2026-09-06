@@ -35,6 +35,39 @@ const ColophonExtraSchema = v.union([
   v.record(v.string(), v.union([v.string(), v.number()])),
 ]);
 
+const LabelsSchema = v.partial(
+  v.object({
+    untitled: v.string(),
+    cover: v.string(),
+    halfTitle: v.string(),
+    titlePage: v.string(),
+    toc: v.string(),
+    authorRole: v.string(),
+    translatorRole: v.string(),
+    copyrightPage: v.partial(
+      v.object({
+        heading: v.string(),
+        by: v.string(),
+        translatedBy: v.string(),
+        published: v.string(),
+        publisher: v.string(),
+        publishedBy: v.string(),
+      }),
+    ),
+    colophon: v.partial(
+      v.object({
+        heading: v.string(),
+        author: v.string(),
+        translator: v.string(),
+        publisher: v.string(),
+        printer: v.string(),
+        issued: v.string(),
+        issuedEdition: v.string(),
+      }),
+    ),
+  }),
+);
+
 const EmbedFontSchema = v.object({
   family: v.string(),
   src: v.string(),
@@ -64,6 +97,7 @@ export const BookConfigInputSchema = v.object({
   date: v.optional(v.union([v.string(), v.date()])),
   lang: v.optional(v.string()),
   version: v.optional(v.union([v.string(), v.number()])),
+  labels: v.optional(LabelsSchema),
   colophonExtra: v.optional(ColophonExtraSchema),
 
   theme: v.optional(v.string()),

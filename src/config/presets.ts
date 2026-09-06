@@ -166,6 +166,30 @@ export const PRESETS: Preset[] = [
     },
   },
   {
+    id: "englishNovel",
+    labelKey: "preset.englishNovel",
+    values: {
+      lang: "en",
+      theme: "english-novel",
+      writingMode: "horizontal-tb",
+      size: "6x9",
+      charsPerLine: null,
+      linesPerPage: null,
+      columns: 1,
+      startSide: "right",
+      footnote: "gcpm",
+      highlight: "mark",
+      autoTcy: false,
+      pageNumbering: "roman-then-arabic",
+      sections: {
+        copyrightPage: "auto",
+        colophon: "off",
+      },
+      fontFamily: "Georgia, 'Times New Roman', Times, serif",
+      headingFontFamily: "Georgia, 'Times New Roman', Times, serif",
+    },
+  },
+  {
     id: "manual",
     labelKey: "preset.manual",
     values: {

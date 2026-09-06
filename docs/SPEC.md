@@ -527,6 +527,15 @@ website: ""
 date: 2026-09-01
 version: 初版
 lang: ja
+labels:                  # 自動生成ページの文字。省略時は lang から決める
+  toc: 目次
+  copyrightPage:
+    by: "{author} 著"
+    publishedBy: "{date} {publisher} 発行"
+  colophon:
+    author: 著者
+    publisher: 発行所
+    issued: "{date}　発行"
 colophonExtra:            # 奥付に足す任意の項目 → 5.11
   装丁: 山田花子
 
@@ -562,6 +571,7 @@ embedFonts:
 # 前付け・後付け → 5.11
 sections:
   titlePage: auto         # auto | <ノートパス> | off
+  copyrightPage: off      # 英語本では扉直後の copyright page
   toc: auto
   preface: まえがき.md
   afterword: あとがき.md
@@ -599,7 +609,7 @@ vivlio-start-page: 1
 ---
 ```
 
-- 対応するのは**入れ子が不要なキーのみ**。`sections` / `embedFonts` / `css` / `colophonExtra` は
+- 対応するのは**入れ子が不要なキーのみ**。`sections` / `labels` / `embedFonts` / `css` / `colophonExtra` は
   `vivlio.yaml` 専用（`colophonExtra` は手書きの `vivlio-colophon-extra:` なら frontmatter でも読める）
 - **素のキー名は読まない。** `subtitle:` とだけ書いても拾わないので `vivlio-subtitle:` と書く。
   例外は `title:` だけで、これは Obsidian のノート名と兼ねるため
@@ -652,7 +662,7 @@ vivlio-start-page: 1
 | 決定 | 理由 |
 |---|---|
 | **一覧は `KEY_DOCS` から作る**（グループ・説明文ごと） | リファレンス生成（下記 (3)）と同じ表。キーを足したときに片方だけ古くなることがない |
-| **入れ子の要るキー（`sections` / `colophonExtra` / `embedFonts` / `vfm`）は出さない** | Obsidian のプロパティエディタは入れ子 YAML を編集できない。出せば、ノート自身のプロパティパネルが設定を壊せてしまう |
+| **入れ子の要るキー（`sections` / `labels` / `colophonExtra` / `embedFonts` / `vfm`）は出さない** | Obsidian のプロパティエディタは入れ子 YAML を編集できない。出せば、ノート自身のプロパティパネルが設定を壊せてしまう |
 | **既にあるキーはチェック済み・操作不可で見せる** | このコマンドは「足す」もの。ノートが持っている値を黙って書き換えるのは別の、ずっと不作法なコマンドである |
 | **選んだキーは値が空でも書く** | 空のプロパティは「これから埋める行」であって、それを出すことこそ依頼の内容。逆に、誰も選んでいない既定の一覧から空を書く理由はない |
 | **空の値は下の層を上書きしない**（`applyLayer` は `null` を飛ばす） | 空の `vivlio-theme:` は「ここでは決めない」であって「テーマ無し」ではない |
@@ -1376,7 +1386,7 @@ URL を頁末に出したい書き手は脚注として書く。3 つのモー�
 - `font-family` の指定自体は CSS に残すので、リーダー側に同名フォントがあれば使われる
 - サブセット化は Phase 3 以降の課題（`harfbuzzjs` ベースの `subset-font` でレンダラ内でも可能だが CJK は重い）
 
-### 5.11 前付け・後付け（扉・目次・奥付）
+### 5.11 前付け・後付け（扉・著作権表示・目次・奥付）
 
 #### 指定方法【決定】: 部位ごとに `auto` / ノートパス / `off` を選ぶ
 
@@ -1388,6 +1398,7 @@ sections:
   # ── 前付け ──
   halfTitle: off          # 半扉      auto | <ノートパス> | off
   titlePage: auto         # 扉（本扉）
+  copyrightPage: off      # 英語本の copyright page（扉の直後）
   dedication: 献辞.md     # 献辞
   epigraph: off           # 題辞
   toc: auto               # 目次ページ
@@ -1404,7 +1415,8 @@ pageNumbering: continuous   # continuous（既定）| roman-then-arabic | none
 
 - **順序は上記の正準順で固定**。YAML の記述順ではなく、この決まった順に並べる（挙動が読めるように）
 - 値が**ノートパス**ならそのノートを該当部位として組む。frontmatter は不要（プラグインが `role` を付ける）
-- **`auto` にできるのは 4 部位だけ。** 他は中身を機械生成できないのでノートパス指定のみ（`auto` を書いたら警告）
+- **`auto` にできるのは 5 部位だけ。** 半扉・扉・著作権表示・目次・奥付以外は中身を機械生成できないのでノートパス指定のみ（`auto` を書いたら警告）
+- **英語本は著作権表示と奥付を区別する。** `lang: en` で本側に指定がなければ `copyrightPage: auto`、`colophon: off`。前者は扉直後の前付けに文章形式で置き、後者は書体・印刷等の制作ノートとして巻末に残す
 - **部位に指定したノートは本文の章にしない。** ノートパス指定の部位は本のフォルダの中を指すのが普通で、
   そこは本文の章を集める場所でもある。除かなければ「まえがき」が前付けと本文の一章に二度出る
   （`coverPage` も同じ）
@@ -1413,8 +1425,20 @@ pageNumbering: continuous   # continuous（既定）| roman-then-arabic | none
 |---|---|
 | `halfTitle` | `title` のみを組んだ半扉 |
 | `titlePage` | 作品を名乗る側（`series` / `title` / `subtitle`）と人を名乗る側（`author` / `translator` / `publisher`）を組んだ扉（下記） |
+| `copyrightPage` | 書名、著者・訳者、発行日、発行者、URL を文章形式で組んだ英語本の著作権表示（下記） |
 | `toc` | 各章の見出しから `<nav role="doc-toc">` を生成（下記） |
 | `colophon` | 書名と発行の情報を組んだ奥付（下記） |
+
+#### Copyright page【決定】: 扉の裏に文章として置く
+
+英語本の出版情報は、日本語の奥付のようなラベル付き一覧にはしない。前付けの
+`copyrightPage` として扉の直後に置き、書名、`By {author}`、発行情報、URL を短い文章で組む。
+`date` は英語の日付表記（例: `September 6, 2026`）へ整形する。
+
+表示文字列は `labels.copyrightPage` の `by` / `translatedBy` / `published` /
+`publisher` / `publishedBy` で上書きでき、`{author}` / `{translator}` / `{date}` /
+`{publisher}` を実値へ置換する。`website` が `http:` / `https:` / `mailto:` の場合だけリンクにする。
+EPUB では `epub:type="copyright-page"` と landmarks を付ける。
 
 #### 扉【決定】: 訳者がいるときだけ役割を書く
 
@@ -1982,7 +2006,7 @@ Phase 1 にフォルダ本を含めた判断により、Phase 1 の時点で以�
 | 24 | フォント選択 UI | **`queryLocalFonts()` でインストール済みフォントのドロップダウンを出す**（Electron では権限プロンプトなしで使える）。手入力は事故るため | 5.10 |
 | 25 | 前処理の実装方式 | **文字列正規表現置換をせず、木に対する変換として書く。** `editPlugins` に載せる方針は変えないが、**`replace` オプションは使わない**（既定 ignore に `code` / `pre` が無く、コードブロックを汚すため）。同等の置換パスを自前で持ち、ignore を広げる | 5.3 |
 | 26 | サーバのセキュリティ | **127.0.0.1 バインド + セッショントークン必須 + Host 検証 + 配信ルートのホワイトリスト。** プレビュー / 書き出し中のみ起動 | 5.12 |
-| 27 | 前付け・後付け | **部位ごとに `auto` / ノートパス / `off` を選ぶ。** 順序は正準順で固定。`auto` 可能なのは半扉・扉・目次・奥付の 4 部位のみ。**部位に指定したノートは本文の章から外す** | 5.11 |
+| 27 | 前付け・後付け | **部位ごとに `auto` / ノートパス / `off` を選ぶ。** 順序は正準順で固定。`auto` 可能なのは半扉・扉・著作権表示・目次・奥付の 5 部位。英語本は著作権表示を扉直後に置き、奥付は既定でオフ。**部位に指定したノートは本文の章から外す** | 5.11 |
 | 28 | 設定の置き場所 | **3 層（設定タブ / `vivlio.yaml` / frontmatter）。frontmatter はフラットな `vivlio-*` キーのみ**（Obsidian の Properties UI が入れ子 YAML を編集できないため） | 5.4 |
 | 29 | 設定の生成 | **手書きさせない。** ウィザード（`vivlio.yaml` 生成）/ スニペット挿入 / 全キー版リファレンス出力 の 3 入口。ウィザードは**全キーを書くが、既定値のままのキーはコメント行**にする | 5.4 |
 | 30 | ノンブル | **`pageNumbering` で選択。既定 `continuous`**（表紙以外を通し番号にする。ローマ数字の別ノンブルも選択可） | 5.11 |
@@ -2023,7 +2047,7 @@ Phase 1 にフォルダ本を含めた判断により、Phase 1 の時点で以�
 
 ---
 
-## 10. 実装状況（0.7.0）
+## 10. 実装状況（0.8.0）
 
 ### 実装済み
 
@@ -2046,6 +2070,7 @@ Phase 0〜2 の全項目と、Phase 3 のうち PDF の栞・メタデータ・�
 | 0.6.2 | **表紙と本文の裁ち落としを完成。** 表紙画像と `coverPage` の背景は、トンボの有無にかかわらず塗り足しの外端まで描く。本文では `![[fig.png\|bleed]]` を画像だけの裁ち落としページにし、地色や HTML のページは `.vivlio-bleed` で指定する。通常画像の版面制限から裁ち落とし要素だけを外し、トンボありでは仕上がり線の四方へ `bleed` 分張り出す。空の地色要素も named page として保持し、柱とノンブルを隠す。裁ち落とし幅を実効 dpi に反映し、EPUB では通常の全幅画像へ戻す |
 | 0.6.3 | **遅延組版でもプレビュー位置を正確に復元。** 推定ページ値ではなく Viewer の `nav` が返す EPUB CFI（本文中の位置）を保持し、再ビルド時に公開の `f` パラメータへ戻す。CFI が得られない場合だけ従来の epage 復元へフォールバックする |
 | 0.7.0 | **横組みを含むテーマ非依存の段組。** 明示した `columns` を本文の段組フローとして生成 CSS から適用する。余白組みテーマは既存の版面を分割し、グリッドテーマだけが字詰め・行数・段数から文字サイズを逆算する。`null` はテーマ任せ、明示した `1` は一段へ戻す。段組本文に表があればプレビューと PDF 書き出し前に警告する |
+| 0.8.0 | **欧米向け英語小説の組版。** 6×9 インチの `english-novel` テーマとプリセットを追加。自動生成文字列を `labels` で設定でき、設定ウィザードは `lang` に応じた値を書き出す。英語本では扉直後の文章形式の `copyrightPage` と巻末の `colophon` を分離し、前者を既定で生成、後者を既定で無効にする。EPUB の著作権表示 landmark にも対応 |
 
 ### 未実装
 

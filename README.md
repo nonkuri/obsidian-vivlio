@@ -99,7 +99,7 @@ Three layers; a lower one overrides the one above it.
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel, novel-2col or manual, or a CSS path in the vault — see “A theme of your own”
+theme: novel              # novel, novel-2col, english-novel or manual, or a CSS path in the vault
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -148,6 +148,27 @@ note` inserts, since every key it offers takes the `vivlio-` prefix.
 writes them all. A key you left at **Use the default** is written as a comment,
 so the file lists what this book could say while the book still follows the
 vault as its defaults change — delete the `#` to take one over.
+
+For an English trade paperback, start with the English preset in the wizard,
+or use these settings:
+
+```yaml
+lang: en
+theme: english-novel
+writingMode: horizontal-tb
+size: 6x9
+sections:
+  titlePage: auto
+  copyrightPage: auto
+  toc: auto
+  colophon: off
+```
+
+English books use a prose copyright page immediately after the title page;
+the Japanese-style colophon remains a separate, optional section at the back.
+When neither setting is written, `lang: en` selects the values above. The
+wizard also writes a language-matched `labels:` block, where headings and the
+copyright-page sentences can be edited without changing the theme.
 
 ```yaml
 # --- Typesetting ---
@@ -232,9 +253,9 @@ The setup wizard offers Shinsho, B6 and A5 two-column presets. The body size is
 derived from the sheet and the grid, so rewriting the two figures moves the
 whole page with them.
 
-The cover, title page, contents and colophon stay in one column — a colophon
-split across two bands is not a colophon. Footnotes (`gcpm`) sit at the foot of
-the page, spanning both.
+The cover, title page, copyright page, contents and colophon stay in one column
+— a colophon split across two bands is not a colophon. Footnotes (`gcpm`) sit
+at the foot of the page, spanning both.
 
 Vivlio warns when a multi-column body contains a table. A narrow column can
 force extreme wrapping inside cells or push a table beyond the page. The
@@ -266,9 +287,10 @@ can start from a bundled one:
 theme: 装丁/私の本.css
 ```
 
-The theme picker offers the three themes built for this plugin — `novel`, for a
-novel set vertically, `novel-2col`, for one set vertically in two columns, and
-`manual`, for a manual or tech book set across the page — followed by **every `.css` file in the vault, listed by its path**. Put
+The theme picker offers the four themes built for this plugin — `novel`, for a
+novel set vertically, `novel-2col`, for one set vertically in two columns,
+`english-novel`, for a western trade paperback, and `manual`, for a manual or
+tech book set across the page — followed by **every `.css` file in the vault, listed by its path**. Put
 a stylesheet anywhere in the vault and it is in the list; there is nothing to
 register. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and `vivlio:academic`
 — the CC0 Vivliostyle themes — resolve when a book names one, but are left out
@@ -282,7 +304,8 @@ is why the preview and the EPUB read exactly the same text.
 
 The classes worth knowing when writing one: `.boten`, `.tcy`, `.callout` and
 `.callout-<type>`, `.task-list`, `.vivlio-page-break`, `.vivlio-blank-lines`,
-`.vivlio-no-indent`, `.vivlio-rendered`.
+`.vivlio-no-indent`, `.vivlio-rendered`, `.copyright-page` and
+`.copyright-page-content`.
 
 ## Building
 

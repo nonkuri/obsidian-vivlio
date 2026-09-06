@@ -1,0 +1,65 @@
+# Sample configuration for a western trade-paperback novel
+title: The Adventures of Sherlock Holmes
+subtitle: Twelve Stories of Detection
+author: Arthur Conan Doyle
+publisher: Project Gutenberg
+date: 2023-10-10
+version: eBook No. 1661
+lang: en
+
+# Text inserted by generated pages. The setup wizard writes these defaults
+# from `lang`; edit any value to give this edition its own wording.
+labels:
+  untitled: Untitled
+  cover: Cover
+  halfTitle: Half title
+  titlePage: Title page
+  toc: Contents
+  authorRole: written by
+  translatorRole: translated by
+  copyrightPage:
+    heading: Copyright page
+    by: "By {author}"
+    translatedBy: "Translated by {translator}"
+    published: "This edition published {date}"
+    publisher: "Published by {publisher}"
+    publishedBy: "This edition published {date} by {publisher}"
+  colophon:
+    heading: Colophon
+    author: Author
+    translator: Translator
+    publisher: Publisher
+    printer: Printer
+    issued: "Published {date}"
+    issuedEdition: "{version}, published {date}"
+
+theme: english-novel
+writingMode: horizontal-tb
+size: 6x9
+columns: 1
+startSide: right
+baseFontSize: 10.5pt
+paragraphIndentMode: all
+footnote: gcpm
+highlight: mark
+autoTcy: false
+
+fontFamily: Georgia, 'Times New Roman', Times, serif
+headingFontFamily: Georgia, 'Times New Roman', Times, serif
+mboxFontFamily: Georgia, 'Times New Roman', Times, serif
+
+sections:
+  halfTitle: off
+  titlePage: auto
+  copyrightPage: auto
+  toc: auto
+  colophon: off
+
+pageNumbering: roman-then-arabic
+tocDepth: 2
+includeToc: false
+
+colophonExtra:
+  Source: Project Gutenberg eBook No. 1661
+
+output: The Adventures of Sherlock Holmes.pdf
