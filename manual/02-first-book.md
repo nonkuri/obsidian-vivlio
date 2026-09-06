@@ -4,6 +4,16 @@
 
 ここでは、二つの章からなる縦組みの文庫本を作り、PDF に書き出します。
 
+## 完成サンプルから試す場合
+
+先に完成形を試したい場合は、[芥川龍之介短編集](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-akutagawa-0.8.0.zip) または [The Adventures of Sherlock Holmes](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) をダウンロードします。
+
+1. 外側の ZIP を展開する。
+2. 中にある入力原稿の ZIP を Vault のルートへ展開する。
+3. 展開された本のフォルダを右クリックし、**Vivlio: 本としてプレビュー**を選ぶ。
+
+入力原稿のフォルダ名は `vivlio.yaml` 内の表紙、CSS、前付け・後付けへのパスに含まれます。名前を変更する場合は、それらのパスも一緒に変更してください。
+
 ## 1. Vivlio を有効にする
 
 ### Obsidian からインストールする場合

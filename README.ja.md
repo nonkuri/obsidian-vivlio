@@ -25,6 +25,17 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 | **EPUB 3** | リフロー型。テーマの CSS、表紙、ランドマークを含みます。 |
 | **書き出し前の点検** | 300 dpi を下回る画像、この PC にないフォント、ページと縦横比の合わない表紙を報告します。 |
 
+## サンプル
+
+Vivlio 0.8.0 で作成した入力原稿と出力結果を、リリースからダウンロードできます。どちらも入力原稿を Vault に展開して、設定や CSS を変更しながら試せます。
+
+| サンプル | 内容 | ダウンロード |
+|---|---|---|
+| 芥川龍之介短編集 | 同じ Markdown 原稿から作成した A5 縦二段組（トンボ・塗り足しあり／なし）、文庫版の PDF と EPUB | [0.8.0 サンプル（20.7 MiB）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-akutagawa-0.8.0.zip) |
+| The Adventures of Sherlock Holmes | Vault 内の独自 CSS を適用した英語小説の PDF、EPUB、入力原稿 | [0.8.0 sample（2.7 MiB）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) |
+
+各 ZIP の README に、入力原稿の展開方法、出力との対応、原典とライセンス上の注意を記載しています。サンプル内のフォルダ名は `vivlio.yaml` から参照されているため、まずは名前を変えずに Vault のルートへ展開してください。
+
 ## インストール
 
 **Obsidian から。** 設定 → コミュニティプラグイン → 閲覧 で *Vivlio* を検索し、インストールして有効化します。

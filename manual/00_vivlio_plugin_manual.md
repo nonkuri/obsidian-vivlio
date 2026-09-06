@@ -21,6 +21,15 @@
 - [自分でテーマを作ってみる](06-custom-theme.md)
 - [書き出し・点検・トラブルシューティング](07-export-and-troubleshooting.md)
 
+## 完成サンプル
+
+Vivlio 0.8.0 で作成した入力原稿と PDF / EPUB をダウンロードできます。
+
+- [芥川龍之介短編集](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-akutagawa-0.8.0.zip) — 同じ Markdown 原稿から A5 縦二段組、トンボ・塗り足し付き入稿用、文庫版、EPUB を作り分けた例
+- [The Adventures of Sherlock Holmes](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) — Vault 内の独自 CSS で英語小説を組版した例
+
+ZIP 内の README に導入方法があります。入力原稿のフォルダ名は `vivlio.yaml` から参照されているため、最初は名前を変えずに Vault のルートへ展開してください。
+
 ## 最短コース
 
 急いで試す場合は、次の順で進めてください。
