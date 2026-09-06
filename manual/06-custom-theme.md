@@ -105,6 +105,52 @@ theme: 装丁/遠雷.css
 
 展開後の同じ CSS がプレビューと EPUB に使われます。
 
+## ノートごとにスタイルを使い分ける
+
+一冊の中でも、本文、参考文献、ライセンスページなどで組み方を変えたいことがあります。この場合、ノートごとに別のテーマを指定するのではなく、親になる CSS から必要な CSS をすべて import し、ノートの `class` で適用範囲を限定します。
+
+[The Adventures of Sherlock Holmes のサンプル](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip)では、次の三枚を一つの入口から読み込んでいます。
+
+```css
+/* style/english-literary.css */
+@import url("./english-fiction.css");
+@import url("./about-this-edition.css");
+@import url("./project-gutenberg-license.css");
+```
+
+通常の章には何も追加しません。特別な組み方をするノートだけ、フロントマターに VFM の `class` を書きます。
+
+```markdown
+---
+class: about-this-edition
+---
+
+# About This Edition
+```
+
+対応する CSS は、すべてのセレクタを `:root.about-this-edition` の内側に限定します。
+
+```css
+:root.about-this-edition {
+  --about-body-size: 0.95rem;
+  --about-body-line-height: 1.58;
+}
+
+:root.about-this-edition p {
+  font-size: var(--about-body-size);
+  line-height: var(--about-body-line-height);
+  text-indent: 0;
+}
+
+:root.about-this-edition .vivlio-chapter-title::after {
+  content: none;
+}
+```
+
+CSS 自体は本全体へ読み込まれますが、上の規則は `class: about-this-edition` を持つノートにしか一致しません。クラス名を増やせば、同じ本の中で `bibliography`、`appendix`、`legal` などを別々に調整できます。
+
+`class` は一般的な名前との衝突を避け、用途が分かる名前にします。限定なしの `p` や `h1` をノート専用 CSS に書くと全章へ影響するため、ノート固有の規則には必ず `:root.<class名>` を付けてください。
+
 ## CSS の適用順
 
 最終スタイルは概ね次の順に並び、後のものが同じ詳細度なら優先されます。
@@ -230,6 +276,35 @@ css: |
     border-color: #a40000;
   }
 ```
+
+## ChatGPT と相談しながらテーマを作る
+
+CSS を一から設計するのが難しい場合は、ChatGPT にリポジトリを示し、欲しい仕上がりを言葉で伝えるところから始められます。英語小説サンプルの CSS も、ChatGPT と相談しながら調整しました。
+
+たとえば、最初は次の程度の依頼でも構いません。
+
+> <https://github.com/nonkuri/obsidian-vivlio/tree/main>
+>
+> このプラグインで使える英語小説用の CSS を作ってください。美しいレイアウトにしてください。
+
+最初の案をプレビューしたら、「章冒頭にドロップキャップを入れて」「見出しをもう少し静かな印象にして」「参考文献のノートだけ字下げをなくして」のように、見た目と対象を一つずつ伝えて調整します。最初の依頼が完璧でなくても、結果を見て具体的な追加指示を重ねる進め方で構いません。
+
+より確実に Vivlio 用のファイルを受け取るには、次のように成果物と制約を足します。
+
+> このリポジトリの README と `manual/06-custom-theme.md` を確認し、Vivlio の Vault 内テーマとして使える英語小説用 CSS を作ってください。
+>
+> - `vivlio:english-novel` を土台にする
+> - CSS ファイルの配置例と `vivlio.yaml` の `theme` の記述も示す
+> - 外部 URL や npm パッケージには依存しない
+> - 本文、見出し、柱、ノンブル、扉、目次を整える
+> - PDF と EPUB の両方で使える論理プロパティを優先する
+> - ノートごとの変更には `class` と `:root.<class名>` を使い、他の章へ影響させない
+
+ChatGPT がリンク先を参照できない場合は、この章、現在使っている CSS、`vivlio.yaml`、調整したいページのスクリーンショットを会話へ添付します。期待する雰囲気の本やレイアウトがあれば、それも言葉や画像で伝えると方向を合わせやすくなります。
+
+生成された CSS はそのまま完成品とは考えず、プレビューで全ページを確認します。特に `@page`、縦組み、段組、脚注、ドロップキャップは PDF と EPUB で差が出やすいため、両方を書き出して確認してください。外部 URL、存在しないセレクタ、使用するフォントや画像のライセンスも点検します。
+
+プロンプトの考え方については、[OpenAI 公式のプロンプトガイド](https://learn.chatgpt.com/docs/prompting)も参照できます。
 
 ## Vivliostyle 公式ドキュメントへの案内
 
