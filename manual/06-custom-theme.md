@@ -38,6 +38,8 @@
 
 Vault に `装丁/遠雷.css` を作ります。
 
+標準 Obsidian だけでは `.css` を本格的に編集できません。Vivlio の簡易エディタを使うか、構文色分けや検索・置換も必要なら [Code Space を使う手順](04-book-configuration.md#yaml-と-css-を-obsidian-内で編集する)を参照してください。
+
 ```css
 /* 装丁/遠雷.css */
 @import url("vivlio:novel");

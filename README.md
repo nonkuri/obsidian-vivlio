@@ -105,6 +105,14 @@ Three layers; a lower one overrides the one above it.
 3. **A note's frontmatter** — flat `vivlio-*` keys only, so Obsidian's property
    editor can edit them (it cannot edit nested YAML).
 
+### Editing `.yaml` and `.css` inside Obsidian
+
+Obsidian's built-in editor is centred on Markdown notes and does not provide a general editor for arbitrary `.yaml` and `.css` files. With **Show .yaml / .css / .epub in the file explorer** enabled, Vivlio makes its configuration and theme files visible and opens them in a minimal plain-text editor.
+
+For syntax highlighting, line numbers, folding, and search and replace without leaving Obsidian, [Code Space](https://community.obsidian.md/plugins/code-space) is a useful community plugin; it is also what the author of this README uses. Install it from **Settings → Community plugins → Browse** by searching for “Code Space”. It manages `.css`, `.yaml`, and `.yml` by default.
+
+If those files still open in Vivlio's minimal editor after installing Code Space, turn off Vivlio's setting above, restart Obsidian, and check that `css`, `yaml`, and `yml` are present under Code Space's **Managed extensions**. Only one plugin can own a file extension at a time. Code Space's external-folder mounting feature is not needed for this workflow.
+
 ```yaml
 # vivlio.yaml
 title: 吾輩は猫である

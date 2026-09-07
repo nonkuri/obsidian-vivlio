@@ -88,6 +88,8 @@ Obsidian の **設定 → Vivlio** で、Vault 全体の既定値を変更でき
 
 本の `output` または書き出しダイアログのパスが、**出力フォルダ**より優先されます。Vault 外の絶対パスへも出力できます。
 
+標準 Obsidian は `.yaml` や `.css` の汎用エディタを持ちません。上表の **「.yaml / .css / .epub をファイルエクスプローラーに表示する」** をオンにすると、Vivlio が `.yaml` と `.css` を簡易テキストエディタで開きます。構文色分けや行番号、検索・置換が必要なら、コミュニティプラグインの [Code Space](https://community.obsidian.md/plugins/code-space) を利用できます。詳しい導入と競合時の設定は[本ごとの設定 — `.yaml` と `.css` を Obsidian 内で編集する](04-book-configuration.md#yaml-と-css-を-obsidian-内で編集する)を参照してください。
+
 ## 記法
 
 初期状態では、**タグを残す**だけがオフで、それ以外はすべてオンです。

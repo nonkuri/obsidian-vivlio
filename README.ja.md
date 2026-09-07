@@ -86,6 +86,14 @@ Vivlio 0.8.0 で作成した入力原稿と出力結果を、リリースから�
 2. 本の隣に置く **`vivlio.yaml`** — 本の設定を書く本来の場所です。入れ子とコメントが使えます。
 3. **ノートのフロントマター** — フラットな `vivlio-*` キーのみ。Obsidian のプロパティエディタで編集できるようにするためです（入れ子の YAML は編集できません）。
 
+### `.yaml` と `.css` を Obsidian 内で編集する
+
+標準の Obsidian は Markdown ノートを中心にしたエディタで、任意の `.yaml` や `.css` を編集する機能は備えていません。Vivlio は設定の **「.yaml / .css / .epub をファイルエクスプローラーに表示する」** がオンなら、`vivlio.yaml` と自作テーマを表示し、最低限のプレーンテキストエディタで開けるようにします。
+
+構文の色分け、行番号、コードの折りたたみ、検索・置換なども Obsidian 内で使いたい場合は、コミュニティプラグインの [Code Space](https://community.obsidian.md/plugins/code-space) が便利です。この README の作者も利用しています。**設定 → コミュニティプラグイン → 閲覧**で「Code Space」を検索してインストールしてください。`.css`、`.yaml`、`.yml` は標準の管理対象です。
+
+Code Space を入れたのにファイルが Vivlio の簡易エディタで開く場合は、Vivlio の上記設定をオフにして Obsidian を再起動し、Code Space の **Managed extensions** に `css`、`yaml`、`yml` が含まれていることを確認します。1つの拡張子を同時に複数のプラグインが担当できないためです。外部フォルダのマウント機能は、この用途には必要ありません。
+
 ```yaml
 # vivlio.yaml
 title: 吾輩は猫である
