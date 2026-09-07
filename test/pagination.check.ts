@@ -44,6 +44,7 @@ async function main() {
     const errors: string[] = [];
     page.on("pageerror", (error: Error) => errors.push(error.message));
 
+    for (const writingMode of ["vertical-rl", "horizontal-tb"] as const) {
     for (const startPage of [5, 0, -2]) {
       for (const side of ["any", "left"] as const) {
         for (const long of [false, true]) {
@@ -78,8 +79,12 @@ async function main() {
           app, settings: DEFAULT_SETTINGS, server, component: new Component(),
           target: { kind: "folder", folder }, mode: "preview",
           overrides: {
-            title: "Pagination", theme: "novel", coverPage: "cover.md", startSide: side,
-            sections: { ...DEFAULT_SETTINGS.sectionDefaults, titlePage: "auto", toc: "auto", preface: "preface.md", colophon: "off" },
+            title: "Pagination",
+            theme: writingMode === "vertical-rl" ? "novel" : "techbook",
+            writingMode,
+            coverPage: "cover.md",
+            startSide: side,
+            sections: { ...DEFAULT_SETTINGS.sectionDefaults, titlePage: "auto", toc: "auto", preface: "preface.md", colophon: "auto" },
           },
         });
         await page.goto(server.bookViewerUrl(build.publicationUrl));
@@ -112,6 +117,16 @@ async function main() {
           });
         });
         assert.equal(pages[0].number, 0, "cover is excluded");
+        const colophonIndex = build.chapters.findIndex((chapter) => chapter.role === "doc-colophon");
+        const lastPage = pages.at(-1);
+        assert.equal(lastPage?.spine, colophonIndex, "the colophon is the final document");
+        const expectedColophonSide = writingMode === "vertical-rl" ? "right" : "left";
+        assert.equal(
+          lastPage?.side,
+          expectedColophonSide,
+          `a Japanese ${writingMode} colophon finishes on the ${expectedColophonSide} page`,
+        );
+        assert.ok(lastPage?.text.includes("Pagination"), "the final page contains the colophon");
         const bodyIndex = build.chapters.findIndex((chapter) => chapter.isBody);
         const body = pages.filter((p) => p.spine >= bodyIndex);
         // With a forced side, an opening blank precedes the first body page.
@@ -163,10 +178,11 @@ async function main() {
           assert.equal(dict.lookup(PDFName.of("St"), PDFNumber).asNumber() + i - start, pages[i].number);
           assert.equal(dict.lookup(PDFName.of("S"), PDFName).asString(), mode === "roman-then-arabic" && classes[i] === "front" ? "/r" : "/D");
         }
-        process.stdout.write(`ok start ${startPage}, ${mode}, ${side}, ${long ? "two" : "one"}-page chapter: ${pages.map((p) => p.number).join(",")} (PDF labels match)\n`);
+        process.stdout.write(`ok ${writingMode}, start ${startPage}, ${mode}, ${side}, ${long ? "two" : "one"}-page chapter: ${pages.map((p) => p.number).join(",")} (PDF labels match)\n`);
           }
         }
       }
+    }
     }
     assert.deepEqual(errors, []);
   } finally {

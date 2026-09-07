@@ -785,6 +785,41 @@ async function main(): Promise<void> {
       ),
       blind.slice(blind.indexOf("@page titlepage")),
     ),
+    check(
+      "a Japanese vertical colophon finishes on the right page",
+      /html\.vivlio-vertical #vivlio-start\[role='doc-colophon'\] > :first-child \{\s*break-before: right;/.test(
+        blind,
+      ),
+      blind.slice(blind.indexOf("[role='doc-colophon']")),
+    ),
+  );
+
+  const horizontalColophon = makeContext();
+  horizontalColophon.config.writingMode = "horizontal-tb";
+  const englishVerticalColophon = makeContext();
+  englishVerticalColophon.config.lang = "en";
+  const englishHorizontalColophon = makeContext();
+  englishHorizontalColophon.config.lang = "en";
+  englishHorizontalColophon.config.writingMode = "horizontal-tb";
+  checks.push(
+    check(
+      "a Japanese horizontal colophon finishes on the left page",
+      /html\.vivlio-horizontal #vivlio-start\[role='doc-colophon'\] > :first-child \{\s*break-before: left;/.test(
+        bookStylesheet(horizontalColophon, "x.css"),
+      ),
+    ),
+    check(
+      "a non-Japanese vertical colophon is not forced there either",
+      !bookStylesheet(englishVerticalColophon, "x.css").includes(
+        "#vivlio-start[role='doc-colophon']",
+      ),
+    ),
+    check(
+      "an English horizontal book gets no final-side colophon rule",
+      !bookStylesheet(englishHorizontalColophon, "x.css").includes(
+        "#vivlio-start[role='doc-colophon']",
+      ),
+    ),
   );
 
   // Japanese binding runs right to left, so the odd page is the left one and a
@@ -802,6 +837,10 @@ async function main(): Promise<void> {
         sidedCss,
       ),
       sidedCss.slice(sidedCss.indexOf("break-before: left") - 120),
+    ),
+    check(
+      "the final-side rule overrides a general left-side preference for the colophon",
+      sidedCss.lastIndexOf("break-before: right") > sidedCss.indexOf("break-before: left"),
     ),
     // The cover is the first leaf; there is nothing in front of it to break from.
     // A part is the outermost box of its own document and the page is already

@@ -113,6 +113,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
   blocks.push(coverCss(context));
   blocks.push(sectionCss(context));
   blocks.push(startSideCss(context));
+  blocks.push(colophonFinalSideCss(context));
   blocks.push(pageNumberingCss(context));
 
   if (config.css.trim()) blocks.push(`/* book css */\n${config.css.trim()}`);
@@ -796,6 +797,31 @@ h2,
 #${DOCUMENT_ANCHOR}:not(.cover):not(.copyright-page) > :first-child,
 #toc > :first-child,
 .halftitle > :first-child {
+  break-before: ${side};
+}`.trim();
+}
+
+/**
+ * Put a Japanese colophon on the final page of the printed book block.
+ *
+ * That last page is the even side: physically right in a vertical right-bound
+ * book and left in a horizontal left-bound book. When the preceding matter
+ * ends on that side, paged media inserts a blank page before the colophon.
+ * The selector is deliberately more specific than the general `startSide`
+ * rule above: that setting controls chapters and ordinary parts, but must not
+ * pull the final colophon away from the end side.
+ *
+ * Both generated and manuscript-backed colophons carry `doc-colophon`, so the
+ * rule covers either form without affecting an English copyright page.
+ */
+function colophonFinalSideCss(context: BuildContext): string {
+  const lang = context.config.lang.trim().toLowerCase();
+  if (!/^ja(?:-|$)/.test(lang)) return "";
+  const vertical = context.config.writingMode === "vertical-rl";
+  const side = vertical ? "right" : "left";
+  const modeClass = vertical ? "vivlio-vertical" : "vivlio-horizontal";
+  return `
+html.${modeClass} #${DOCUMENT_ANCHOR}[role='doc-colophon'] > :first-child {
   break-before: ${side};
 }`.trim();
 }
