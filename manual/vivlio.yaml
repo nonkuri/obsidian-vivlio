@@ -5,7 +5,7 @@
 # 書名
 title: Vivlio プラグイン詳細マニュアル
 # 副題
-subtitle: Obsidian のノートを Vivliostyle で組版する — 0.8.0 対応
+subtitle: Obsidian のノートを Vivliostyle で組版する — 0.10.1 対応
 # シリーズ名（奥付・扉に出る）
 # series: ""
 # 著者
@@ -52,14 +52,14 @@ labels:
     issuedEdition: "{date}　{version}発行"
 # 奥付に足す任意の項目: [{ label: 装丁, value: 山田花子 }] または { 装丁: 山田花子 }
 colophonExtra:
-  対応バージョン: 0.8.0
+  対応バージョン: 0.10.1
 
 # --- 組版 ---
 # テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス
 theme: manual
 # vertical-rl（縦組み）| horizontal-tb（横組み）
 writingMode: horizontal-tb
-# 判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | JIS-B5 | B5 | A4 | 6x9 | letter | "128mm 188mm"
+# 判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | 四六判 | A5 | JIS-B5 | B5 | A4 | 6x9 | letter | "128mm 188mm"
 size: A5
 # 1行あたりの文字数（二段組なら1段の字詰め）。空ならテーマが判型と文字サイズから決める
 # charsPerLine: null
@@ -79,6 +79,8 @@ size: A5
 # footnote: gcpm
 # ==ハイライト== の扱い: boten | strong | mark | off
 highlight: mark
+# 傍点の記号: ﹅ | ﹆ | ● | ○ | ▲ | △ | ◎ | ◉ | 任意の文字
+# botenMark: "﹅"
 # 2 桁の半角数字を自動で縦中横にする
 autoTcy: false
 # 単位のない ![[fig.png|300]] の 300 の解釈: px | percent | mm。いずれも紙面での画像の幅。画像ごとに ![[fig.png|60%]] ![[fig.png|80mm]] と書けばそちらが優先
