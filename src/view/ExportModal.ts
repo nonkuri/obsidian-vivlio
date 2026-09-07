@@ -120,7 +120,9 @@ export class ExportModal extends Modal {
   }
 
   private defaultTitle(): string {
-    if (this.target.kind === "folder") return this.target.folder.name;
+    if (this.target.kind === "folder" || this.target.kind === "config") {
+      return this.target.folder.name;
+    }
     return this.target.file.basename;
   }
 

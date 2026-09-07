@@ -38,8 +38,9 @@ import { throwIfAborted } from "../util/async";
 import { joinPosix, stripExtension } from "../util/paths";
 import { log } from "../util/log";
 import { t } from "../i18n";
+import { CONFIG_FILE } from "./target";
 
-export const CONFIG_FILE = "vivlio.yaml";
+export { CONFIG_FILE } from "./target";
 
 export interface BuildRequest {
   app: App;
@@ -64,13 +65,14 @@ export interface BuildResult {
   publicationUrl: string;
 }
 
-/** Read `vivlio.yaml` for a book (SPEC 5.4, layer 2). */
+/** Read the explicitly selected YAML, or the conventional `vivlio.yaml`. */
 export async function readBookYaml(
   app: App,
   bookRoot: string,
+  configFile?: TFile,
 ): Promise<Record<string, unknown> | null> {
-  const path = joinPosix(bookRoot, CONFIG_FILE);
-  const file = app.vault.getFileByPath(path);
+  const path = configFile?.path ?? joinPosix(bookRoot, CONFIG_FILE);
+  const file = configFile ?? app.vault.getFileByPath(path);
   if (!file) return null;
   try {
     const parsed = loadYaml(await app.vault.cachedRead(file));
@@ -86,7 +88,7 @@ export async function readBookYaml(
  * contents note for a folder, the note itself for a single-note export.
  */
 function primaryNote(app: App, target: BuildTarget): TFile | null {
-  if (target.kind !== "folder") return target.file;
+  if (target.kind !== "folder" && target.kind !== "config") return target.file;
   for (const child of target.folder.children) {
     if (child instanceof TFile && child.extension === "md" && isTocNote(app, child, target.folder)) {
       return child;
@@ -104,7 +106,11 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   throwIfAborted(signal);
 
   const bookRoot = bookRootOf(target);
-  const yaml = await readBookYaml(app, bookRoot);
+  const yaml = await readBookYaml(
+    app,
+    bookRoot,
+    target.kind === "config" ? target.file : undefined,
+  );
   const primary = primaryNote(app, target);
   const frontmatter = primary
     ? extractFrontmatterConfig(
@@ -148,7 +154,7 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   if (!config.title) {
     const labels = resolveBookLabels(config);
     config.title =
-      target.kind === "folder"
+      target.kind === "folder" || target.kind === "config"
         ? target.folder.name || labels.untitled
         : titleOf(app, target.file);
   }

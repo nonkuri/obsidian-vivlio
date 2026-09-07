@@ -16,15 +16,18 @@ export const en = {
   "command.yamlToSettings": "Make this vivlio.yaml the vault default",
 
   "menu.exportFolder": "Vivlio: export as a book",
+  "menu.exportPdf": "Vivlio: export this book to PDF",
+  "menu.exportEpub": "Vivlio: export this book to EPUB",
   "menu.preview": "Vivlio: preview",
   "menu.previewFolder": "Vivlio: preview as a book",
+  "menu.multipleConfigs": "Vivlio: select one configuration YAML at a time",
 
   "view.title": "Vivlio preview",
   "view.rebuild": "Rebuild",
   "view.theme": "Theme",
   "view.exportPdf": "PDF",
   "view.exportEpub": "EPUB",
-  "view.empty": "Open a Markdown note to typeset it.",
+  "view.empty": "Open a Markdown note or configuration YAML to typeset it.",
   "view.building": "Typesetting…",
   "view.autoRefreshOff": "Auto refresh is off",
 
@@ -38,6 +41,7 @@ export const en = {
   "notice.exporting": "Vivlio: exporting…",
   "notice.cancelled": "Vivlio: cancelled",
   "notice.noActiveNote": "Vivlio: no active note",
+  "notice.noActiveSource": "Vivlio: open a Markdown note or configuration YAML first",
   "notice.desktopOnly": "Vivlio only runs on the desktop app",
   "notice.serverFailed": "Vivlio: could not start the local preview server",
   "notice.configUnreadable": "Vivlio: could not read vivlio.yaml; starting from the defaults",

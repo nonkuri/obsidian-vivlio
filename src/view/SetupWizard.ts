@@ -8,7 +8,7 @@ import { configToYaml, keyDescription } from "../config/yaml";
 import { BOTEN_MARK_CHOICES, PAPER_SIZE_CHOICES } from "../config/defaults";
 import { themeChoices } from "../build/theme";
 import { localFontFamilies } from "../build/fonts";
-import { CONFIG_FILE } from "../build/pipeline";
+import { CONFIG_FILE } from "../build/target";
 import { isImagePath, joinPosix } from "../util/paths";
 import { t, type StringKey } from "../i18n";
 

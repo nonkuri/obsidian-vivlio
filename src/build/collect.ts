@@ -7,6 +7,7 @@ import { naturalCompare, stripExtension } from "../util/paths";
 export type BuildTarget =
   | { kind: "note"; file: TFile }
   | { kind: "folder"; folder: TFolder }
+  | { kind: "config"; file: TFile; folder: TFolder }
   | { kind: "toc"; file: TFile };
 
 export interface CollectedNote {
@@ -19,7 +20,9 @@ const WIKILINK = /!?\[\[([^\]]+)\]\]/g;
 
 /** Vault-relative folder that owns the book configuration. */
 export function bookRootOf(target: BuildTarget): string {
-  if (target.kind === "folder") return target.folder.path === "/" ? "" : target.folder.path;
+  if (target.kind === "folder" || target.kind === "config") {
+    return target.folder.path === "/" ? "" : target.folder.path;
+  }
   return target.file.parent?.path === "/" ? "" : (target.file.parent?.path ?? "");
 }
 

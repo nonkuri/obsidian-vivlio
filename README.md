@@ -95,6 +95,10 @@ hand with the toolbar button or `Vivlio: Reload typeset result`.
 The file explorer's context menu offers preview and export as well — see
 [Opening the preview](#opening-the-preview).
 
+Open any `.yaml` file (for example, `print.yaml` or `ebook.yaml`) and run **Export to PDF** or **Export to EPUB** to export its whole folder as one book using the selected configuration. The same actions are available by right-clicking a YAML file in the File Explorer. Starting from a Markdown note or folder still uses the conventional `vivlio.yaml` beside the manuscript.
+
+When a multi-selection contains exactly one `.yaml`, that file is used as the configuration. With two or more YAML files—even two editions beside the same manuscript—Vivlio asks you to select one configuration at a time rather than guessing which one to use.
+
 ## Configuring a book
 
 Three layers; a lower one overrides the one above it.

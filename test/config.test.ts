@@ -32,6 +32,11 @@ import { Workspace } from "../src/build/workspace";
 import { baseBookConfig } from "../src/config/defaults";
 import { setLanguage, t, type StringKey } from "../src/i18n";
 import { resolveBookLabels } from "../src/config/labels";
+import {
+  configTargetsInSelection,
+  targetForActiveFile,
+} from "../src/build/target";
+import { readBookYaml } from "../src/build/pipeline";
 
 /** The little of a build context that a contents list actually reads. */
 function tocContext(chapters: Chapter[]): BuildContext {
@@ -64,8 +69,8 @@ function makeFile(path: string, frontmatter?: Record<string, unknown>): TFile {
   const file = new TFile();
   file.path = path;
   file.name = path.split("/").pop() ?? path;
-  file.basename = file.name.replace(/\.md$/, "");
-  file.extension = "md";
+  file.basename = file.name.replace(/\.[^.]+$/, "");
+  file.extension = file.name.includes(".") ? (file.name.split(".").pop() ?? "") : "";
   (file as TFile & { frontmatter?: unknown }).frontmatter = frontmatter;
   return file;
 }
@@ -101,6 +106,55 @@ function makeFolder(name: string, children: TFile[]): TFolder {
 
 async function main(): Promise<void> {
   setLanguage("en");
+
+  // --- targets chosen from the File Explorer ----------------------------
+  {
+    const config = makeFile("book/print.yaml");
+    const chapter = makeFile("book/01.md");
+    const folder = makeFolder("book", [config, chapter]);
+    const otherConfig = makeFile("book/ebook.yaml");
+    otherConfig.parent = folder;
+    const yml = makeFile("book/other.yml");
+    yml.parent = folder;
+
+    const activeConfig = targetForActiveFile(config);
+    check(
+      "an active YAML targets its whole folder and preserves the selected config",
+      activeConfig?.kind === "config" &&
+        activeConfig.folder === folder &&
+        activeConfig.file === config,
+    );
+    check("an active Markdown file remains a note target", targetForActiveFile(chapter)?.kind === "note");
+    check("the .yml extension is not treated as a requested .yaml config", targetForActiveFile(yml) === null);
+
+    const oneBook = configTargetsInSelection([config, chapter, yml]);
+    check(
+      "one YAML in a multi-selection still identifies one configuration",
+      oneBook.length === 1 &&
+        oneBook[0].kind === "config" &&
+        oneBook[0].file === config,
+    );
+    check(
+      "two configs beside the same manuscript stay distinct",
+      configTargetsInSelection([config, otherConfig]).length === 2,
+    );
+
+    const selected = await readBookYaml(
+      {
+        vault: {
+          cachedRead: async (file: TFile) =>
+            file === config ? "title: Print edition" : "title: Wrong edition",
+          getFileByPath: () => otherConfig,
+        },
+      } as unknown as App,
+      folder.path,
+      config,
+    );
+    check(
+      "the build reads the explicitly selected YAML instead of vivlio.yaml",
+      selected?.title === "Print edition",
+    );
+  }
 
   // --- layer merging (SPEC 5.4) -----------------------------------------
   const layered = resolveConfig({

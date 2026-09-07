@@ -16,15 +16,18 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "command.yamlToSettings": "この vivlio.yaml を Vault の既定にする",
 
   "menu.exportFolder": "Vivlio: 本として書き出す",
+  "menu.exportPdf": "Vivlio: この本を PDF に書き出す",
+  "menu.exportEpub": "Vivlio: この本を EPUB に書き出す",
   "menu.preview": "Vivlio: プレビュー",
   "menu.previewFolder": "Vivlio: 本としてプレビュー",
+  "menu.multipleConfigs": "Vivlio: 設定 YAML は1つずつ選択してください",
 
   "view.title": "Vivlio プレビュー",
   "view.rebuild": "再ビルド",
   "view.theme": "テーマ",
   "view.exportPdf": "PDF",
   "view.exportEpub": "EPUB",
-  "view.empty": "Markdown ノートを開くと組版します。",
+  "view.empty": "Markdown ノートか設定 YAML を開くと組版します。",
   "view.building": "組版中…",
   "view.autoRefreshOff": "自動更新はオフです",
 
@@ -38,6 +41,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "notice.exporting": "Vivlio: 書き出し中…",
   "notice.cancelled": "Vivlio: 中断しました",
   "notice.noActiveNote": "Vivlio: ノートが開かれていません",
+  "notice.noActiveSource": "Vivlio: Markdown ノートか設定 YAML を開いてください",
   "notice.desktopOnly": "Vivlio はデスクトップ版でのみ動作します",
   "notice.serverFailed": "Vivlio: プレビュー用のローカルサーバを起動できませんでした",
   "notice.configUnreadable": "Vivlio: vivlio.yaml を読めませんでした。既定値から始めます",

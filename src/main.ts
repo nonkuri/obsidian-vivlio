@@ -5,6 +5,7 @@ import {
   TFolder,
   normalizePath,
   type Editor,
+  type Menu,
   type WorkspaceLeaf,
 } from "obsidian";
 import { load as loadYaml } from "js-yaml";
@@ -17,7 +18,11 @@ import {
   settingsToYaml,
 } from "./config/yaml";
 import { PreviewServer } from "./server/static";
-import { CONFIG_FILE } from "./build/pipeline";
+import {
+  CONFIG_FILE,
+  configTargetsInSelection,
+  targetForActiveFile,
+} from "./build/target";
 import { bookValuesFromYaml } from "./config/resolve";
 import type { BuildTarget } from "./build/collect";
 import { VivlioPreviewView, VIEW_TYPE_PREVIEW } from "./view/PreviewView";
@@ -283,18 +288,65 @@ export default class VivlioPlugin extends Plugin {
               .setIcon("book-open")
               .onClick(() => void this.openPreview({ kind: "note", file })),
           );
+          return;
         }
+        if (file instanceof TFile && file.extension.toLowerCase() === "yaml" && file.parent) {
+          this.addConfigMenuItems(menu, { kind: "config", file, folder: file.parent });
+        }
+      }),
+    );
+
+    // Obsidian has a separate public event for a File Explorer context menu
+    // opened on multiple selected entries. One YAML still identifies one
+    // book even if its manuscript files are selected beside it; two configs
+    // may be alternative editions and must never silently choose one.
+    this.registerEvent(
+      this.app.workspace.on("files-menu", (menu, files) => {
+        const targets = configTargetsInSelection(files);
+        if (targets.length === 0) return;
+        if (targets.length > 1) {
+          menu.addItem((item) =>
+            item
+              .setTitle(t("menu.multipleConfigs"))
+              .setIcon("book-open")
+              .setDisabled(true),
+          );
+          return;
+        }
+        this.addConfigMenuItems(menu, targets[0]);
       }),
     );
   }
 
+  /** Actions offered when a YAML file identifies a whole book. */
+  private addConfigMenuItems(menu: Menu, target: BuildTarget): void {
+    menu.addItem((item) =>
+      item
+        .setTitle(t("menu.previewFolder"))
+        .setIcon("book-open")
+        .onClick(() => void this.openPreview(target)),
+    );
+    menu.addItem((item) =>
+      item
+        .setTitle(t("menu.exportPdf"))
+        .setIcon("file-down")
+        .onClick(() => this.openExport(target, "pdf")),
+    );
+    menu.addItem((item) =>
+      item
+        .setTitle(t("menu.exportEpub"))
+        .setIcon("file-down")
+        .onClick(() => this.openExport(target, "epub")),
+    );
+  }
+
   private activeTarget(): BuildTarget | null {
-    const file = this.app.workspace.getActiveFile();
-    if (!file || file.extension !== "md") {
-      new Notice(t("notice.noActiveNote"));
+    const target = targetForActiveFile(this.app.workspace.getActiveFile());
+    if (!target) {
+      new Notice(t("notice.noActiveSource"));
       return null;
     }
-    return { kind: "note", file };
+    return target;
   }
 
   async openPreview(target?: BuildTarget): Promise<void> {

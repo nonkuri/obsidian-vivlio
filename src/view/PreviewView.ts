@@ -17,6 +17,7 @@ import { t } from "../i18n";
 import { writeDiagnostics } from "../util/diagnostics";
 import { POSITION_MESSAGE } from "../server/keepPage";
 import { log } from "../util/log";
+import { targetForActiveFile } from "../build/target";
 
 export const VIEW_TYPE_PREVIEW = "vivlio-preview";
 
@@ -106,12 +107,14 @@ export class VivlioPreviewView extends ItemView {
     this.registerEvent(
       this.app.workspace.on("file-open", (file) => {
         if (!file || !this.plugin.settings.autoRefresh) return;
-        if (this.target?.kind === "note") void this.show({ kind: "note", file });
+        const target = targetForActiveFile(file);
+        if (this.target?.kind === "note" && target) void this.show(target);
       }),
     );
 
     const active = this.app.workspace.getActiveFile();
-    if (active) await this.show({ kind: "note", file: active });
+    const target = targetForActiveFile(active);
+    if (target) await this.show(target);
     else this.setStatus(t("view.empty"));
   }
 
@@ -139,6 +142,9 @@ export class VivlioPreviewView extends ItemView {
 
   private affects(path: string): boolean {
     if (!this.target) return false;
+    if (this.target.kind === "config") {
+      return path === this.target.file.path || path.startsWith(`${this.target.folder.path}/`);
+    }
     if (path.endsWith("vivlio.yaml")) return true;
     if (this.target.kind === "folder") return path.startsWith(`${this.target.folder.path}/`);
     // Any note in the book may have been embedded into the one on screen.
@@ -255,8 +261,7 @@ export class VivlioPreviewView extends ItemView {
 /** Convert whatever the user clicked into a build target. */
 export function targetFor(file: TFile | TFolder | null): BuildTarget | null {
   if (file instanceof TFolder) return { kind: "folder", folder: file };
-  if (file instanceof TFile && file.extension === "md") return { kind: "note", file };
-  return null;
+  return targetForActiveFile(file);
 }
 
 /**
