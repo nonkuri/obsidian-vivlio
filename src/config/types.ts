@@ -274,6 +274,8 @@ export interface BookConfig {
   startSide: PageSide;
   footnote: FootnoteMode;
   highlight: HighlightMode;
+  /** Mark repeated beside every character in an emphasis-dot run. */
+  botenMark: string;
   autoTcy: boolean;
   imageWidthUnit: ImageWidthUnit;
 
@@ -346,6 +348,8 @@ export interface VivlioSettings {
   // syntax
   syntax: SyntaxToggles;
   highlight: HighlightMode;
+  /** Vault-wide default mark for both Kakuyomu and highlight emphasis. */
+  botenMark: string;
 
   // structure
   sectionDefaults: Partial<Record<SectionSlot, SectionValue>>;

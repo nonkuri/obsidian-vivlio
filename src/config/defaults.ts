@@ -21,6 +21,25 @@ export const DEFAULT_SANS_STACK =
 export const DEFAULT_MONO_STACK =
   "'Consolas', 'BIZ UDGothic', 'SFMono-Regular', 'Menlo', 'Noto Sans Mono CJK JP', monospace";
 
+/**
+ * Traditional emphasis marks offered by the settings UI.
+ *
+ * The value remains a free string in the configuration: this list is a
+ * convenient starting point, not a restriction on what a book may print.
+ */
+export const BOTEN_MARK_CHOICES = [
+  { value: "﹅", labelKey: "settings.botenMark.sesame" },
+  { value: "﹆", labelKey: "settings.botenMark.openSesame" },
+  { value: "●", labelKey: "settings.botenMark.dot" },
+  { value: "○", labelKey: "settings.botenMark.openDot" },
+  { value: "▲", labelKey: "settings.botenMark.triangle" },
+  { value: "△", labelKey: "settings.botenMark.openTriangle" },
+  { value: "◎", labelKey: "settings.botenMark.doubleCircle" },
+  { value: "◉", labelKey: "settings.botenMark.bullseye" },
+] as const;
+
+export const DEFAULT_BOTEN_MARK = BOTEN_MARK_CHOICES[0].value;
+
 export const DEFAULT_SYNTAX: SyntaxToggles = {
   embed: true,
   dynamic: true,
@@ -68,6 +87,7 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
 
   syntax: { ...DEFAULT_SYNTAX },
   highlight: "boten",
+  botenMark: DEFAULT_BOTEN_MARK,
 
   sectionDefaults: {
     halfTitle: "off",
@@ -136,6 +156,7 @@ export function baseBookConfig(): BookConfig {
     paragraphIndentMode: "auto",
     footnote: "gcpm",
     highlight: "boten",
+    botenMark: DEFAULT_BOTEN_MARK,
     autoTcy: true,
     imageWidthUnit: "px",
 

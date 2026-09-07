@@ -112,6 +112,7 @@ export const BookConfigInputSchema = v.object({
   paragraphIndentMode: v.optional(IndentModeSchema),
   footnote: v.optional(FootnoteSchema),
   highlight: v.optional(HighlightSchema),
+  botenMark: v.optional(v.string()),
   autoTcy: v.optional(v.boolean()),
   imageWidthUnit: v.optional(ImageWidthUnitSchema),
 

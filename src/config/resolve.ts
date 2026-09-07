@@ -69,6 +69,7 @@ export function configFromSettings(settings: VivlioSettings): BookConfig {
   config.paragraphIndent = settings.paragraphIndent;
   config.paragraphIndentMode = settings.paragraphIndentMode;
   config.highlight = settings.highlight;
+  config.botenMark = settings.botenMark;
   config.autoTcy = settings.syntax.autoTcy;
   config.fontFamily = settings.fontFamily;
   config.headingFontFamily = settings.headingFontFamily;

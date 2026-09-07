@@ -136,6 +136,11 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
     ja: "==ハイライト== の扱い: boten | strong | mark | off",
     en: "What ==highlight== becomes: boten | strong | mark | off",
   },
+  botenMark: {
+    group: "layout",
+    ja: "傍点に使う記号。﹅（ゴマ点）・●・○・▲など任意の文字を指定できる",
+    en: "Mark used for emphasis dots; accepts any character, such as ﹅, ●, ○ or ▲",
+  },
   autoTcy: {
     group: "layout",
     ja: "2 桁の半角数字を自動で縦中横にする",
@@ -535,6 +540,7 @@ export function settingsFromYaml(
   assign("writingMode", yaml.writingMode);
   assign("footnote", yaml.footnote);
   assign("highlight", yaml.highlight);
+  assign("botenMark", yaml.botenMark);
   assign("fontFamily", yaml.fontFamily);
   assign("headingFontFamily", yaml.headingFontFamily);
   assign("monospaceFontFamily", yaml.monospaceFontFamily);

@@ -1,7 +1,11 @@
 import { PluginSettingTab, Setting, type App } from "obsidian";
 import type VivlioPlugin from "../main";
 import { PRESETS } from "../config/presets";
-import { PAPER_SIZE_CHOICES } from "../config/defaults";
+import {
+  BOTEN_MARK_CHOICES,
+  DEFAULT_BOTEN_MARK,
+  PAPER_SIZE_CHOICES,
+} from "../config/defaults";
 import { themeChoices } from "../build/theme";
 import { localFontFamilies } from "../build/fonts";
 import {
@@ -41,6 +45,8 @@ const SYNTAX_KEYS: (keyof SyntaxToggles)[] = [
   "stripComments",
   "stripBlockIds",
 ];
+
+const CUSTOM_BOTEN_MARK = "__vivlio-custom-boten-mark__";
 
 /** The vault-wide defaults: layer 1 of the three (SPEC 5.4, 5.5). */
 export class VivlioSettingTab extends PluginSettingTab {
@@ -325,6 +331,8 @@ export class VivlioSettingTab extends PluginSettingTab {
     for (const key of SYNTAX_KEYS) {
       this.syntaxToggle(container, key);
 
+      if (key === "boten") this.botenMarkRow(container);
+
       if (key === "dynamic") {
         new Setting(container)
           .setName(t("settings.allowDynamicScripts"))
@@ -358,6 +366,45 @@ export class VivlioSettingTab extends PluginSettingTab {
           });
       }
     }
+  }
+
+  /** Preset emphasis marks plus an unrestricted text field for another one. */
+  private botenMarkRow(container: HTMLElement): void {
+    const known = BOTEN_MARK_CHOICES.some(
+      (choice) => choice.value === this.plugin.settings.botenMark,
+    );
+    const setting = new Setting(container)
+      .setName(t("settings.botenMark"))
+      .setDesc(t("settings.botenMark.desc"));
+
+    setting.addDropdown((dropdown) => {
+      for (const choice of BOTEN_MARK_CHOICES) {
+        dropdown.addOption(
+          choice.value,
+          `${choice.value} — ${t(choice.labelKey as StringKey)}`,
+        );
+      }
+      dropdown.addOption(CUSTOM_BOTEN_MARK, t("settings.botenMark.custom"));
+      dropdown
+        .setValue(known ? this.plugin.settings.botenMark : CUSTOM_BOTEN_MARK)
+        .onChange(async (value) => {
+          if (value === CUSTOM_BOTEN_MARK) return;
+          this.plugin.settings.botenMark = value;
+          await this.save();
+          this.display();
+        });
+    });
+
+    setting.addText((input) => {
+      input
+        .setPlaceholder(t("settings.botenMark.placeholder"))
+        .setValue(this.plugin.settings.botenMark)
+        .onChange(async (value) => {
+          this.plugin.settings.botenMark = value || DEFAULT_BOTEN_MARK;
+          await this.save();
+        });
+      input.inputEl.setAttr("aria-label", t("settings.botenMark.customInput"));
+    });
   }
 
   private structure(container: HTMLElement): void {

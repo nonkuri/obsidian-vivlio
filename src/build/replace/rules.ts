@@ -1,4 +1,5 @@
 import type { BookConfig } from "../../config/types";
+import { DEFAULT_BOTEN_MARK } from "../../config/defaults";
 import {
   element,
   hasClass,
@@ -26,7 +27,7 @@ export function notationRules(config: BookConfig): TextRule[] {
   if (syntax.boten) {
     rules.push({
       test: /《《([^》]+)》》/g,
-      replace: (match) => [boten(match[1])],
+      replace: (match) => [boten(match[1], config.botenMark)],
     });
   }
 
@@ -76,7 +77,7 @@ export function notationRules(config: BookConfig): TextRule[] {
   if (syntax.highlight && config.highlight !== "off") {
     rules.push({
       test: /==([^=\n]+)==/g,
-      replace: (match) => [highlight(config.highlight, match[1])],
+      replace: (match) => [highlight(config.highlight, match[1], config.botenMark)],
     });
   } else if (syntax.highlight) {
     rules.push({
@@ -152,9 +153,6 @@ function span(className: string, value: string): UElement {
 const RUBY =
   /(?:(?:\\\||[|｜])([^|｜《》\n]+)|([\p{Script=Han}々〆〇ヵヶ]+))《([^》\n]+)》/gu;
 
-/** SESAME DOT, the mark Japanese typesetting uses for emphasis. */
-const SESAME = "﹅";
-
 /**
  * Emphasis dots, drawn as ruby.
  *
@@ -162,14 +160,18 @@ const SESAME = "﹅";
  * and grows the line box, so a line carrying emphasis is set wider than its
  * neighbours and the vertical grid buckles. Ruby reserves the same band on
  * every line, so the rhythm holds - which is why manuscripts have written
- * emphasis as ruby full of sesame dots for as long as they have.
+ * emphasis as ruby full of marks for as long as they have.
  */
-function boten(value: string): UElement {
+function boten(value: string, mark: string): UElement {
+  // A hand-written YAML key may be present but empty. Treat it as an omitted
+  // choice rather than emitting empty <rt> nodes and making the emphasis
+  // disappear.
+  const visibleMark = mark || DEFAULT_BOTEN_MARK;
   const children: UNode[] = [];
   for (const character of [...value]) {
     children.push(text(character));
     children.push(element("rp", {}, [text("(")]));
-    children.push(element("rt", {}, [text(SESAME)]));
+    children.push(element("rt", {}, [text(visibleMark)]));
     children.push(element("rp", {}, [text(")")]));
   }
   return element("ruby", { className: ["boten"] }, children);
@@ -191,7 +193,11 @@ function ruby(base: string, reading: string): UElement {
  * screen but not as a book, and `boten` shares its class with the Kakuyomu
  * notation so the theme only has to style one thing.
  */
-function highlight(mode: BookConfig["highlight"], value: string): UNode {
+function highlight(
+  mode: BookConfig["highlight"],
+  value: string,
+  botenMark: string,
+): UNode {
   switch (mode) {
     case "strong":
       return element("strong", {}, [text(value)]);
@@ -199,6 +205,6 @@ function highlight(mode: BookConfig["highlight"], value: string): UNode {
       return element("mark", {}, [text(value)]);
     case "boten":
     default:
-      return boten(value);
+      return boten(value, botenMark);
   }
 }

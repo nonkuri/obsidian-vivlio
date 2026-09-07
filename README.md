@@ -210,7 +210,7 @@ out. `Vivlio: Add configuration to this note` offers both.
 
 | You write | You get |
 |---|---|
-| `《《テキスト》》` | emphasis dots (Kakuyomu style) |
+| `《《テキスト》》` | emphasis dots (Kakuyomu style); choose sesame dots, circles, triangles, or type any mark |
 | `漢字《かんじ》` | ruby over the run of kanji in front of it — the shorthand a manuscript actually uses |
 | `｜任意《よみ》` | ruby over anything; `｜` says where the base begins (a halfwidth `\|` does too) |
 | `{漢字\|かんじ}` | ruby (VFM's own syntax) |

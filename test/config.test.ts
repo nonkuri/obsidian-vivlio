@@ -113,6 +113,17 @@ async function main(): Promise<void> {
   check("settings fill the gaps", layered.config.size === "A5", layered.config.size);
   check("yaml value survives", layered.config.author === "夏目漱石");
 
+  const customBoten = resolveConfig({
+    settings: { ...DEFAULT_SETTINGS, botenMark: "●" },
+    yaml: { botenMark: "○" },
+    frontmatter: { botenMark: "☆" },
+  });
+  check(
+    "a custom emphasis mark follows configuration precedence",
+    customBoten.config.botenMark === "☆",
+    customBoten.config.botenMark,
+  );
+
   const labelled = resolveConfig({
     settings: DEFAULT_SETTINGS,
     yaml: {
@@ -220,6 +231,10 @@ async function main(): Promise<void> {
     "columns accepts a positive integer",
     validateConfig({ columns: 2 }, "test").length === 0,
   );
+  check(
+    "a custom emphasis mark is valid",
+    validateConfig({ botenMark: "☆" }, "test").length === 0,
+  );
 
   // --- generated YAML ----------------------------------------------------
   const yaml = configToYaml(
@@ -228,6 +243,13 @@ async function main(): Promise<void> {
   );
   check("changed keys are written", yaml.includes("theme: techbook"), yaml);
   check("unchanged keys are left out", !yaml.includes("tocDepth"), yaml);
+  check(
+    "a chosen emphasis mark is written",
+    configToYaml(
+      { botenMark: "○" },
+      configFromSettings(DEFAULT_SETTINGS),
+    ).includes("botenMark: ○"),
+  );
 
   // The wizard writes the complete file: everything the book could say, with
   // the keys it does not decide left as comments so it still follows the

@@ -428,6 +428,26 @@ async function main(): Promise<void> {
     ),
   );
 
+  // The traditional sesame dot is only the default. Both notation forms use
+  // the selected mark, including one typed by hand rather than picked in the
+  // settings UI.
+  const customBotenContext = makeContext();
+  customBotenContext.config.botenMark = "☆";
+  const customBoten = await convertChapter(
+    customBotenContext,
+    customBotenContext.chapters[0],
+    chapterOne,
+    "《《任意》》と==印==",
+  );
+  checks.push(
+    check(
+      "a custom emphasis mark applies to both notations",
+      (customBoten.match(/<rt>☆<\/rt>/g) ?? []).length === 3 &&
+        !customBoten.includes("<rt>﹅</rt>"),
+      customBoten,
+    ),
+  );
+
   // Blank lines the manuscript left (SPEC 5.3 #18). Markdown throws them away;
   // the count comes back off the source positions.
   const spaced = await convertChapter(

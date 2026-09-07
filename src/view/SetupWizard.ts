@@ -5,7 +5,7 @@ import { AUTO_CAPABLE_SLOTS, INDENT_MODES, PAGE_SIDES, SECTION_SLOTS } from "../
 import { configFromSettings } from "../config/resolve";
 import { findPreset, PRESETS } from "../config/presets";
 import { configToYaml, keyDescription } from "../config/yaml";
-import { PAPER_SIZE_CHOICES } from "../config/defaults";
+import { BOTEN_MARK_CHOICES, PAPER_SIZE_CHOICES } from "../config/defaults";
 import { themeChoices } from "../build/theme";
 import { localFontFamilies } from "../build/fonts";
 import { CONFIG_FILE } from "../build/pipeline";
@@ -309,6 +309,7 @@ export class SetupWizard extends Modal {
       { value: "mark", label: t("settings.highlight.mark") },
       { value: "off", label: t("settings.highlight.off") },
     ]);
+    this.botenMarkRow(container);
     this.boolRow(container, "settings.autoTcy", "autoTcy");
     this.selectRow(container, "settings.imageWidthUnit", "imageWidthUnit", [
       { value: "px", label: t("settings.imageWidthUnit.px") },
@@ -518,6 +519,43 @@ export class SetupWizard extends Modal {
         .setValue(current === undefined || current === null ? "" : String(current))
         .onChange((value) => this.set(key, value.trim() || undefined)),
     );
+  }
+
+  /** A book may follow the vault, pick a traditional mark, or type its own. */
+  private botenMarkRow(container: HTMLElement): void {
+    const current = this.get("botenMark");
+    const effective = current === undefined ? this.defaults.botenMark : String(current);
+    const known = BOTEN_MARK_CHOICES.some((choice) => choice.value === effective);
+    const custom = "__vivlio-custom-boten-mark__";
+    const setting = this.row(container, "settings.botenMark", "botenMark");
+
+    setting.addDropdown((dropdown) => {
+      dropdown.addOption(
+        USE_DEFAULT,
+        t("wizard.useDefault", { value: this.defaultLabel("botenMark") }),
+      );
+      for (const choice of BOTEN_MARK_CHOICES) {
+        dropdown.addOption(
+          choice.value,
+          `${choice.value} — ${t(choice.labelKey as StringKey)}`,
+        );
+      }
+      dropdown.addOption(custom, t("settings.botenMark.custom"));
+      dropdown
+        .setValue(current === undefined ? USE_DEFAULT : known ? effective : custom)
+        .onChange((value) => {
+          if (value === USE_DEFAULT) this.set("botenMark", undefined);
+          else if (value !== custom) this.set("botenMark", value);
+        });
+    });
+
+    setting.addText((input) => {
+      input
+        .setPlaceholder(t("settings.botenMark.placeholder"))
+        .setValue(current === undefined ? "" : String(current))
+        .onChange((value) => this.set("botenMark", value || undefined));
+      input.inputEl.setAttr("aria-label", t("settings.botenMark.customInput"));
+    });
   }
 
   private numberRow(

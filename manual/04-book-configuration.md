@@ -161,6 +161,7 @@ colophonExtra:
 | `paragraphIndentMode` | `auto` / `manuscript` / `brackets` / `all` | 字下げ対象を決定。 |
 | `footnote` | `gcpm` / `pandoc` / `dpub` | ページ脚注、章末注、DPUB-ARIA。 |
 | `highlight` | `boten` / `strong` / `mark` / `off` | `==...==` の変換先。 |
+| `botenMark` | `﹅`、`○`、`▲` など任意の文字 | `《《...》》` と傍点モードの `==...==` に使う記号。既定はゴマ点 `﹅`。 |
 | `autoTcy` | 真偽値 | 1〜2 桁の数字を自動正立。 |
 | `imageWidthUnit` | `px` / `percent` / `mm` | `![[画像.png\|300]]` のような単位なし幅の解釈。画像側の `%`、`mm`、`px` が優先。 |
 
