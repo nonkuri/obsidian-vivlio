@@ -44,7 +44,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "notice.noActiveSource": "Vivlio: Markdown ノートか設定 YAML を開いてください",
   "notice.desktopOnly": "Vivlio はデスクトップ版でのみ動作します",
   "notice.serverFailed": "Vivlio: プレビュー用のローカルサーバを起動できませんでした",
-  "notice.configUnreadable": "Vivlio: vivlio.yaml を読めませんでした。既定値から始めます",
+  "notice.configUnreadable": "Vivlio: 選択した設定 YAML を読めませんでした。既定値から始めます",
   "notice.configWritten": "Vivlio: {path} を書き出しました",
   "notice.printFailed": "Vivlio: PDF の生成に失敗しました — {message}",
   "notice.noteFailed": "Vivlio: {path} を作れませんでした — {message}",
@@ -80,7 +80,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "wizard.step.output": "出力",
   "wizard.back": "戻る",
   "wizard.next": "次へ",
-  "wizard.finish": "vivlio.yaml を書き出す",
+  "wizard.finish": "設定 YAML を書き出す",
 
   "wizard.step.preset.desc":
     "この先すべての出発点です。ここで決まった値は次のステップ以降でいくらでも変えられますし、プリセットを選び直せばまとめて入れ直します。",

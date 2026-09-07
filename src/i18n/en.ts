@@ -44,7 +44,7 @@ export const en = {
   "notice.noActiveSource": "Vivlio: open a Markdown note or configuration YAML first",
   "notice.desktopOnly": "Vivlio only runs on the desktop app",
   "notice.serverFailed": "Vivlio: could not start the local preview server",
-  "notice.configUnreadable": "Vivlio: could not read vivlio.yaml; starting from the defaults",
+  "notice.configUnreadable": "Vivlio: could not read the selected configuration YAML; starting from the defaults",
   "notice.configWritten": "Vivlio: wrote {path}",
   "notice.printFailed": "Vivlio: PDF generation failed — {message}",
   "notice.noteFailed": "Vivlio: could not create {path} — {message}",
@@ -80,7 +80,7 @@ export const en = {
   "wizard.step.output": "Output",
   "wizard.back": "Back",
   "wizard.next": "Next",
-  "wizard.finish": "Write vivlio.yaml",
+  "wizard.finish": "Write configuration YAML",
 
   "wizard.step.preset.desc":
     "A starting point for everything that follows. Whatever it answers can still be changed on the steps after this one, and picking another preset here answers them again.",

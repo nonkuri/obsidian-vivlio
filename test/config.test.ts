@@ -35,6 +35,7 @@ import { resolveBookLabels } from "../src/config/labels";
 import {
   configTargetsInSelection,
   targetForActiveFile,
+  wizardConfigTarget,
 } from "../src/build/target";
 import { readBookYaml } from "../src/build/pipeline";
 
@@ -153,6 +154,17 @@ async function main(): Promise<void> {
     check(
       "the build reads the explicitly selected YAML instead of vivlio.yaml",
       selected?.title === "Print edition",
+    );
+
+    const selectedWizard = wizardConfigTarget(config);
+    check(
+      "the wizard writes back to the selected YAML",
+      selectedWizard.bookRoot === "book" && selectedWizard.configPath === "book/print.yaml",
+    );
+    const markdownWizard = wizardConfigTarget(chapter);
+    check(
+      "the wizard keeps vivlio.yaml as the Markdown default",
+      markdownWizard.bookRoot === "book" && markdownWizard.configPath === "book/vivlio.yaml",
     );
   }
 

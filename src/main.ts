@@ -22,6 +22,7 @@ import {
   CONFIG_FILE,
   configTargetsInSelection,
   targetForActiveFile,
+  wizardConfigTarget,
 } from "./build/target";
 import { bookValuesFromYaml } from "./config/resolve";
 import type { BuildTarget } from "./build/collect";
@@ -218,10 +219,9 @@ export default class VivlioPlugin extends Plugin {
     this.addCommand({
       id: "create-config",
       name: t("command.createConfig"),
-      // Opened on a book's own `vivlio.yaml`, the wizard starts from what that
-      // file already says rather than from a preset. Running it again is how a
-      // writer changes several settings at once, and starting over would have
-      // thrown away every answer they gave the first time.
+      // Opened on a configuration YAML, the wizard starts from and writes back
+      // to that same file. Running it again changes several settings at once
+      // without throwing away the answers from its previous run.
       callback: () => {
         void this.openSetupWizard();
       },
@@ -365,26 +365,26 @@ export default class VivlioPlugin extends Plugin {
   /**
    * The setup wizard, started from the book it was called on.
    *
-   * A `vivlio.yaml` open in the editor is the book's own configuration, so the
-   * wizard is opened on that book and seeded with what the file already says.
-   * Any other note names the folder it sits in, which is what the book root
-   * has always meant, and a book whose folder already has a `vivlio.yaml` is
-   * seeded from that one just the same - the writer does not have to have the
-   * file open, only to be somewhere inside the book.
+   * A YAML open in the editor is both the source and destination, so alternative
+   * configurations beside the same manuscript never overwrite one another.
+   * Any other file uses the conventional `vivlio.yaml` in its folder.
    */
   private async openSetupWizard(): Promise<void> {
-    const active = this.app.workspace.getActiveFile();
-    const root =
-      active?.name === CONFIG_FILE
-        ? (active.parent?.path === "/" ? "" : (active.parent?.path ?? ""))
-        : (active?.parent?.path === "/" ? "" : (active?.parent?.path ?? ""));
-
-    new SetupWizard(this.app, this, root, bookValuesFromYaml(await this.readConfig(root))).open();
+    const { bookRoot, configPath } = wizardConfigTarget(
+      this.app.workspace.getActiveFile(),
+    );
+    new SetupWizard(
+      this.app,
+      this,
+      bookRoot,
+      configPath,
+      bookValuesFromYaml(await this.readConfig(configPath)),
+    ).open();
   }
 
-  /** The book's own `vivlio.yaml`, parsed, or null when it has none. */
-  private async readConfig(root: string): Promise<Record<string, unknown> | null> {
-    const file = this.app.vault.getFileByPath(normalizePath(joinPosix(root, CONFIG_FILE)));
+  /** The selected configuration YAML, parsed, or null when it does not exist. */
+  private async readConfig(path: string): Promise<Record<string, unknown> | null> {
+    const file = this.app.vault.getFileByPath(path);
     if (!file) return null;
     try {
       const parsed = loadYaml(await this.app.vault.cachedRead(file));

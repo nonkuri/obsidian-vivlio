@@ -8,7 +8,6 @@ import { configToYaml, keyDescription } from "../config/yaml";
 import { BOTEN_MARK_CHOICES, PAPER_SIZE_CHOICES } from "../config/defaults";
 import { themeChoices } from "../build/theme";
 import { localFontFamilies } from "../build/fonts";
-import { CONFIG_FILE } from "../build/target";
 import { isImagePath, joinPosix } from "../util/paths";
 import { t, type StringKey } from "../i18n";
 
@@ -50,7 +49,7 @@ interface Choice {
 type Scalar = string | number | boolean | null | undefined;
 
 /**
- * Wizard that writes a book's `vivlio.yaml` (SPEC 5.4).
+ * Wizard that writes a book configuration YAML (SPEC 5.4).
  *
  * Every key the file may carry is asked about here, because a setting nobody
  * is shown is a setting nobody uses; each one may be left at "use the
@@ -62,6 +61,7 @@ type Scalar = string | number | boolean | null | undefined;
 export class SetupWizard extends Modal {
   private plugin: VivlioPlugin;
   private bookRoot: string;
+  private configPath: string;
   private step: Step = "preset";
   private preset = "bunko";
   private values: Partial<BookConfig> = {};
@@ -71,7 +71,8 @@ export class SetupWizard extends Modal {
   private fontFamilies: string[] = [];
 
   /**
-   * @param existing what the book's `vivlio.yaml` already says, when the
+   * @param configPath the YAML file this run reads and writes
+   * @param existing what the selected configuration already says, when the
    * wizard was opened on one. Running the wizard again on a book that has been
    * set up is how a writer changes several things at once, and starting it
    * from a preset would have thrown away every answer they gave the first
@@ -82,11 +83,13 @@ export class SetupWizard extends Modal {
     app: App,
     plugin: VivlioPlugin,
     bookRoot: string,
+    configPath: string,
     existing?: Partial<BookConfig> | null,
   ) {
     super(app);
     this.plugin = plugin;
     this.bookRoot = bookRoot;
+    this.configPath = configPath;
     this.defaults = configFromSettings(plugin.settings);
     this.preset = plugin.settings.defaultPreset;
     this.values = { ...findPreset(this.preset)?.values };
@@ -185,11 +188,10 @@ export class SetupWizard extends Modal {
 
   /** Where the wizard is about to write, and how to find it afterwards. */
   private renderDestination(container: HTMLElement): void {
-    const path = joinPosix(this.bookRoot, CONFIG_FILE);
     const box = container.createDiv({ cls: "vivlio-wizard-destination" });
     box.createEl("p", {
       cls: "vivlio-wizard-path",
-      text: t("wizard.destination", { path }),
+      text: t("wizard.destination", { path: this.configPath }),
     });
     box.createEl("p", {
       cls: "setting-item-description",
@@ -623,7 +625,7 @@ export class SetupWizard extends Modal {
   private async finish(): Promise<void> {
     await this.createSectionNotes();
 
-    const path = joinPosix(this.bookRoot, CONFIG_FILE);
+    const path = this.configPath;
     const yaml = configToYaml(this.values, this.defaults, { complete: true });
 
     const existing = this.app.vault.getFileByPath(path);

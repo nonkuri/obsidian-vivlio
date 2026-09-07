@@ -99,6 +99,8 @@ Open any `.yaml` file (for example, `print.yaml` or `ebook.yaml`) and run **Expo
 
 When a multi-selection contains exactly one `.yaml`, that file is used as the configuration. With two or more YAML files—even two editions beside the same manuscript—Vivlio asks you to select one configuration at a time rather than guessing which one to use.
 
+Running **Create book configuration** while any YAML file is open also loads that file into the wizard and writes the result back to the same file. When started from Markdown, the wizard creates or updates `vivlio.yaml` as before.
+
 ## Configuring a book
 
 Three layers; a lower one overrides the one above it.

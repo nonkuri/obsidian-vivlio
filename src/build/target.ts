@@ -1,5 +1,6 @@
-import { TFile, type TAbstractFile } from "obsidian";
+import { TFile, normalizePath, type TAbstractFile } from "obsidian";
 import type { BuildTarget } from "./collect";
+import { joinPosix } from "../util/paths";
 
 /** The configuration file that identifies one folder as one book. */
 export const CONFIG_FILE = "vivlio.yaml";
@@ -29,4 +30,20 @@ export function configTargetsInSelection(files: TAbstractFile[]): BuildTarget[] 
     targets.push({ kind: "config", file: entry, folder: entry.parent });
   }
   return targets;
+}
+
+export interface WizardConfigTarget {
+  bookRoot: string;
+  configPath: string;
+}
+
+/** The file the setup wizard reads and writes for the current editor. */
+export function wizardConfigTarget(file: TFile | null): WizardConfigTarget {
+  const folder = file?.parent;
+  const bookRoot = folder?.path === "/" ? "" : (folder?.path ?? "");
+  const configPath =
+    file?.extension.toLowerCase() === "yaml"
+      ? file.path
+      : normalizePath(joinPosix(bookRoot, CONFIG_FILE));
+  return { bookRoot, configPath };
 }
