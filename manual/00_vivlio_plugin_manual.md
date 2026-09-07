@@ -1,6 +1,6 @@
 # このマニュアルについて
 
-このマニュアルは **Vivlio 0.9.0**（デスクトップ版 Obsidian 1.8.7 以降）を対象にしています。Vivlio は、Obsidian の Markdown ノートを Vivliostyle で組版し PDF / EPUB 3 に書き出すプラグインです。ライブプレビューも可能となっているので、仕上がりを確認しながら修正できます。
+このマニュアルは **Vivlio 0.10.1**（デスクトップ版 Obsidian 1.8.7 以降）を対象にしています。Vivlio は、Obsidian の Markdown ノートを Vivliostyle で組版し PDF / EPUB 3 に書き出すプラグインです。ライブプレビューも可能となっているので、仕上がりを確認しながら修正できます。
 
 
 ![Obsidian のノートと Vivlio プレビュー](images/obsidian.png)
@@ -23,9 +23,9 @@
 
 ## 完成サンプル
 
-Vivlio 0.8.0 で作成した入力原稿と PDF / EPUB をダウンロードできます。
+入力原稿と PDF / EPUB をダウンロードできます。
 
-- [芥川龍之介短編集](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-akutagawa-0.8.0.zip) — 同じ Markdown 原稿から A5 縦二段組、トンボ・塗り足し付き入稿用、文庫版、EPUB を作り分けた例
+- [芥川龍之介短編集（Vivlio 0.10.1）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.10.1/vivlio-sample-akutagawa-0.10.1.zip) — 同じ Markdown 原稿と複数の YAML から A5 縦二段組、トンボ・塗り足し付き入稿用、四六判、文庫版、EPUB を作り分けた例
 - [The Adventures of Sherlock Holmes](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) — Vault 内の独自 CSS で英語小説を組版した例
 
 ZIP 内の README に導入方法があります。入力原稿のフォルダ名は `vivlio.yaml` から参照されているため、最初は名前を変えずに Vault のルートへ展開してください。

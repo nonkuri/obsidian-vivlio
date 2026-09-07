@@ -2,10 +2,10 @@
 
 This directory is the local staging area for the sample packages linked from the project README and manual. ZIP files are ignored by Git and published as assets of the release that produced them.
 
-Published asset names for Vivlio 0.8.0:
+Published asset names:
 
-- `vivlio-sample-akutagawa-0.8.0.zip`
-  - SHA-256: `47c1434118d452e7d31c4a1f5f33c22ec6ba83f0a1f43a9acf45693697cd3bb1`
+- `vivlio-sample-akutagawa-0.10.1.zip`
+  - SHA-256: `a582e330fcb77b5cde8ed4037408b2dde27084bf051800eed7e9fb055003ca68`
 - `vivlio-sample-sherlock-holmes-0.8.0.zip`
   - SHA-256: `8682e0f4d9d18ded900ef714ac039fa8e9306f0fd759ecbb0829a10d65a273f9`
 

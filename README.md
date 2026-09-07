@@ -40,11 +40,11 @@ appear and is right from the first frame.
 
 ## Samples
 
-Download complete source-and-output examples made with Vivlio 0.8.0. Extract the source folder into a vault to experiment with the settings and stylesheets.
+Download complete source-and-output examples. Extract the source folder into a vault to experiment with the settings and stylesheets.
 
 | Sample | What it demonstrates | Download |
 |---|---|---|
-| Akutagawa Ryunosuke short stories | The same Markdown manuscript exported as two-column A5 PDFs with and without crop marks and bleed, a bunko PDF, and EPUB | [0.8.0 sample (20.7 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-akutagawa-0.8.0.zip) |
+| Akutagawa Ryunosuke short stories | The same Markdown manuscript and multiple YAML configurations exported as two-column A5 PDFs with and without crop marks and bleed, 127 × 188 mm and bunko PDFs, and EPUB | [0.10.1 sample (30.1 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.10.1/vivlio-sample-akutagawa-0.10.1.zip) |
 | *The Adventures of Sherlock Holmes* | An English novel using custom CSS from inside the vault, with PDF, EPUB, and source | [0.8.0 sample (2.7 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) |
 
 Each package has a README explaining how to unpack the source, which settings produced each output, and the source-text licensing notes. Keep the source folder's name when first extracting it: `vivlio.yaml` refers to that path.
