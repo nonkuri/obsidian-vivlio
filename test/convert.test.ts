@@ -25,7 +25,7 @@ import {
 } from "../src/build/sections";
 import { japaneseDate, kanjiDate } from "../src/util/kanji";
 import JSZip from "jszip";
-import { epubStylesheet } from "../src/export/epub";
+import { buildEpub, epubStylesheet } from "../src/export/epub";
 import { preflight } from "../src/export/preflight";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
@@ -1474,9 +1474,18 @@ async function main(): Promise<void> {
     "themes/mine.css": [
       '@import url("vivlio:novel");',
       '@import url("./tweaks.css");',
-      "p { color: rebeccapurple; }",
+      'p { color: rebeccapurple; background: url("./images/paper texture.png#tile"); }',
+      'aside { border-image-source: url("./images/missing.png"); }',
+      'p::before { content: "url(./images/not-an-asset.png)"; }',
+      '/* url("./images/not-an-asset-either.png") */',
     ].join("\n"),
-    "themes/tweaks.css": "h1 { letter-spacing: 0.2em; }",
+    "themes/tweaks.css": [
+      "h1 { letter-spacing: 0.2em; }",
+      "h1::before { content: url('./parts/ornament.svg'); }",
+      "h1::after { content: url(https://example.invalid/remote.svg); }",
+    ].join("\n"),
+    "themes/images/paper texture.png": "binary placeholder",
+    "themes/parts/ornament.svg": "<svg/>",
   };
   const own = makeContext({
     app: {
@@ -1493,6 +1502,9 @@ async function main(): Promise<void> {
   const resolvedTheme = await resolveVaultTheme(own);
   own.workspace.putText(THEME_STYLESHEET, resolvedTheme ?? "");
   own.workspace.putText(BOOK_STYLESHEET, bookStylesheet(own, themeUrlFor(own)));
+  const themeAssets = [...own.workspace.assets.values()];
+  const paperAsset = themeAssets.find((asset) => asset.label === "themes/images/paper texture.png");
+  const ornamentAsset = themeAssets.find((asset) => asset.label === "themes/parts/ornament.svg");
 
   checks.push(
     check(
@@ -1506,6 +1518,34 @@ async function main(): Promise<void> {
     ),
     check("its own rules survive", (resolvedTheme ?? "").includes("rebeccapurple")),
     check(
+      "local URLs in the root stylesheet become theme assets",
+      Boolean(paperAsset && (resolvedTheme ?? "").includes(`url("${paperAsset.publicPath}#tile")`)),
+      resolvedTheme ?? "",
+    ),
+    check(
+      "local URLs in an imported stylesheet use that stylesheet's directory",
+      Boolean(ornamentAsset && (resolvedTheme ?? "").includes(`url('${ornamentAsset.publicPath}')`)),
+      resolvedTheme ?? "",
+    ),
+    check("theme assets are registered once for export", themeAssets.length === 2, themeAssets.map((asset) => asset.label).join(", ")),
+    check(
+      "a missing local theme asset produces a build warning",
+      own.warnings.some(
+        (warning) =>
+          warning.kind === "missing-asset" &&
+          warning.message === "./images/missing.png" &&
+          warning.source === "themes/mine.css",
+      ),
+      JSON.stringify(own.warnings),
+    ),
+    check(
+      "URLs in strings, comments and remote URLs stay untouched",
+      (resolvedTheme ?? "").includes('"url(./images/not-an-asset.png)"') &&
+        (resolvedTheme ?? "").includes('url("./images/not-an-asset-either.png")') &&
+        (resolvedTheme ?? "").includes("url(https://example.invalid/remote.svg)"),
+      resolvedTheme ?? "",
+    ),
+    check(
       "the preview links the resolved copy",
       themeUrlFor(own) === `${own.workspaceBase}${THEME_STYLESHEET}`,
       themeUrlFor(own),
@@ -1516,6 +1556,35 @@ async function main(): Promise<void> {
       themeChoices(own.app, "").some((choice) => choice.value === "themes/mine.css"),
     ),
   );
+
+  if (paperAsset && ornamentAsset) {
+    paperAsset.bytes = new Uint8Array([1, 2, 3]);
+    ornamentAsset.bytes = new TextEncoder().encode("<svg/>");
+    // Exercise the path used when materialization converts a non-core image
+    // before EPUB packaging. CSS, like XHTML, must follow the converted name.
+    paperAsset.epubPath = paperAsset.publicPath.replace(/\.png$/, "-converted.png");
+    const ownEpub = await buildEpub(own, [], null);
+    const ownZip = await JSZip.loadAsync(ownEpub);
+    const ownCss = await ownZip.file(`OEBPS/${BOOK_STYLESHEET}`)?.async("string");
+    const ownOpf = await ownZip.file("OEBPS/package.opf")?.async("string");
+    checks.push(
+      check(
+        "the epub stylesheet follows a converted theme asset",
+        Boolean(ownCss?.includes(`url("${paperAsset.epubPath}#tile")`)),
+        ownCss ?? "",
+      ),
+      check(
+        "the epub contains and declares every theme asset",
+        Boolean(
+          ownZip.file(`OEBPS/${paperAsset.epubPath}`) &&
+          ownZip.file(`OEBPS/${ornamentAsset.publicPath}`) &&
+          ownOpf?.includes(`href="${paperAsset.epubPath}"`) &&
+          ownOpf?.includes(`href="${ornamentAsset.publicPath}"`)
+        ),
+        ownOpf ?? "",
+      ),
+    );
+  }
 
   let failed = 0;
   for (const result of checks) {

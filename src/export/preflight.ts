@@ -58,6 +58,11 @@ function checkResolution(context: BuildContext): PreflightIssue[] {
   const issues: PreflightIssue[] = [];
   for (const asset of context.workspace.assets.values()) {
     if (!asset.width || !isImagePath(asset.publicPath)) continue;
+    // CSS does not tell us how large a background, border or generated image
+    // will print. Treating every theme texture as text-block wide produces a
+    // confident but fictitious low-DPI warning. A file also used by an <img>
+    // still has a measurable document placement and follows the normal path.
+    if (asset.stylesheetAsset && !asset.documentImage) continue;
     // SVG is vector and stays sharp at any size.
     if (asset.mime === "image/svg+xml") continue;
 

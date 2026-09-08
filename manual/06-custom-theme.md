@@ -107,6 +107,15 @@ theme: 装丁/遠雷.css
 
 展開後の同じ CSS がプレビューと EPUB に使われます。
 
+各 CSS から相対パスで参照した画像やフォントも、その CSS が置かれた場所を基準に解決されます。対象ファイルはテーマ用アセットとして書き出しへ収録されるため、import した CSS の背景画像も EPUB に含まれます。`data:`、`http:`、`https:`、`#fragment` の URL はそのまま残ります。
+
+```css
+/* 装丁/parts/callouts.css から 装丁/images/paper.png を参照 */
+.callout {
+  background-image: url("../images/paper.png");
+}
+```
+
 ## ノートごとにスタイルを使い分ける
 
 一冊の中でも、本文、参考文献、ライセンスページなどで組み方を変えたいことがあります。この場合、ノートごとに別のテーマを指定するのではなく、親になる CSS から必要な CSS をすべて import し、ノートの `class` で適用範囲を限定します。

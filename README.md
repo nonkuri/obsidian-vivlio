@@ -327,6 +327,17 @@ importing and read from the vault. Each is followed once, so a ring of imports
 is safe. The whole thing is flattened into a single stylesheet before use, which
 is why the preview and the EPUB read exactly the same text.
 
+Local files named by `url(...)` are resolved relative to the stylesheet that
+contains the declaration, including stylesheets brought in through `@import`.
+Vivlio rewrites those references to book assets and packs images and fonts into
+the EPUB. Remote URLs, data URLs and fragment-only references are left as
+written; a missing local file is reported before export.
+
+```css
+/* style/parts/callouts.css -> style/images/paper.png */
+.callout { background-image: url("../images/paper.png"); }
+```
+
 The classes worth knowing when writing one: `.boten`, `.tcy`, `.callout` and
 `.callout-<type>`, `.task-list`, `.vivlio-page-break`, `.vivlio-blank-lines`,
 `.vivlio-no-indent`, `.vivlio-rendered`, `.copyright-page` and

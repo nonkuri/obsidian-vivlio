@@ -5,7 +5,7 @@
 # 書名
 title: Vivlio プラグイン詳細マニュアル
 # 副題
-subtitle: Obsidian のノートを Vivliostyle で組版する — 0.10.1 対応
+subtitle: Obsidian のノートを Vivliostyle で組版する — 0.10.2 対応
 # シリーズ名（奥付・扉に出る）
 # series: ""
 # 著者
@@ -52,7 +52,7 @@ labels:
     issuedEdition: "{date}　{version}発行"
 # 奥付に足す任意の項目: [{ label: 装丁, value: 山田花子 }] または { 装丁: 山田花子 }
 colophonExtra:
-  対応バージョン: 0.10.1
+  対応バージョン: 0.10.2
 
 # --- 組版 ---
 # テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス

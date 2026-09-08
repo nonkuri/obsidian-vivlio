@@ -259,6 +259,13 @@ theme: 装丁/私の本.css
 
 これ以外の `@import` は通常の取り込みで、書いたファイルからの相対パスとして Vault から読まれます。各ファイルは一度だけ辿るので、import が輪になっていても問題ありません。使う前に 1 枚のスタイルシートに畳まれるので、プレビューと EPUB がまったく同じ内容を読みます。
 
+CSS の `url(...)` が指すローカルファイルは、その宣言を書いた CSS 自身の場所から解決します。`@import` した CSS の背景画像やフォントも書籍アセットへ書き換え、EPUB に収録します。外部 URL、データ URL、フラグメントだけの参照はそのまま残し、ローカルファイルが見つからなければ書き出し前に警告します。
+
+```css
+/* 装丁/parts/callouts.css から 装丁/images/paper.png を参照 */
+.callout { background-image: url("../images/paper.png"); }
+```
+
 書くときに知っておくとよいクラス: `.boten`、`.tcy`、`.callout` と `.callout-<種別>`、`.task-list`、`.vivlio-page-break`、`.vivlio-blank-lines`、`.vivlio-no-indent`、`.vivlio-rendered`、`.copyright-page`、`.copyright-page-content`。
 
 ## ビルド

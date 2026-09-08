@@ -8,6 +8,7 @@ import { isFontPath, mimeType } from "../util/paths";
 import { throwIfAborted } from "../util/async";
 import type { AssetRef } from "../build/workspace";
 import { resolveBookLabels } from "../config/labels";
+import { mapCssUrls } from "../util/css";
 
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 const EPUB_NS = "http://www.idpf.org/2007/ops";
@@ -145,9 +146,15 @@ export function epubStylesheet(context: BuildContext): string {
   const withoutImport = generated.replace(/^@import[^;]+;\s*/m, "");
   const theme = unsizeRoot(bookTheme(context));
 
-  return [theme, withoutImport, EPUB_OVERRIDES, headingSpacingFallback(theme)]
+  const stylesheet = [theme, withoutImport, EPUB_OVERRIDES, headingSpacingFallback(theme)]
     .filter(Boolean)
     .join("\n\n");
+  return mapCssUrls(stylesheet, ({ value }) => {
+    const suffixAt = value.search(/[?#]/);
+    const path = suffixAt === -1 ? value : value.slice(0, suffixAt);
+    const suffix = suffixAt === -1 ? "" : value.slice(suffixAt);
+    return `${context.workspace.getAsset(path)?.epubPath ?? path}${suffix}`;
+  });
 }
 
 /**

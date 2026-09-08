@@ -42,6 +42,10 @@ export interface AssetRef {
   displayWidthPx?: number;
   /** At least one placement runs from one bleed edge to the other. */
   fullBleed?: boolean;
+  /** Referenced from a flattened Vault stylesheet. */
+  stylesheetAsset?: boolean;
+  /** Also placed as an image in a generated document. */
+  documentImage?: boolean;
   /** Human-readable origin, used in warnings. */
   label: string;
 }

@@ -1,9 +1,17 @@
 import type { App, TFile } from "obsidian";
 import { warn, type BuildContext } from "./context";
 import { SELECTABLE_THEMES, bundledThemePath, themeAssets } from "../vendor/assets";
-import { dirname, joinPosix } from "../util/paths";
+import {
+  assetFileName,
+  decodeUrlPath,
+  dirname,
+  joinPosix,
+  mimeType,
+  sha1,
+} from "../util/paths";
 import { log } from "../util/log";
 import { t, type StringKey } from "../i18n";
+import { mapCssUrls } from "../util/css";
 
 /**
  * Themes the book can be set in: the bundled ones, and any stylesheet the
@@ -59,23 +67,23 @@ export async function resolveVaultTheme(context: BuildContext): Promise<string |
     }
     return null;
   }
-  return flattenVaultTheme(context.app, file.path, new Set());
+  return flattenVaultTheme(context, file.path, new Set());
 }
 
 async function flattenVaultTheme(
-  app: App,
+  context: BuildContext,
   path: string,
   seen: Set<string>,
 ): Promise<string> {
   if (seen.has(path)) return "";
   seen.add(path);
 
-  const file = app.vault.getFileByPath(path);
+  const file = context.app.vault.getFileByPath(path);
   if (!file) return "";
 
   let source: string;
   try {
-    source = await app.vault.cachedRead(file);
+    source = await context.app.vault.cachedRead(file);
   } catch (error) {
     log.error(`could not read the theme ${path}`, error);
     return "";
@@ -87,17 +95,21 @@ async function flattenVaultTheme(
   const resolved = new Map<string, string>();
   for (const target of targets) {
     if (resolved.has(target)) continue;
-    resolved.set(target, await inlineImport(app, dirname(path), target, seen));
+    resolved.set(target, await inlineImport(context, dirname(path), target, seen));
   }
 
-  return source.replace(IMPORT, (match, urlTarget: string, quotedTarget: string) => {
+  // Resolve URLs before inserting imported text. Each stylesheet's relative
+  // references must use that stylesheet's own directory; doing this after
+  // flattening would incorrectly resolve every imported URL beside the root.
+  const rewritten = rewriteVaultAssetUrls(context, path, source);
+  return rewritten.replace(IMPORT, (match, urlTarget: string, quotedTarget: string) => {
     const target = urlTarget ?? quotedTarget;
     return resolved.get(target) ?? match;
   });
 }
 
 async function inlineImport(
-  app: App,
+  context: BuildContext,
   from: string,
   target: string,
   seen: Set<string>,
@@ -109,7 +121,75 @@ async function inlineImport(
   // EPUB may not carry it anyway.
   if (/^[a-z]+:/i.test(target)) return `@import url("${target}");`;
 
-  return flattenVaultTheme(app, joinPosix(from, target), seen);
+  return flattenVaultTheme(context, joinPosix(from, target), seen);
+}
+
+/** Register and rewrite local files referenced by one Vault stylesheet. */
+function rewriteVaultAssetUrls(
+  context: BuildContext,
+  sourcePath: string,
+  source: string,
+): string {
+  // `url(...)` inside @import names another stylesheet, not an asset. Imports
+  // are expanded separately below and retain their original spelling here.
+  const imports = [...source.matchAll(IMPORT)].map((match) => ({
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+
+  return mapCssUrls(source, ({ value, start }) => {
+    if (imports.some((range) => start >= range.start && start < range.end)) return value;
+
+    const reference = decodeCssUrl(value.trim());
+    if (
+      !reference ||
+      reference.startsWith("#") ||
+      reference.startsWith("//") ||
+      /^[a-z][a-z0-9+.-]*:/i.test(reference)
+    ) {
+      return value;
+    }
+
+    const suffixAt = reference.search(/[?#]/);
+    const rawPath = suffixAt === -1 ? reference : reference.slice(0, suffixAt);
+    const suffix = suffixAt === -1 ? "" : reference.slice(suffixAt);
+    if (!rawPath) return value;
+
+    const decoded = decodeUrlPath(rawPath);
+    const vaultPath = decoded.startsWith("/")
+      ? joinPosix(decoded.slice(1))
+      : joinPosix(dirname(sourcePath), decoded);
+    const file = context.app.vault.getFileByPath(vaultPath);
+    if (!file) {
+      warn(context, { kind: "missing-asset", message: rawPath, source: sourcePath });
+      return value;
+    }
+
+    const publicPath = `assets/${sha1(file.path).slice(0, 8)}-${assetFileName(file.name)}`;
+    const intrinsic = context.imageSizes?.get(file.path);
+    const asset = context.workspace.addAsset({
+      publicPath,
+      kind: "vault",
+      vaultPath: file.path,
+      mime: mimeType(file.name),
+      label: file.path,
+      stylesheetAsset: true,
+      ...(intrinsic ? { width: intrinsic.width, height: intrinsic.height } : {}),
+    });
+    // The same file may already have been registered by a generated cover.
+    // Asset registration deduplicates by public path, so merge its CSS usage.
+    asset.stylesheetAsset = true;
+    return `${asset.publicPath}${suffix}`;
+  });
+}
+
+/** Decode the CSS escapes commonly used for spaces and non-ASCII paths. */
+function decodeCssUrl(value: string): string {
+  return value.replace(
+    /\\(?:([0-9a-f]{1,6})(?:\r\n|[\t\n\f\r ])?|\r\n|([\s\S]))/gi,
+    (_match, hex: string | undefined, escaped: string | undefined) =>
+      hex ? String.fromCodePoint(Number.parseInt(hex, 16)) : (escaped ?? ""),
+  );
 }
 
 /** Inline the `@import` chain of a bundled theme over the embedded files. */

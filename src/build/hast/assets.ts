@@ -235,6 +235,11 @@ export function resolveVaultFile(
 /** `assets/<sha1-8>-<name>` keeps same-named files from different folders apart. */
 export function registerVaultAsset(context: BuildContext, file: TFile): AssetRef {
   const publicPath = `assets/${sha1(file.path).slice(0, 8)}-${assetFileName(file.name)}`;
+  const existing = context.workspace.getAsset(publicPath);
+  if (existing) {
+    existing.documentImage = true;
+    return existing;
+  }
   const intrinsic = context.imageSizes?.get(file.path);
   return context.workspace.addAsset({
     publicPath,
@@ -242,6 +247,7 @@ export function registerVaultAsset(context: BuildContext, file: TFile): AssetRef
     vaultPath: file.path,
     mime: mimeType(file.name),
     label: file.path,
+    documentImage: true,
     ...(intrinsic ? { width: intrinsic.width, height: intrinsic.height } : {}),
   });
 }
@@ -255,6 +261,7 @@ export function registerExternal(context: BuildContext, url: string): AssetRef {
     url,
     mime: mimeType(name),
     label: url,
+    documentImage: true,
   });
 }
 
