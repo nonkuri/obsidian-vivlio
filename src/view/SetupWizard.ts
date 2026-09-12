@@ -1,14 +1,14 @@
-import { Modal, Notice, Setting, TFile, TFolder, type App } from "obsidian";
+import { Modal, Notice, Setting, TFolder, type App } from "obsidian";
 import type VivlioPlugin from "../main";
 import type { BookConfig, SectionSlot } from "../config/types";
-import { AUTO_CAPABLE_SLOTS, INDENT_MODES, PAGE_SIDES, SECTION_SLOTS } from "../config/types";
+import { AUTO_CAPABLE_SLOTS, SECTION_SLOTS } from "../config/types";
 import { configFromSettings } from "../config/resolve";
 import { findPreset, PRESETS } from "../config/presets";
-import { configToYaml, keyDescription } from "../config/yaml";
-import { BOTEN_MARK_CHOICES, PAPER_SIZE_CHOICES } from "../config/defaults";
-import { themeChoices } from "../build/theme";
+import { configToYaml, keyDescription, keyLabel } from "../config/yaml";
+import { BOTEN_MARK_CHOICES } from "../config/defaults";
+import { keyChoices, type Choice } from "./keyControl";
 import { localFontFamilies } from "../build/fonts";
-import { isImagePath, joinPosix } from "../util/paths";
+import { joinPosix } from "../util/paths";
 import { t, type StringKey } from "../i18n";
 
 type Step = "preset" | "meta" | "layout" | "sections" | "cover" | "fonts" | "output";
@@ -35,11 +35,6 @@ const USE_DEFAULT = "__vivlio-default__";
 
 /** The section entry standing for a note the wizard has yet to create. */
 const NEW_NOTE = "__vivlio-new-note__";
-
-interface Choice {
-  value: string;
-  label: string;
-}
 
 /**
  * What a row can hold. The keys that need nesting - `sections`, the colophon
@@ -234,90 +229,42 @@ export class SetupWizard extends Modal {
   }
 
   private renderMeta(container: HTMLElement): void {
-    this.textRow(container, "colophon.title", "title");
-    this.textRow(container, "colophon.subtitle", "subtitle");
-    this.textRow(container, "colophon.series", "series");
-    this.textRow(container, "colophon.author", "author");
-    this.textRow(container, "colophon.translator", "translator");
-    this.textRow(container, "colophon.publisher", "publisher");
-    this.textRow(container, "colophon.printer", "printer");
-    this.textRow(container, "colophon.contact", "contact");
-    this.textRow(container, "colophon.website", "website");
-    this.textRow(container, "colophon.date", "date");
-    this.textRow(container, "colophon.version", "version");
-    this.selectRow(container, "settings.lang", "lang", [
-      { value: "ja", label: "ja — 日本語" },
-      { value: "en", label: "en — English" },
-    ]);
+    this.textRow(container, "title");
+    this.textRow(container, "subtitle");
+    this.textRow(container, "series");
+    this.textRow(container, "author");
+    this.textRow(container, "translator");
+    this.textRow(container, "publisher");
+    this.textRow(container, "printer");
+    this.textRow(container, "contact");
+    this.textRow(container, "website");
+    this.textRow(container, "date");
+    this.textRow(container, "version");
+    this.selectRow(container, "lang");
   }
 
   private renderLayout(container: HTMLElement): void {
     this.selectRow(
       container,
-      "book.theme",
       "theme",
-      themeChoices(this.app, this.values.theme ?? "").map((choice) => ({
-        value: choice.value,
-        label: choice.label,
-      })),
       // The list is the whole answer to "where does a theme of my own go?",
       // so the row says how a stylesheet gets into it.
       t("settings.theme.desc"),
     );
-    this.selectRow(
-      container,
-      "book.size",
-      "size",
-      PAPER_SIZE_CHOICES.map((size) => ({
-        value: size.value,
-        label: t(size.labelKey as StringKey),
-      })),
-    );
-    this.selectRow(container, "book.writingMode", "writingMode", [
-      { value: "vertical-rl", label: t("settings.writingMode.vertical-rl") },
-      { value: "horizontal-tb", label: t("settings.writingMode.horizontal-tb") },
-    ]);
-    this.numberRow(container, "settings.charsPerLine", "charsPerLine");
-    this.numberRow(container, "settings.linesPerPage", "linesPerPage");
-    this.numberRow(container, "settings.columns", "columns");
-    this.selectRow(
-      container,
-      "settings.startSide",
-      "startSide",
-      PAGE_SIDES.map((value) => ({
-        value,
-        label: t(`settings.startSide.${value}` as StringKey),
-      })),
-    );
-    this.textRow(container, "settings.baseFontSize", "baseFontSize");
-    this.textRow(container, "settings.paragraphIndent", "paragraphIndent");
-    this.selectRow(
-      container,
-      "settings.paragraphIndentMode",
-      "paragraphIndentMode",
-      INDENT_MODES.map((mode) => ({
-        value: mode,
-        label: t(`settings.paragraphIndentMode.${mode}` as StringKey),
-      })),
-    );
-    this.selectRow(container, "book.footnote", "footnote", [
-      { value: "gcpm", label: t("settings.footnote.gcpm") },
-      { value: "pandoc", label: t("settings.footnote.pandoc") },
-      { value: "dpub", label: t("settings.footnote.dpub") },
-    ]);
-    this.selectRow(container, "settings.highlight", "highlight", [
-      { value: "boten", label: t("settings.highlight.boten") },
-      { value: "strong", label: t("settings.highlight.strong") },
-      { value: "mark", label: t("settings.highlight.mark") },
-      { value: "off", label: t("settings.highlight.off") },
-    ]);
+    this.selectRow(container, "size");
+    this.selectRow(container, "writingMode");
+    this.numberRow(container, "charsPerLine");
+    this.numberRow(container, "linesPerPage");
+    this.numberRow(container, "columns");
+    this.selectRow(container, "startSide");
+    this.textRow(container, "baseFontSize");
+    this.textRow(container, "paragraphIndent");
+    this.selectRow(container, "paragraphIndentMode");
+    this.selectRow(container, "footnote");
+    this.selectRow(container, "highlight");
     this.botenMarkRow(container);
-    this.boolRow(container, "settings.autoTcy", "autoTcy");
-    this.selectRow(container, "settings.imageWidthUnit", "imageWidthUnit", [
-      { value: "px", label: t("settings.imageWidthUnit.px") },
-      { value: "percent", label: t("settings.imageWidthUnit.percent") },
-      { value: "mm", label: t("settings.imageWidthUnit.mm") },
-    ]);
+    this.boolRow(container, "autoTcy");
+    this.selectRow(container, "imageWidthUnit");
   }
 
   /**
@@ -384,46 +331,28 @@ export class SetupWizard extends Modal {
         );
     }
 
-    this.selectRow(
-      container,
-      "settings.pageNumbering",
-      "pageNumbering",
-      (["continuous", "roman-then-arabic", "none"] as const).map((value) => ({
-        value,
-        label: t(`settings.pageNumbering.${value}` as StringKey),
-      })),
-    );
-    this.numberRow(container, "settings.tocDepth", "tocDepth");
-    this.numberRow(container, "settings.startPage", "startPage");
-    this.boolRow(container, "settings.includeToc", "includeToc");
+    this.selectRow(container, "pageNumbering");
+    this.numberRow(container, "tocDepth");
+    this.numberRow(container, "startPage");
+    this.boolRow(container, "includeToc");
   }
 
   private renderCover(container: HTMLElement): void {
-    const images = this.app.vault
-      .getFiles()
-      .filter((file: TFile) => isImagePath(file.path))
-      .slice(0, 500);
+    // The cover note is one of this book's own: a note from another book in
+    // the vault would be typeset into two books at once.
     const notes = this.app.vault
       .getMarkdownFiles()
       .filter((file) => !this.bookRoot || file.path.startsWith(`${this.bookRoot}/`));
 
+    this.selectRow(container, "cover");
     this.selectRow(
       container,
-      "settings.cover",
-      "cover",
-      images.map((image) => ({ value: image.path, label: image.path })),
-    );
-    this.selectRow(
-      container,
-      "settings.coverPage",
       "coverPage",
+      undefined,
       notes.map((note) => ({ value: note.path, label: note.path })),
     );
-    this.selectRow(container, "settings.coverFit", "coverFit", [
-      { value: "cover", label: t("settings.coverFit.cover") },
-      { value: "contain", label: t("settings.coverFit.contain") },
-    ]);
-    this.boolRow(container, "settings.coverInPdf", "coverInPdf");
+    this.selectRow(container, "coverFit");
+    this.boolRow(container, "coverInPdf");
   }
 
   /**
@@ -431,13 +360,8 @@ export class SetupWizard extends Modal {
    * by hand is the most reliable way to get a silent fallback.
    */
   private renderFonts(container: HTMLElement): void {
-    const picker = (
-      label: StringKey,
-      key: "fontFamily" | "headingFontFamily" | "monospaceFontFamily",
-    ) => {
-      const setting = new Setting(container)
-        .setName(t(label))
-        .setDesc(keyDescription(key));
+    const picker = (key: "fontFamily" | "headingFontFamily" | "monospaceFontFamily") => {
+      const setting = this.row(container, key);
       if (this.fontFamilies.length > 0) {
         setting.addDropdown((dropdown) => {
           dropdown.addOption("", "—");
@@ -458,20 +382,20 @@ export class SetupWizard extends Modal {
       );
     };
 
-    picker("settings.fontFamily", "fontFamily");
-    picker("settings.headingFontFamily", "headingFontFamily");
-    picker("settings.monospaceFontFamily", "monospaceFontFamily");
+    picker("fontFamily");
+    picker("headingFontFamily");
+    picker("monospaceFontFamily");
 
-    this.textRow(container, "settings.mboxFontFamily", "mboxFontFamily");
-    this.textRow(container, "settings.tcyFontFamily", "tcyFontFamily");
-    this.textRow(container, "settings.fontFeatureSettings", "fontFeatureSettings");
-    this.textRow(container, "settings.rubyFontSize", "rubyFontSize");
+    this.textRow(container, "mboxFontFamily");
+    this.textRow(container, "tcyFontFamily");
+    this.textRow(container, "fontFeatureSettings");
+    this.textRow(container, "rubyFontSize");
   }
 
   private renderOutput(container: HTMLElement): void {
-    this.textRow(container, "settings.output", "output");
-    this.boolRow(container, "settings.cropMarks", "cropMarks");
-    this.textRow(container, "settings.bleed", "bleed");
+    this.textRow(container, "output");
+    this.boolRow(container, "cropMarks");
+    this.textRow(container, "bleed");
   }
 
   // --- rows ----------------------------------------------------------------
@@ -506,16 +430,15 @@ export class SetupWizard extends Modal {
 
   private row(
     container: HTMLElement,
-    label: StringKey,
     key: keyof BookConfig,
     desc?: string,
   ): Setting {
-    return new Setting(container).setName(t(label)).setDesc(desc ?? keyDescription(key));
+    return new Setting(container).setName(keyLabel(key)).setDesc(desc ?? keyDescription(key));
   }
 
-  private textRow(container: HTMLElement, label: StringKey, key: keyof BookConfig): void {
+  private textRow(container: HTMLElement, key: keyof BookConfig): void {
     const current = this.get(key);
-    this.row(container, label, key).addText((text) =>
+    this.row(container, key).addText((text) =>
       text
         .setPlaceholder(t("wizard.defaultIs", { value: this.defaultLabel(key) }))
         .setValue(current === undefined || current === null ? "" : String(current))
@@ -529,7 +452,7 @@ export class SetupWizard extends Modal {
     const effective = current === undefined ? this.defaults.botenMark : String(current);
     const known = BOTEN_MARK_CHOICES.some((choice) => choice.value === effective);
     const custom = "__vivlio-custom-boten-mark__";
-    const setting = this.row(container, "settings.botenMark", "botenMark");
+    const setting = this.row(container, "botenMark");
 
     setting.addDropdown((dropdown) => {
       dropdown.addOption(
@@ -560,13 +483,9 @@ export class SetupWizard extends Modal {
     });
   }
 
-  private numberRow(
-    container: HTMLElement,
-    label: StringKey,
-    key: keyof BookConfig,
-  ): void {
+  private numberRow(container: HTMLElement, key: keyof BookConfig): void {
     const current = this.get(key);
-    this.row(container, label, key).addText((text) =>
+    this.row(container, key).addText((text) =>
       text
         .setPlaceholder(t("wizard.defaultIs", { value: this.defaultLabel(key) }))
         .setValue(current === undefined || current === null ? "" : String(current))
@@ -577,26 +496,34 @@ export class SetupWizard extends Modal {
     );
   }
 
+  /**
+   * A row answered from a list.
+   *
+   * The list comes from the table the property picker reads, so the two
+   * commands offer the same themes and the same paper sizes; `choices` is for
+   * the one list that is this wizard's own - the notes of this book.
+   */
   private selectRow(
     container: HTMLElement,
-    label: StringKey,
     key: keyof BookConfig,
-    choices: Choice[],
     desc?: string,
+    choices?: Choice[],
   ): void {
     const current = this.get(key);
-    this.row(container, label, key, desc).addDropdown((dropdown) => {
+    const options =
+      choices ?? keyChoices(this.app, key, current === undefined ? "" : String(current));
+    this.row(container, key, desc).addDropdown((dropdown) => {
       dropdown.addOption(
         USE_DEFAULT,
-        t("wizard.useDefault", { value: this.defaultLabel(key, choices) }),
+        t("wizard.useDefault", { value: this.defaultLabel(key, options) }),
       );
-      for (const choice of choices) dropdown.addOption(choice.value, choice.label);
+      for (const choice of options) dropdown.addOption(choice.value, choice.label);
       // A value that came from a preset, or from a file since renamed, is kept
       // in the list rather than silently replaced by whatever it starts with.
       if (
         current !== undefined &&
         current !== "" &&
-        !choices.some((choice) => choice.value === String(current))
+        !options.some((choice) => choice.value === String(current))
       ) {
         dropdown.addOption(String(current), String(current));
       }
@@ -606,9 +533,9 @@ export class SetupWizard extends Modal {
     });
   }
 
-  private boolRow(container: HTMLElement, label: StringKey, key: keyof BookConfig): void {
+  private boolRow(container: HTMLElement, key: keyof BookConfig): void {
     const current = this.get(key);
-    this.row(container, label, key).addDropdown((dropdown) => {
+    this.row(container, key).addDropdown((dropdown) => {
       dropdown
         .addOption(USE_DEFAULT, t("wizard.useDefault", { value: this.defaultLabel(key) }))
         .addOption("true", t("wizard.on"))

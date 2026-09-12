@@ -89,7 +89,7 @@ hand with the toolbar button or `Vivlio: Reload typeset result`.
 | `Vivlio: Export this folder as a book` | Every `.md` in the folder, in order |
 | `Vivlio: Build a book from this note's links` | The note's `[[links]]` become the spine |
 | `Vivlio: Create book configuration` | Wizard that writes `vivlio.yaml` — every key, the untouched ones as comments |
-| `Vivlio: Add configuration to this note` | Inserts flat `vivlio-*` frontmatter |
+| `Vivlio: Add configuration to this note` | Adds, edits and removes flat `vivlio-*` frontmatter, with what each key means |
 | `Vivlio: Write configuration reference` | Every key, with defaults and comments |
 
 The file explorer's context menu offers preview and export as well — see

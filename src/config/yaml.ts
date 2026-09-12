@@ -1,4 +1,4 @@
-import { dump as dumpYaml } from "js-yaml";
+import { dump as dumpYaml, load as loadYaml } from "js-yaml";
 import { DEFAULT_SETTINGS } from "./defaults";
 import { camelToKebab, configFromSettings } from "./resolve";
 import {
@@ -7,7 +7,7 @@ import {
   type SectionSlot,
   type VivlioSettings,
 } from "./types";
-import { detectLocale } from "../i18n";
+import { detectLocale, t, type StringKey } from "../i18n";
 import { defaultBookLabels, resolveBookLabels } from "./labels";
 
 type Locale = "ja" | "en";
@@ -255,6 +255,76 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   },
 };
 
+/**
+ * The name every key goes by in the interface.
+ *
+ * One map, because the wizard and the property picker are two ways of setting
+ * the same key and a writer who met `判型` in one should not meet `size` in
+ * the other. `Record` rather than `Partial<Record>`: a key documented above
+ * without a name here does not compile, which is how the two stay level.
+ */
+const KEY_LABELS: Record<NoteKey, StringKey> = {
+  title: "colophon.title",
+  subtitle: "colophon.subtitle",
+  series: "colophon.series",
+  author: "colophon.author",
+  translator: "colophon.translator",
+  publisher: "colophon.publisher",
+  printer: "colophon.printer",
+  contact: "colophon.contact",
+  website: "colophon.website",
+  date: "colophon.date",
+  lang: "settings.lang",
+  version: "colophon.version",
+  labels: "key.labels",
+  colophonExtra: "key.colophonExtra",
+
+  theme: "book.theme",
+  writingMode: "book.writingMode",
+  size: "book.size",
+  charsPerLine: "settings.charsPerLine",
+  linesPerPage: "settings.linesPerPage",
+  columns: "settings.columns",
+  startSide: "settings.startSide",
+  baseFontSize: "settings.baseFontSize",
+  paragraphIndent: "settings.paragraphIndent",
+  paragraphIndentMode: "settings.paragraphIndentMode",
+  footnote: "book.footnote",
+  highlight: "settings.highlight",
+  botenMark: "settings.botenMark",
+  autoTcy: "settings.autoTcy",
+  imageWidthUnit: "settings.imageWidthUnit",
+
+  cover: "settings.cover",
+  coverPage: "settings.coverPage",
+  coverFit: "settings.coverFit",
+  coverInPdf: "settings.coverInPdf",
+
+  fontFamily: "settings.fontFamily",
+  headingFontFamily: "settings.headingFontFamily",
+  monospaceFontFamily: "settings.monospaceFontFamily",
+  mboxFontFamily: "settings.mboxFontFamily",
+  tcyFontFamily: "settings.tcyFontFamily",
+  fontFeatureSettings: "settings.fontFeatureSettings",
+  rubyFontSize: "settings.rubyFontSize",
+  embedFonts: "key.embedFonts",
+
+  sections: "key.sections",
+  pageNumbering: "settings.pageNumbering",
+  tocDepth: "settings.tocDepth",
+  startPage: "settings.startPage",
+  includeToc: "settings.includeToc",
+  order: "key.order",
+  toc: "key.toc",
+
+  output: "settings.output",
+  cropMarks: "settings.cropMarks",
+  bleed: "settings.bleed",
+  css: "settings.extraCss",
+  syntax: "key.syntax",
+  vfm: "key.vfm",
+};
+
 const GROUP_TITLES: Record<string, { ja: string; en: string }> = {
   book: { ja: "本の情報", en: "Book information" },
   layout: { ja: "組版", en: "Typesetting" },
@@ -277,6 +347,17 @@ function locale(): Locale {
  */
 export function keyDescription(key: NoteKey): string {
   return KEY_DOCS[key]?.[locale()] ?? "";
+}
+
+/**
+ * What a key is called, in the interface language.
+ *
+ * The name of the key itself (`charsPerLine`, `vivlio-chars-per-line`) is
+ * what the file says; it is not what a writer looking for "characters per
+ * line" reads. A picker shows both, with the words first.
+ */
+export function keyLabel(key: NoteKey): string {
+  return t(KEY_LABELS[key]);
 }
 
 /** A block of YAML turned into comments, so it documents without applying. */
@@ -465,6 +546,8 @@ export const STANDARD_KEYS: (keyof BookConfig)[] = [
 /** One key the frontmatter picker can offer, with its group and its text. */
 export interface FrontmatterKeyChoice {
   key: NoteKey;
+  /** What the key is called in the interface, as the wizard calls it. */
+  label: string;
   /** `vivlio-writing-mode` - what actually goes in the note. */
   property: string;
   group: string;
@@ -486,6 +569,7 @@ export function frontmatterKeyChoices(): FrontmatterKeyChoice[] {
     if (doc.yamlOnly) continue;
     choices.push({
       key,
+      label: keyLabel(key),
       property: `vivlio-${camelToKebab(key)}`,
       group: doc.group,
       groupLabel: GROUP_TITLES[doc.group]?.[language] ?? doc.group,
@@ -522,6 +606,196 @@ export function frontmatterSnippetFor(
     lines.push(`vivlio-${camelToKebab(key)}:${empty ? "" : ` ${scalar(value)}`}`);
   }
   return lines.join("\n");
+}
+
+/**
+ * The value one key would arrive with, or "" when it arrives empty.
+ *
+ * The picker says it per row: a command that fills a property in has to show
+ * what it is filling in, or the writer finds out by reading the note after.
+ */
+export function frontmatterValueFor(settings: VivlioSettings, key: NoteKey): string {
+  const line = frontmatterSnippetFor(settings, [key]);
+  return line.slice(line.indexOf(":") + 1).trim();
+}
+
+/** One property as the note carries it now. */
+export interface NoteProperty {
+  /** The value as a field can show it: `novel`, `39`, `true`, `` for empty. */
+  value: string;
+  /**
+   * Whether the picker may rewrite it.
+   *
+   * A property written as a nested block or a list is not a value a one-line
+   * field can hold, and replacing it with what such a field happens to
+   * contain would throw the rest of it away.
+   */
+  editable: boolean;
+}
+
+/**
+ * The properties already in a note's frontmatter, with their values.
+ *
+ * Read off the text rather than the metadata cache: the cache lags an edit by
+ * a moment, and the picker may well be opened right after one.
+ */
+export function readFrontmatterProperties(content: string): Map<string, NoteProperty> {
+  const properties = new Map<string, NoteProperty>();
+  const block = frontmatterBlock(content);
+  if (!block) return properties;
+
+  for (let index = 0; index < block.body.length; index++) {
+    // Only top-level keys: an indented line belongs to the value above it.
+    const match = /^([A-Za-z0-9_-]+)\s*:(.*)$/.exec(block.body[index]);
+    if (!match) continue;
+    const [, property, rest] = match;
+    const nested = index + 1 < block.body.length && isContinuation(block.body[index + 1]);
+    properties.set(property, {
+      value: nested ? rest.trim() : readScalar(rest.trim()),
+      editable: !nested,
+    });
+  }
+  return properties;
+}
+
+/** One property the picker wants written, or removed when the value is null. */
+export interface FrontmatterEdit {
+  property: string;
+  value: string | null;
+}
+
+/** A replacement for the lines `[fromLine, toLine)` of the note. */
+export interface FrontmatterPatch {
+  text: string;
+  fromLine: number;
+  toLine: number;
+}
+
+/**
+ * The note's frontmatter with the edits applied, as a patch (SPEC 5.4).
+ *
+ * A patch rather than a whole note, so that an edit to three properties is an
+ * edit to the block they sit in: everything below the closing fence is left
+ * untouched, cursor and undo history included.
+ *
+ * Properties the block does not have are appended in the order they were
+ * asked for; properties nobody mentioned are left exactly as they are, in
+ * their place. `null` removes one, with whatever indented lines belong to it.
+ */
+export function frontmatterPatch(
+  content: string,
+  edits: FrontmatterEdit[],
+): FrontmatterPatch | null {
+  const written = edits.filter((edit) => edit.value !== null);
+  const block = frontmatterBlock(content);
+
+  if (!block) {
+    if (written.length === 0) return null;
+    const body = written.map((edit) => propertyLine(edit.property, edit.value ?? ""));
+    return { fromLine: 0, toLine: 0, text: `---\n${body.join("\n")}\n---\n\n` };
+  }
+
+  const pending = new Map(edits.map((edit) => [edit.property, edit.value]));
+  const out: string[] = [];
+  for (let index = 0; index < block.body.length; index++) {
+    const line = block.body[index];
+    const property = /^([A-Za-z0-9_-]+)\s*:/.exec(line)?.[1];
+    if (!property || !pending.has(property)) {
+      out.push(line);
+      continue;
+    }
+
+    const value = pending.get(property) ?? null;
+    pending.delete(property);
+    // The new value stands for the old one entirely, nested lines and all.
+    while (index + 1 < block.body.length && isContinuation(block.body[index + 1])) index++;
+    if (value !== null) out.push(propertyLine(property, value));
+  }
+  for (const [property, value] of pending) {
+    if (value !== null) out.push(propertyLine(property, value));
+  }
+
+  const text = out.length > 0 ? `---\n${out.join("\n")}\n---\n` : "";
+  const before = content
+    .split("\n")
+    .slice(block.fromLine, block.toLine)
+    .join("\n")
+    .concat("\n");
+  if (text === before) return null;
+  return { text, fromLine: block.fromLine, toLine: block.toLine };
+}
+
+interface FrontmatterBlock {
+  body: string[];
+  fromLine: number;
+  /** One past the closing fence, so `[fromLine, toLine)` is the whole block. */
+  toLine: number;
+}
+
+function frontmatterBlock(content: string): FrontmatterBlock | null {
+  if (!content.startsWith("---")) return null;
+  const lines = content.split("\n");
+  for (let index = 1; index < lines.length; index++) {
+    if (/^(---|\.\.\.)\s*$/.test(lines[index])) {
+      return { body: lines.slice(1, index), fromLine: 0, toLine: index + 1 };
+    }
+  }
+  // An opening fence that never closes is not a block anyone should edit.
+  return null;
+}
+
+function isContinuation(line: string): boolean {
+  return /^\s+\S/.test(line);
+}
+
+function propertyLine(property: string, value: string): string {
+  return `${property}:${value ? ` ${value}` : ""}`;
+}
+
+/**
+ * A written value as a field should show it.
+ *
+ * `"novel"` and `novel` are the same theme, and a dropdown that is handed the
+ * first has no option matching it. Anything YAML does not read as a scalar -
+ * a flow list, a mapping - is shown as written and left alone.
+ */
+function readScalar(raw: string): string {
+  if (raw === "") return "";
+  const parsed = readYaml(raw);
+  switch (typeof parsed) {
+    case "string":
+      return parsed;
+    case "number":
+    case "boolean":
+      return String(parsed);
+    default:
+      return raw;
+  }
+}
+
+/**
+ * A typed value as YAML has to carry it.
+ *
+ * What the writer types is YAML already when YAML can read it back as one
+ * value; a colophon line like `装丁: 山田花子` cannot be, and is quoted so the
+ * property keeps the text rather than becoming a mapping.
+ */
+export function writeScalar(raw: string): string {
+  const value = raw.trim();
+  if (value === "") return "";
+  const parsed = readYaml(value);
+  const scalarValue =
+    typeof parsed === "string" || typeof parsed === "number" || typeof parsed === "boolean";
+  return scalarValue ? value : scalar(value);
+}
+
+/** YAML as far as it parses; anything it refuses is not a value we can read. */
+function readYaml(raw: string): unknown {
+  try {
+    return loadYaml(raw);
+  } catch {
+    return undefined;
+  }
 }
 
 /** Take a book's `vivlio.yaml` back into the settings tab (SPEC 5.4). */

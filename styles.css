@@ -96,7 +96,7 @@
 
 /* The property picker (src/view/FrontmatterModal.ts). */
 .vivlio-frontmatter-list {
-  max-height: 55vh;
+  max-height: 40vh;
   overflow-y: auto;
   padding-inline-end: var(--size-4-2);
 }
@@ -117,9 +117,78 @@
   padding-block: var(--size-4-2);
 }
 
-.vivlio-frontmatter-list .setting-item-name {
+.vivlio-frontmatter-modal .vivlio-frontmatter-controls {
+  border-top: none;
+  padding-block-start: 0;
+}
+
+/* No name on the row: the filter and the two shortcuts take the whole width. */
+.vivlio-frontmatter-modal .vivlio-frontmatter-controls .setting-item-info {
+  display: none;
+}
+
+.vivlio-frontmatter-modal .vivlio-frontmatter-controls .setting-item-control {
+  flex-wrap: nowrap;
+}
+
+.vivlio-frontmatter-modal .vivlio-frontmatter-controls .search-input-container {
+  flex: 1;
+}
+
+/* A row carries a value control as well as a switch, so the modal is wider. */
+.modal:has(.vivlio-frontmatter-modal) {
+  width: min(46rem, 92vw);
+  max-width: 92vw;
+}
+
+.vivlio-frontmatter-list .setting-item-control {
+  gap: var(--size-4-2);
+}
+
+.vivlio-frontmatter-list .setting-item-control select,
+.vivlio-frontmatter-list .setting-item-control input[type="text"] {
+  max-width: 14em;
+}
+
+/* The key's own name, beside the words for it. */
+.vivlio-frontmatter-property {
+  margin-inline-start: var(--size-4-2);
+  color: var(--text-faint);
   font-family: var(--font-monospace);
-  font-size: var(--font-ui-small);
+  font-size: var(--font-ui-smaller);
+  font-weight: normal;
+}
+
+.vivlio-frontmatter-note {
+  color: var(--text-faint);
+}
+
+/* What the command is about to write, as it will be written. */
+.vivlio-frontmatter-summary {
+  margin-block-start: var(--size-4-3);
+  padding-block-start: var(--size-4-3);
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.vivlio-frontmatter-summary p {
+  margin-block: 0 var(--size-4-2);
+}
+
+.vivlio-frontmatter-snippet {
+  margin: 0;
+  max-height: 8em;
+  overflow: auto;
+  padding: var(--size-4-2);
+  border-radius: var(--radius-s);
+  background-color: var(--background-secondary);
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  white-space: pre-wrap;
+}
+
+/* Nothing ticked: the block has nothing to show, so it shows nothing. */
+.vivlio-frontmatter-snippet:empty {
+  display: none;
 }
 
 /* The yaml / css / epub views (src/view/FileViews.ts). */

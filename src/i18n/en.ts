@@ -109,9 +109,24 @@ export const en = {
 
   "frontmatter.title": "Add configuration to this note",
   "frontmatter.desc":
-    "Every property you pick is added to the note's frontmatter with the vault default already filled in, and stays editable in the property panel. What the note says here wins over its vivlio.yaml and over the settings tab. Pick only what this note actually decides — a property added and never used still shows on every note that has it. Keys that need nesting (sections, colophonExtra, embedFonts, vfm) belong in a vivlio.yaml: the property editor cannot edit them.",
-  "frontmatter.alreadyThere": "Already in this note; left as it is.",
-  "frontmatter.add": "Add",
+    "This note's own Vivlio settings, with what each one means. Ticking a property adds it with the vault default filled in, unticking one takes it off the note, and the field beside it is the value the note will carry — what a note says here wins over its vivlio.yaml and over the settings tab.",
+  "frontmatter.desc.pick":
+    "Keep only what this note actually decides — a property added and never used still sits in the property panel of every note that carries it. Keys that need nesting (sections, labels, colophonExtra, embedFonts, vfm) are not offered: the property editor cannot edit them, so they belong in a vivlio.yaml.",
+  "frontmatter.filter": "Filter by name",
+  "frontmatter.standard": "The usual seven",
+  "frontmatter.reset": "Back to the note",
+  "frontmatter.noMatch": "Nothing matches “{filter}”.",
+  "frontmatter.inNote": "In this note. Edit the value here; untick to remove the property.",
+  "frontmatter.fromVault": "Not in this note. The field holds the vault default.",
+  "frontmatter.nested":
+    "Written as a nested block, which this command will not rewrite. Edit it in the note itself.",
+  "frontmatter.op.add": "add",
+  "frontmatter.op.change": "change",
+  "frontmatter.op.remove": "remove",
+  "frontmatter.summary": "Written to this note ({count})",
+  "frontmatter.summaryEmpty":
+    "Nothing to write yet: the note already says this. Every edit shows here first.",
+  "frontmatter.apply": "Write to the note",
   "frontmatter.cancel": "Cancel",
   "wizard.destination": "Writes to {path}",
   "wizard.destination.desc":
@@ -348,6 +363,18 @@ export const en = {
   "book.size": "Paper size",
   "book.writingMode": "Writing mode",
   "book.footnote": "Footnote placement",
+
+  // Keys the settings tab has no row for, named here so that every key the
+  // wizard and the property picker can show has a name of its own.
+  "key.labels": "Text on generated pages",
+  "key.colophonExtra": "Extra colophon lines",
+  "key.embedFonts": "Embedded fonts",
+  "key.sections": "Front and back matter",
+  "key.order": "Place in the running order",
+  "key.toc": "Use this note as the contents",
+  "key.syntax": "Syntax switches",
+  "key.vfm": "VFM options",
+
   "role.author": "written by",
   "role.translator": "translated by",
   "toc.heading": "Contents",

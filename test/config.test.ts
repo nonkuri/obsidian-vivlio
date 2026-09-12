@@ -20,6 +20,11 @@ import {
   referenceYaml,
   frontmatterKeyChoices,
   frontmatterSnippetFor,
+  frontmatterValueFor,
+  frontmatterPatch,
+  readFrontmatterProperties,
+  writeScalar,
+  type FrontmatterPatch,
 } from "../src/config/yaml";
 import { configFromSettings } from "../src/config/resolve";
 import { DEFAULT_SETTINGS, pageHeightMm, pageWidthMm } from "../src/config/defaults";
@@ -94,6 +99,14 @@ function makeApp(files: TFile[], links: Record<string, string[]> = {}): App {
       getFileByPath: (path: string) => files.find((file) => file.path === path) ?? null,
     },
   } as unknown as App;
+}
+
+/** A note with one frontmatter patch applied, as the editor would apply it. */
+function apply(content: string, patch: FrontmatterPatch | null): string {
+  if (!patch) return content;
+  const lines = content.split("\n");
+  const block = patch.text ? patch.text.replace(/\n$/, "").split("\n") : [];
+  return [...lines.slice(0, patch.fromLine), ...block, ...lines.slice(patch.toLine)].join("\n");
 }
 
 function makeFolder(name: string, children: TFile[]): TFolder {
@@ -521,6 +534,114 @@ async function main(): Promise<void> {
     choices.map((choice) => choice.key).join(","),
   );
   check("every offered key is described", choices.every((choice) => choice.description.length > 0));
+  // The picker names a key the way the wizard names it. An unresolved string
+  // key comes back as itself ("settings.botenMark"), which is what this looks
+  // for: a key documented but never named would show up as its own id.
+  check(
+    "every offered key is named in words",
+    choices.every(
+      (choice) => choice.label.length > 0 && !/^(settings|colophon|book|key)\./.test(choice.label),
+    ),
+    choices.map((choice) => choice.label).join(" "),
+  );
+  // Each row says what ticking it would put in the note.
+  check(
+    "the picker can say what value a key would arrive with",
+    frontmatterValueFor(DEFAULT_SETTINGS, "theme") === "novel",
+    frontmatterValueFor(DEFAULT_SETTINGS, "theme"),
+  );
+  check(
+    "a key with nothing to fill in arrives empty",
+    frontmatterValueFor(DEFAULT_SETTINGS, "cover") === "",
+    frontmatterValueFor(DEFAULT_SETTINGS, "cover"),
+  );
+
+  // --- editing a note's own properties (SPEC 5.4) ------------------------
+  {
+    const note = [
+      "---",
+      "title: 遠雷",
+      'vivlio-theme: "novel"',
+      "vivlio-order: 3",
+      "vivlio-vfm:",
+      "  hardLineBreaks: true",
+      "---",
+      "",
+      "# 一章",
+      "",
+    ].join("\n");
+
+    const properties = readFrontmatterProperties(note);
+    // A quoted value and a bare one are the same theme; a dropdown handed the
+    // quotes would match none of its options.
+    check(
+      "a written value is read as a field shows it",
+      properties.get("vivlio-theme")?.value === "novel",
+      properties.get("vivlio-theme")?.value,
+    );
+    check("a number reads as its digits", properties.get("vivlio-order")?.value === "3");
+    check(
+      "a nested property is read but not offered for rewriting",
+      properties.get("vivlio-vfm")?.editable === false,
+    );
+    check(
+      "a property the note does not carry is absent",
+      !properties.has("vivlio-size"),
+    );
+
+    const changed = apply(
+      note,
+      frontmatterPatch(note, [
+        { property: "vivlio-theme", value: "novel-2col" },
+        { property: "vivlio-order", value: null },
+        { property: "vivlio-size", value: "A5" },
+      ]),
+    );
+    check("the changed property carries its new value", changed.includes("vivlio-theme: novel-2col"), changed);
+    check("the removed property is gone", !changed.includes("vivlio-order"), changed);
+    check("the added property is appended to the block", changed.includes("vivlio-size: A5"), changed);
+    // Everything nobody mentioned stays where the writer put it.
+    check("a property of someone else's is untouched", changed.includes("title: 遠雷"), changed);
+    check("the nested property is untouched", changed.includes("  hardLineBreaks: true"), changed);
+    check("the body is untouched", changed.endsWith("# 一章\n"), JSON.stringify(changed.slice(-12)));
+
+    // Removing a nested property takes the lines that belong to it.
+    const pruned = apply(note, frontmatterPatch(note, [{ property: "vivlio-vfm", value: null }]));
+    check(
+      "removing a property takes its indented lines with it",
+      !pruned.includes("hardLineBreaks"),
+      pruned,
+    );
+
+    // Nothing to do is nothing written: the picker compares values before it
+    // asks for a patch, and the patch checks the text it would leave behind.
+    check(
+      "a property set to what it already says is not rewritten",
+      frontmatterPatch(note, [{ property: "vivlio-order", value: "3" }]) === null,
+    );
+
+    const bare = "# 一章\n\n本文\n";
+    const started = apply(bare, frontmatterPatch(bare, [{ property: "vivlio-theme", value: "novel" }]));
+    check(
+      "a note with no frontmatter gets a block",
+      started.startsWith("---\nvivlio-theme: novel\n---\n\n# 一章"),
+      started,
+    );
+    check(
+      "and a removal alone writes nothing at all",
+      frontmatterPatch(bare, [{ property: "vivlio-theme", value: null }]) === null,
+    );
+  }
+
+  // A value is written as YAML when YAML can read it back, and quoted when it
+  // cannot: `装丁: 山田花子` would otherwise turn the property into a mapping.
+  check("a plain value is written as typed", writeScalar("novel") === "novel");
+  check("a number stays a number", writeScalar("39") === "39");
+  check(
+    "a value YAML would read as something else is quoted",
+    writeScalar("装丁: 山田花子") === '"装丁: 山田花子"',
+    writeScalar("装丁: 山田花子"),
+  );
 
   // --- chapter order (SPEC 5.2) -----------------------------------------
   const two = makeFile("book/2.md");

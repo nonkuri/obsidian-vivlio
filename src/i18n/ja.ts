@@ -108,9 +108,24 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
 
   "frontmatter.title": "このノートに設定を追加",
   "frontmatter.desc":
-    "選んだ項目が、Vault の既定値を入れた状態でこのノートのフロントマターに追加され、以後はプロパティパネルで編集できます。ここでの指定は vivlio.yaml よりも設定タブよりも優先されます。このノートで実際に決めることだけを選んでください —— 使わない項目も、付いている限りプロパティパネルに並び続けます。入れ子が要るキー（sections / colophonExtra / embedFonts / vfm）はプロパティエディタで編集できないので、vivlio.yaml に書きます。",
-  "frontmatter.alreadyThere": "このノートに既にあります（変更しません）。",
-  "frontmatter.add": "追加する",
+    "このノートの Vivlio 設定を、項目の説明つきで編集します。チェックを付けると Vault の既定値を入れて追加し、外すとそのプロパティを削除します。右の欄がこのノートに入る値です —— ここでの指定は vivlio.yaml よりも設定タブよりも優先されます。",
+  "frontmatter.desc.pick":
+    "このノートで実際に決めることだけを残してください —— 使わない項目も、付いている限りプロパティパネルに並び続けます。入れ子が要るキー（sections / labels / colophonExtra / embedFonts / vfm）はプロパティエディタで編集できないため、ここには出しません。vivlio.yaml に書いてください。",
+  "frontmatter.filter": "名前で絞り込む",
+  "frontmatter.standard": "よく使う 7 項目",
+  "frontmatter.reset": "ノートの内容に戻す",
+  "frontmatter.noMatch": "「{filter}」に当たる項目はありません。",
+  "frontmatter.inNote": "このノートにあります。値はここで変更でき、チェックを外すと削除します。",
+  "frontmatter.fromVault": "このノートにはありません。右の欄は Vault の既定値です。",
+  "frontmatter.nested":
+    "入れ子で書かれているため、このコマンドでは書き換えません。ノート本体で編集してください。",
+  "frontmatter.op.add": "追加",
+  "frontmatter.op.change": "変更",
+  "frontmatter.op.remove": "削除",
+  "frontmatter.summary": "このノートに書き込む内容（{count} 項目）",
+  "frontmatter.summaryEmpty":
+    "書き込むことはまだありません（ノートの現状と同じです）。変更はすべてここに出ます。",
+  "frontmatter.apply": "ノートに書き込む",
   "frontmatter.cancel": "キャンセル",
   "wizard.destination": "{path} に書き出します",
   "wizard.destination.desc":
@@ -342,6 +357,16 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "book.size": "判型",
   "book.writingMode": "書字方向",
   "book.footnote": "脚注の位置",
+
+  "key.labels": "自動生成ページの文字",
+  "key.colophonExtra": "奥付に足す項目",
+  "key.embedFonts": "埋め込むフォント",
+  "key.sections": "前付け・後付け",
+  "key.order": "このノートの並び順",
+  "key.toc": "このノートを目次にする",
+  "key.syntax": "記法スイッチ",
+  "key.vfm": "VFM オプション",
+
   "role.author": "著",
   "role.translator": "訳",
   "toc.heading": "目次",
