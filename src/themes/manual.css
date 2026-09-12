@@ -35,6 +35,23 @@
   --vs-manual--rule-ink: #c8c8c8;
 }
 
+/* Paragraphs ---------------------------------------------------------------
+ *
+ * A Japanese paragraph opens one character in, set across the page as much as
+ * down it. theme-techbook says nothing about the indent, so what arrived here
+ * was theme-base's `0` - and the conversion removes the ideographic space a
+ * manuscript indents with (SPEC 5.3 #15) on the understanding that the
+ * stylesheet does the indenting properly. With neither, a manuscript set
+ * horizontally lost its paragraph openings altogether, while the same note
+ * kept them in novel.css, which states its own 1em.
+ *
+ * A book that wants its paragraphs flush - a manual written in short, headed
+ * sections often does - says `paragraphIndent: 0`.
+ */
+:root {
+  --vs--p-text-indent: 1em;
+}
+
 /* Figures ------------------------------------------------------------------
  *
  * theme-base makes every figure a `display: flex` column purely to centre the

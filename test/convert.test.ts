@@ -14,7 +14,7 @@ import {
   themeChoices,
   THEME_STYLESHEET,
 } from "../src/build/theme";
-import { bundledThemePath } from "../src/vendor/assets";
+import { bundledThemePath, SELECTABLE_THEMES } from "../src/vendor/assets";
 import { BOOK_STYLESHEET } from "../src/build/vfm";
 import { buildTocEntries, tocDocument, TOC_FRONT_MATTER_CLASS } from "../src/build/toc";
 import {
@@ -771,6 +771,24 @@ async function main(): Promise<void> {
       !flattenBundledTheme(bundledThemePath("manual")!).includes("float: none"),
     ),
   );
+
+  // The conversion removes the ideographic space a manuscript indents with
+  // (#15) because the stylesheet is to do the indenting. A theme that leaves
+  // theme-base's `--vs--p-text-indent: 0` therefore loses the indent
+  // altogether - which is what the horizontal manual theme did, while the
+  // same note set vertically kept it from theme-bunko.
+  for (const name of SELECTABLE_THEMES) {
+    const theme = flattenBundledTheme(bundledThemePath(name)!);
+    const declared = [...theme.matchAll(/--vs--p-text-indent:\s*([^;]+);/g)];
+    const effective = declared.at(-1)?.[1].trim() ?? "(none)";
+    checks.push(
+      check(
+        `${name} indents its paragraphs`,
+        declared.length > 0 && effective !== "0",
+        effective,
+      ),
+    );
+  }
 
   // Nothing laid out before the contents page carries a folio, and the
   // colophon joins them at the back. theme-base names the dedication's and the
