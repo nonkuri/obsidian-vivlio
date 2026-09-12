@@ -50,6 +50,18 @@ Obsidian の Markdown を Vivliostyle で日本語・英語組版し、プレビ
   `imgFigcaptionOrder` `captionlessImagePolicy` `parseFigcaptionAsInline` `rewriteRelativeHrefExtensions` `table`
 - 見出しの自動セクション化（`<section>` 生成）、図表キャプション、Temml による数式
 
+**【実装時の修正】`mathRenderer` は `mathml` に固定する。** VFM の既定は `mathjax` で、
+これは LaTeX をそのまま本文に残し、CDN の MathJax を読み込んで閲覧時に組む。本プラグインでは
+その `<script>` を sanitize が外すので（→ 5.12）、紙面には `\(x\)` の生テキストだけが残る。
+EPUB・PDF にはスクリプトを走らせる場所がなく、Vault はオフラインかもしれない。
+`mathml` なら Temml がビルド時に MathML へ落とすので、数式は文書の一部になる。
+`vfm.mathRenderer` に他の値が書かれていたら、黙って従わずに警告を出す。
+
+`$` が数式の開きと読まれるのは、**開きの直後が空白でなく、閉じの直前が空白でなく、閉じの直後が
+数字でない**ときだけ（VFM の正規表現）。`価格は $100 から $200 です` はこの 3 つ目で弾かれるので
+数式にならない。誤読されるのは `価格は$100から$xまで` のような並びで、そのときは Markdown の
+文字エスケープ `\$` が効く。
+
 **縦中横（tcy）は VFM の記法にはない。** CSS（`text-combine-upright`）かテーマ側、
 または本プラグイン独自の前処理記法で補う。→ 5.3
 
@@ -395,6 +407,11 @@ Markdown は空行を捨てる —— 1 行で段落が切れ、それ以上は�
 
 数え方は**パーサが記録した行番号**から取る。原稿の文字列を触らない（決定 25）ので、
 隣り合うブロックの `position` の差がそのまま空行の数になる。
+
+**【実装時の修正】原稿から読んだのではないブロックは、前後とも数えない。** `<math>` は Temml が
+LaTeX から組み立てた断片を読み直したものなので、`position` は持っていても行番号はその断片の
+1 行目から数え直されている。そこから差を取ると、数式の次の段落が十数行も下に落ちた。
+位置を持たないブロックに出会ったら、そこで数え直す（次のブロックには空きを付けない）。
 
 空きは**マージンで与える。空要素を挟んではいけない**（#17 と同じ理由: 高さ 0 のブロックは
 ページを消費せず、組版が終わらない）。マージンならページの先頭では落ちるので、
@@ -1044,6 +1061,8 @@ Chromium の PDF 出力は Blink → Skia PDF 経路。**JFIF JPEG は元のバ�
 - **EPUB 3 コアメディアタイプは GIF / JPEG / PNG / SVG / WebP。`avif` と `bmp` は非対応** → 書き出し時に PNG へ変換（`createImageBitmap` + `OffscreenCanvas` でレンダラ内で完結）、または警告してスキップ
 - リモート画像は不可 → 必ずダウンロードして同梱（→ (2)）
 - OPF の manifest に全画像を列挙。カバー画像は `properties="cover-image"`
+- **MathML を含む文書には `properties="mathml"` を付ける。** リーダーはこの宣言を見て
+  その文書を開けるかどうかを決める。付けない EPUB は検証も通らない
 - **紙用の寸法はリーダーに持ち込めない。** 幅は `rem` で届き（→ (3)）、紙の版面で置いた
   `max-width` / `max-height` の mm は EPUB 用 CSS が打ち消す:
   `img, svg { max-width: 100%; max-height: none; max-inline-size: 100%; block-size: auto; }`。

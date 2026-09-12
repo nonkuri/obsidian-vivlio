@@ -240,6 +240,7 @@ out. `Vivlio: Add configuration to this note` offers both.
 | `![[Note]]`, `![[Note#Heading]]` | the note's text, set in place (three deep; a cycle is refused) |
 | `[[Note]]`, `[[Note\|shown]]` | a link when the note is in the book, plain text when it is not |
 | `- [ ]` | ☐ / ☑, drawn as text rather than as a form control |
+| `$E = mc^2$`, `$$…$$` | math, converted to MathML (Temml) while the book is built. Nothing is loaded to typeset it in the reader, so it comes out the same in a PDF, in an EPUB and with no network. A currency `$` is written `\$` (see [Math](#math)) |
 | a `mermaid` or `dataview` block | drawn by Obsidian's own renderer, then placed as a figure |
 | `#tag`, `%%comment%%`, `^block-id` | removed |
 
@@ -248,6 +249,28 @@ inside a code block: the conversions run over the document tree, not over the
 Markdown source.
 
 ![A spread from the sample book at full size: ruby over 遠雷, emphasis dots beside 「その手袋は、もう戻らない」, 10 and 42 turned upright, the gap a run of blank lines opens, running heads and folios.](docs/images/spread.png)
+
+### Math
+
+`$...$` and `$$...$$` are turned into MathML while the book is typeset. Temml
+does the conversion, so a formula is part of the document itself and comes out
+the same in a PDF, in an EPUB and in a vault with no network. (The other way -
+leaving the LaTeX in the page and fetching MathJax to set it in the reader - is
+not used: a book does not run code, and that script is taken out before the
+book is written.) In vertical writing both inline and display math stay
+horizontal.
+
+A `$` opens a formula only when all three of these hold:
+
+- no space follows the opening `$`
+- no space precedes the closing `$`
+- no digit follows the closing `$`
+
+So `it cost $100 to $200` and `$1,000 to $2,000` are left alone. What does get
+read as math is a pair with no space between them whose second `$` is followed
+by something other than a digit. Write `\$` for the dollar sign itself
+(`&dollar;` and a code span do the same), or `vfm: { math: false }` to switch
+the syntax off altogether.
 
 ## Columns
 

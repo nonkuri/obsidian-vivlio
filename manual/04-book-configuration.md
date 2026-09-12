@@ -348,6 +348,13 @@ vfm:
   hardLineBreaks: true
 ```
 
+`mathRenderer` だけは書いても効きません。数式は常に MathML として組みます（→ [数式](05-writing-and-structure.md#数式)）。数式の記法そのものを止めたいときは `math: false` を書きます。
+
+```yaml
+vfm:
+  math: false
+```
+
 `syntax` では、本ごとに前処理を上書きできます。
 
 ```yaml

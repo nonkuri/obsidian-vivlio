@@ -34,6 +34,16 @@ export function blankLinesPlugin() {
         for (const child of children) {
           if (!isElement(child)) continue;
           const element = child;
+          // A block that was not read off this manuscript has no gap to count,
+          // before it or after it, so the run starts over at the next block
+          // that has one. Counting from it instead is not a smaller error: a
+          // formula carries the line numbers of the MathML Temml built, which
+          // begin again at one, and the paragraph after it came out twelve
+          // blank lines down the page.
+          if (!hasSourceLines(element)) {
+            previous = null;
+            continue;
+          }
           const blank = previous ? blankLinesBetween(previous, element) : 0;
           if (blank > FREE_BLANK_LINES) space(element, blank - FREE_BLANK_LINES);
           previous = element;
@@ -41,6 +51,21 @@ export function blankLinesPlugin() {
       });
     };
   };
+}
+
+/**
+ * Whether this block's position is a position in the manuscript.
+ *
+ * `<math>` is built by Temml from the LaTeX and parsed back as a fragment of
+ * its own, so it does carry a position - one that counts the lines of that
+ * fragment, and has nothing to do with the note.
+ */
+function hasSourceLines(element: UElement): boolean {
+  if (element.tagName === "math") return false;
+  const position = (element as Positioned).position;
+  return (
+    typeof position?.start?.line === "number" && typeof position?.end?.line === "number"
+  );
 }
 
 /** How many wholly blank lines the source has between two blocks. */

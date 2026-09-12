@@ -407,6 +407,44 @@ async function main(): Promise<void> {
     ),
   );
 
+  // Math is typeset into the document, not left as LaTeX for a script to pick
+  // up in the reader: the script would be taken straight back out by the
+  // sanitizer, and neither an EPUB nor a PDF has anywhere to run one
+  // (see mathRenderer in src/build/vfm.ts).
+  const withMath = makeContext();
+  const mathHtml = await convertChapter(
+    withMath,
+    withMath.chapters[0],
+    chapterOne,
+    [
+      "インライン $E = mc^2$ は本文の中に置かれる。",
+      "",
+      "$$",
+      "\\int_0^1 x^2 dx = \\frac{1}{3}",
+      "$$",
+      "",
+      "数式のあとの段落。",
+    ].join("\n"),
+  );
+  checks.push(
+    check("inline math is MathML", /<math>[\s\S]*<mi>E<\/mi>/.test(mathHtml), mathHtml),
+    check(
+      "display math is a block of its own",
+      /<math display="block"/.test(mathHtml),
+      mathHtml,
+    ),
+    check("no LaTeX is left in the page", !mathHtml.includes("\\frac"), mathHtml),
+    check("and nothing is loaded to typeset it", !/<script/i.test(mathHtml), mathHtml),
+    // A formula carries the line numbers of the MathML Temml built, which start
+    // again at one; counting blank lines off them put the next paragraph a
+    // dozen lines down the page (see hast/spacing.ts).
+    check(
+      "the paragraph after a formula is not pushed down the page",
+      !mathHtml.includes("vivlio-blank-lines"),
+      mathHtml,
+    ),
+  );
+
   // The bare ruby form reaches for the kanji in front of it, so the two things
   // that also use 《》 have to stay clear of it.
   const rubyEdges = await convertChapter(

@@ -57,6 +57,16 @@ export async function convertChapter(
   const metadata = buildMetadata(context, chapter, markdown);
   const rules = notationRules(context.config);
 
+  // Say so rather than quietly doing something else (see mathRenderer below).
+  const renderer = context.config.vfm.mathRenderer;
+  if (typeof renderer === "string" && renderer !== "mathml") {
+    warn(context, {
+      kind: "unsupported",
+      message: `vfm.mathRenderer: ${renderer} cannot be used in a book; math is typeset as MathML`,
+      source: file.path,
+    });
+  }
+
   const processor = VFM(
     {
       style: [BOOK_STYLESHEET],
@@ -64,6 +74,22 @@ export async function convertChapter(
       language: context.config.lang,
       footnote: context.config.footnote,
       ...(context.config.vfm as Record<string, never>),
+      // Math is typeset while the book is built, never in the reader
+      // (SPEC 2.2, 5.12).
+      //
+      // VFM's own default renderer leaves the LaTeX in the page as text and
+      // loads MathJax from a CDN to typeset it at runtime. Nothing about that
+      // survives here: a book does not run code, so sanitizePlugin takes the
+      // `<script>` back out, and what is left on the page is the bare `\(x\)`
+      // source - which the notation rules then read as ordinary text. An EPUB
+      // and a PDF have no runtime to load it in, and a vault may have no
+      // network at all.
+      //
+      // Temml turns the LaTeX into MathML during the build, so the formula is
+      // part of the document like any other markup. It is forced rather than
+      // defaulted: `mathjax` is not a choice that works here, and a book that
+      // asked for it would silently lose its formulas.
+      mathRenderer: "mathml",
       // The hook is typed against unified's own plugin types; the plugins
       // below are plain transformers, which those types cannot express here.
       editPlugins: (plugins) =>

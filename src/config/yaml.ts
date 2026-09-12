@@ -250,8 +250,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   vfm: {
     group: "output",
     yamlOnly: true,
-    ja: "VFM にそのまま渡すオプション",
-    en: "Options handed straight to VFM",
+    ja: "VFM にそのまま渡すオプション。mathRenderer だけは効かず、数式は常に MathML で組む",
+    en: "Options handed straight to VFM, except mathRenderer: math is always set as MathML",
   },
 };
 
