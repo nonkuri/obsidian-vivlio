@@ -769,7 +769,13 @@ ol > li::before {
    parties to the book. They hang under the name, indented past the label
    column so the eye reads them as belonging to it. */
 [role='doc-colophon'] .colophon-detail {
-  margin-block-start: 0.3rem;
+  margin-block-start: 0;
+}
+
+/* Keep contact details with the publisher; separate the next labelled entry
+   (the printer) after the final detail, in either writing direction. */
+[role='doc-colophon'] .colophon-detail + .colophon-row:not(.colophon-detail) {
+  margin-block-start: 0.75rem;
 }
 
 [role='doc-colophon'] .colophon-detail dd {
