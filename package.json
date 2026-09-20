@@ -1,6 +1,6 @@
 {
   "name": "obsidian-vivlio",
-  "version": "0.11.1",
+  "version": "0.12.0",
   "description": "Typeset your Obsidian notes with Vivliostyle (CSS paged media) and export to PDF / EPUB.",
   "main": "main.js",
   "license": "AGPL-3.0-or-later",
@@ -9,7 +9,7 @@
     "dev": "node esbuild.config.mjs",
     "build": "tsc --noEmit -p tsconfig.json && node esbuild.config.mjs production",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "node test/run.mjs test/convert.test.ts && node test/run.mjs test/config.test.ts && node test/run.mjs test/server.test.ts",
+    "test": "node test/run.mjs test/convert.test.ts && node test/run.mjs test/config.test.ts && node test/run.mjs test/server.test.ts && node test/run.mjs test/viewer.test.ts",
     "version": "node version-bump.mjs && git add manifest.json versions.json",
     "lint": "eslint ."
   },

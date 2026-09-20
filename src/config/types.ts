@@ -369,6 +369,10 @@ export interface VivlioSettings {
   autoRefresh: boolean;
   debounceMs: number;
   renderAllPages: boolean;
+  viewerSpread: "false" | "true" | "auto";
+  viewerZoom: number;
+  viewerFitToScreen: boolean;
+  rememberViewerSettings: boolean;
 
   // pdf
   taggedPdf: boolean;

@@ -16,6 +16,8 @@ import { debounce, isAbortError, type Debounced } from "../util/async";
 import { t } from "../i18n";
 import { writeDiagnostics } from "../util/diagnostics";
 import { POSITION_MESSAGE } from "../server/keepPage";
+import { VIEWER_SETTINGS_MESSAGE } from "../server/viewerPreferences";
+import { rememberViewerPreferences } from "../config/viewer";
 import { log } from "../util/log";
 import { targetForActiveFile } from "../build/target";
 
@@ -51,6 +53,7 @@ export class VivlioPreviewView extends ItemView {
    */
   private cfi = "";
   private epage = 0;
+  private viewerGeneration = 0;
 
   constructor(leaf: WorkspaceLeaf, plugin: VivlioPlugin) {
     super(leaf);
@@ -87,7 +90,13 @@ export class VivlioPreviewView extends ItemView {
       // `origin`, not `base`: base carries the session path as well, and a
       // MessageEvent's origin is only ever scheme, host and port.
       if (event.origin !== this.plugin.server.origin) return;
-      const data = event.data as { type?: string; cfi?: string; epage?: number } | null;
+      const data = event.data as { type?: string; cfi?: string; epage?: number; viewId?: string; preferences?: unknown } | null;
+      if (data?.type === VIEWER_SETTINGS_MESSAGE) {
+        if (data.viewId !== String(this.viewerGeneration) ||
+          !rememberViewerPreferences(this.plugin.settings, data.preferences)) return;
+        void this.plugin.saveSettings().catch((error: unknown) => log.error("viewer settings save failed", error));
+        return;
+      }
       if (!data || data.type !== POSITION_MESSAGE) return;
       if (typeof data.cfi === "string" && /^epubcfi\(.+\)$/.test(data.cfi)) {
         this.cfi = data.cfi;
@@ -223,6 +232,8 @@ export class VivlioPreviewView extends ItemView {
 
       this.frame.src = this.plugin.server.bookViewerUrl(result.publicationUrl, {
         renderAllPages: this.plugin.settings.renderAllPages,
+        viewer: this.plugin.settings,
+        viewId: String(++this.viewerGeneration),
         cacheBust: true,
         cfi: this.cfi,
         epage: this.epage,

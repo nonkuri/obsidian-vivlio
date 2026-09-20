@@ -20,6 +20,8 @@
  * its meaning while lazy pagination discovers more pages.
  */
 
+import { VIEWER_SETTINGS_SCRIPT } from "./viewerPreferences";
+
 /** Name of the fragment parameter carrying the page to restore. */
 export const EPAGE_PARAM = "vivlioEpage";
 
@@ -135,7 +137,7 @@ export const KEEP_PAGE_SCRIPT = `
 
 /** Put the script into the viewer's page, just before it closes. */
 export function withKeepPageScript(html: string): string {
-  const script = `<script>${KEEP_PAGE_SCRIPT}</script>`;
+  const script = `<script>${KEEP_PAGE_SCRIPT}\n${VIEWER_SETTINGS_SCRIPT}</script>`;
   const close = html.lastIndexOf("</body>");
   if (close === -1) return `${html}\n${script}`;
   return `${html.slice(0, close)}${script}\n${html.slice(close)}`;

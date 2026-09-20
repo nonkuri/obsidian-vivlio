@@ -7,6 +7,7 @@ import { isInside, joinPosix, mimeType, normalizeAbsolute } from "../util/paths"
 import { log } from "../util/log";
 import { themeAssets, viewerAssets } from "../vendor/assets";
 import { CFI_PARAM, EPAGE_PARAM, withKeepPageScript } from "./keepPage";
+import { normalizeViewerPreferences, type ViewerPreferences } from "../config/viewer";
 
 const HOST = "127.0.0.1";
 
@@ -125,15 +126,23 @@ export class PreviewServer {
    */
   bookViewerUrl(
     publicationUrl: string,
-    options: { renderAllPages: boolean; cacheBust?: boolean; cfi?: string; epage?: number } = {
+    options: {
+      renderAllPages: boolean;
+      cacheBust?: boolean;
+      cfi?: string;
+      epage?: number;
+      viewer?: ViewerPreferences;
+      viewId?: string;
+    } = {
       renderAllPages: true,
     },
   ): string {
+    const prefs = options.viewer ? normalizeViewerPreferences(options.viewer) : undefined;
     const params = [
       `src=${publicationUrl}`,
       "bookMode=true",
       `renderAllPages=${options.renderAllPages}`,
-      "spread=false",
+      `spread=${prefs?.viewerSpread ?? "false"}`,
       // Vivliostyle runs the scripts it finds in a publication, and its
       // default is to allow them. A book has no use for that: the documents
       // served here are typeset from the vault, and `hast/sanitize.ts`
@@ -142,6 +151,8 @@ export class PreviewServer {
       // covers the export webview as well as the preview.
       "allowScripts=false",
     ];
+    if (prefs && !prefs.viewerFitToScreen) params.push(`zoom=${prefs.viewerZoom}`);
+    if (options.viewId) params.push(`vivlioViewId=${encodeURIComponent(options.viewId)}`);
     // `f` is the viewer's public EPUB-CFI input. It identifies a place in the
     // source rather than an estimated page, so lazy pagination can grow around
     // it without moving the remembered place. Use the approximate epage only

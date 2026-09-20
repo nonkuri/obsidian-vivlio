@@ -109,6 +109,10 @@ export const DEFAULT_SETTINGS: VivlioSettings = {
   autoRefresh: true,
   debounceMs: 600,
   renderAllPages: false,
+  viewerSpread: "false",
+  viewerZoom: 1,
+  viewerFitToScreen: true,
+  rememberViewerSettings: true,
 
   taggedPdf: true,
   pdfOutline: true,

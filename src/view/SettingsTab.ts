@@ -1,4 +1,4 @@
-import { PluginSettingTab, Setting, type App } from "obsidian";
+import { PluginSettingTab, Setting, type App, type TextComponent } from "obsidian";
 import type VivlioPlugin from "../main";
 import { PRESETS } from "../config/presets";
 import {
@@ -17,6 +17,7 @@ import {
 } from "../config/types";
 import { en } from "../i18n/en";
 import { t, type StringKey } from "../i18n";
+import { validViewerZoom } from "../config/viewer";
 
 /** Lets a row ask whether a string exists before it shows one. */
 const EN_STRINGS: Record<string, unknown> = en;
@@ -468,6 +469,47 @@ export class VivlioSettingTab extends PluginSettingTab {
 
   private preview(container: HTMLElement): void {
     new Setting(container).setName(t("settings.heading.preview")).setHeading();
+    let zoomControl: TextComponent | undefined;
+
+    new Setting(container).setName(t("settings.viewerSpread"))
+      .setDesc(t("settings.viewerPreferences.desc"))
+      .addDropdown((dropdown) => dropdown
+        .addOption("false", t("settings.viewerSpread.single"))
+        .addOption("true", t("settings.viewerSpread.spread"))
+        .addOption("auto", t("settings.viewerSpread.auto"))
+        .setValue(this.plugin.settings.viewerSpread)
+        .onChange(async (value) => {
+          if (value !== "false" && value !== "true" && value !== "auto") return;
+          this.plugin.settings.viewerSpread = value;
+          await this.save();
+        }));
+    new Setting(container).setName(t("settings.viewerFitToScreen"))
+      .addToggle((toggle) => toggle.setValue(this.plugin.settings.viewerFitToScreen)
+        .onChange(async (value) => {
+          this.plugin.settings.viewerFitToScreen = value;
+          zoomControl?.setDisabled(value);
+          await this.save();
+        }));
+    new Setting(container).setName(t("settings.viewerZoom"))
+      .setDesc(t("settings.viewerZoom.desc"))
+      .addText((text) => {
+        zoomControl = text;
+        text.setValue(String(Number((this.plugin.settings.viewerZoom * 100).toFixed(4))))
+          .setDisabled(this.plugin.settings.viewerFitToScreen)
+          .onChange(async (value) => {
+            const zoom = Number(value) / 100;
+            if (!validViewerZoom(zoom)) return;
+            this.plugin.settings.viewerZoom = zoom;
+            await this.save();
+          });
+      });
+    new Setting(container).setName(t("settings.rememberViewerSettings"))
+      .setDesc(t("settings.rememberViewerSettings.desc"))
+      .addToggle((toggle) => toggle.setValue(this.plugin.settings.rememberViewerSettings)
+        .onChange(async (value) => {
+          this.plugin.settings.rememberViewerSettings = value;
+          await this.save();
+        }));
 
     new Setting(container).setName(t("settings.autoRefresh")).addToggle((toggle) =>
       toggle.setValue(this.plugin.settings.autoRefresh).onChange(async (value) => {

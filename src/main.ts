@@ -10,6 +10,7 @@ import {
 } from "obsidian";
 import { load as loadYaml } from "js-yaml";
 import { DEFAULT_SETTINGS } from "./config/defaults";
+import { normalizeViewerPreferences } from "./config/viewer";
 import { findPreset } from "./config/presets";
 import type { VivlioSettings } from "./config/types";
 import {
@@ -97,6 +98,8 @@ export default class VivlioPlugin extends Plugin {
     this.settings = {
       ...DEFAULT_SETTINGS,
       ...stored,
+      ...normalizeViewerPreferences(stored ?? {}),
+      rememberViewerSettings: typeof stored?.rememberViewerSettings === "boolean" ? stored.rememberViewerSettings : true,
       syntax: { ...DEFAULT_SETTINGS.syntax, ...stored?.syntax },
       sectionDefaults: {
         ...DEFAULT_SETTINGS.sectionDefaults,

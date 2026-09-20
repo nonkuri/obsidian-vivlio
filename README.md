@@ -80,6 +80,15 @@ whatever the pane is showing. It re-typesets as you edit the note; turn that
 off with **Refresh the preview automatically** in the settings, and rebuild by
 hand with the toolbar button or `Vivlio: Reload typeset result`.
 
+Preview display preferences are in **Settings → Vivlio → Preview**: single page,
+facing pages or automatic spread, fit to screen (on by default), and fixed zoom
+(10–1000%, default 100%). Settings apply when opening or rebuilding the preview.
+**Remember changes made in the viewer** is on by default: page display mode and
+zoom/fit changes become vault-wide defaults and survive rebuilding and restarting
+Obsidian. Turn it off to restore the plugin settings on each rebuild. These
+preferences are not exported to `vivlio.yaml` and do not affect PDF/EPUB output;
+paper, margins and other typesetting settings remain in the existing book configuration.
+
 ## Commands
 
 | Command | What it does |
