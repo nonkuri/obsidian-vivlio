@@ -1,4 +1,4 @@
-import { TFile, type App, type Component } from "obsidian";
+import { TFile, normalizePath, type App, type Component } from "obsidian";
 import { load as loadYaml } from "js-yaml";
 import type { BookConfig, VivlioSettings } from "../config/types";
 import { extractFrontmatterConfig, resolveConfig } from "../config/resolve";
@@ -171,7 +171,7 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   // that sizes a picture is synchronous and cannot read a file, and the box
   // it has to compute depends on the picture's shape (SPEC 5.8(3)).
   const coverFile = config.cover
-    ? app.metadataCache.getFirstLinkpathDest(config.cover, `${bookRoot}/`)
+    ? app.metadataCache.getFirstLinkpathDest(normalizePath(config.cover), `${bookRoot}/`)
     : null;
   context.imageSizes = await collectImageSizes(
     app,
@@ -243,7 +243,7 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
   if (includeCover) {
     if (config.coverPage) {
       const file = app.metadataCache.getFirstLinkpathDest(
-        config.coverPage,
+        normalizePath(config.coverPage),
         `${context.bookRoot}/`,
       );
       if (file) {
@@ -385,7 +385,7 @@ function generateDocument(
 async function appendExtraCss(context: BuildContext): Promise<void> {
   const path = context.settings.extraCssPath.trim();
   if (!path) return;
-  const file = context.app.vault.getFileByPath(path);
+  const file = context.app.vault.getFileByPath(normalizePath(path));
   if (!file) {
     warn(context, { kind: "config", message: `extra stylesheet not found: ${path}` });
     return;

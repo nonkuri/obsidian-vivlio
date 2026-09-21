@@ -1,4 +1,4 @@
-import type { App, TFile } from "obsidian";
+import { normalizePath, type App, type TFile } from "obsidian";
 import { warn, type BuildContext } from "./context";
 import { SELECTABLE_THEMES, bundledThemePath, themeAssets } from "../vendor/assets";
 import {
@@ -46,7 +46,7 @@ const BUNDLED_SCHEME = /^vivlio:(.+)$/;
 export function vaultThemeFile(context: BuildContext): TFile | null {
   const theme = context.config.theme || "";
   if (!theme || bundledThemePath(theme)) return null;
-  return context.app.vault.getFileByPath(theme);
+  return context.app.vault.getFileByPath(normalizePath(theme));
 }
 
 /**

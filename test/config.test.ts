@@ -42,7 +42,9 @@ import {
   targetForActiveFile,
   wizardConfigTarget,
 } from "../src/build/target";
-import { readBookYaml } from "../src/build/pipeline";
+import { buildBook, readBookYaml, type BuildRequest } from "../src/build/pipeline";
+import { fontFaceRules } from "../src/build/fonts";
+import { BOOK_STYLESHEET } from "../src/build/vfm";
 
 /** The little of a build context that a contents list actually reads. */
 function tocContext(chapters: Chapter[]): BuildContext {
@@ -120,6 +122,63 @@ function makeFolder(name: string, children: TFile[]): TFolder {
 
 async function main(): Promise<void> {
   setLanguage("en");
+
+  // Exercise YAML parsing and the consumers together, against an API stub
+  // that only accepts Obsidian's forward-slash paths.
+  {
+    const sources: Record<string, string> = {
+      "book/vivlio.yaml": String.raw`
+theme: 'themes\mine.css'
+cover: 'book\cover.svg'
+sections:
+  preface: 'book\preface.md'
+embedFonts:
+  - family: MyFont
+    src: 'fonts\MyFont.woff2'
+css: 'p::before { content: "\2192"; }'
+`,
+      "themes/mine.css": "p { color: rebeccapurple; }",
+      "themes/extra.css": "p { letter-spacing: 0.1em; }",
+      "fonts/MyFont.woff2": "",
+      "book/cover.svg": '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="200"></svg>',
+      "book/cover.md": "# Cover note",
+      "book/preface.md": "# Preface",
+      "book/01.md": "# Chapter",
+    };
+    const files = Object.keys(sources).map((path) => makeFile(path));
+    const app = makeApp(files);
+    app.vault.cachedRead = async (file) => sources[file.path];
+    app.vault.readBinary = async (file) => new TextEncoder().encode(sources[file.path]).buffer;
+    const yamlFile = files.find((file) => file.path === "book/vivlio.yaml")!;
+    const folder = makeFolder("book", files.filter((file) => file.path.startsWith("book/")));
+    const request: BuildRequest = {
+      app,
+      settings: { ...DEFAULT_SETTINGS, extraCssPath: String.raw`themes\extra.css` },
+      server: { base: "http://localhost", addWorkspace: () => {} } as unknown as BuildRequest["server"],
+      component: {} as BuildRequest["component"],
+      target: { kind: "config", file: yamlFile, folder },
+      mode: "preview",
+    };
+    const result = await buildBook(request);
+    check("Windows theme path loads the custom stylesheet", result.workspace.getFile("theme.css")?.text === sources["themes/mine.css"]);
+    check("Windows cover path creates a cover", result.chapters.some((chapter) => chapter.role === "doc-cover" && !chapter.file));
+    check("Windows cover path also measures the image", result.context.imageSizes.get("book/cover.svg")?.width === 100);
+    check("Windows section path resolves the preface", result.chapters.some((chapter) => chapter.slot === "preface" && chapter.file?.path === "book/preface.md"));
+    check("Windows font path generates a preview URL", fontFaceRules(result.context).includes("/vault/fonts/MyFont.woff2"));
+    check("Windows extra CSS path loads the stylesheet", result.workspace.getFile(BOOK_STYLESHEET)?.text?.includes(sources["themes/extra.css"]) === true);
+    check("inline CSS escapes are preserved", result.context.config.css.includes(String.raw`\2192`));
+    check("Windows paths do not produce missing-file warnings", result.warnings.length === 0, JSON.stringify(result.warnings));
+
+    const exported = await buildBook({ ...request, mode: "epub", overrides: { coverPage: String.raw`book\cover.md` } });
+    check("Windows coverPage path resolves its note", exported.chapters[0].file?.path === "book/cover.md");
+    check("Windows font path registers an export asset", [...exported.workspace.assets.values()].some((asset) => asset.vaultPath === "fonts/MyFont.woff2"));
+
+    for (const src of [String.raw`C:\Fonts\MyFont.ttf`, String.raw`\\server\fonts\MyFont.ttf`]) {
+      const context = tocContext([]);
+      context.config.embedFonts = [{ family: "Outside", src }];
+      check("absolute fonts retain the outside-vault permission check", fontFaceRules(context) === "" && context.warnings.some((warning) => warning.message.includes("outside the vault")));
+    }
+  }
 
   // --- targets chosen from the File Explorer ----------------------------
   {

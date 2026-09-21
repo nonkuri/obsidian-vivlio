@@ -1,3 +1,4 @@
+import { normalizePath } from "obsidian";
 import { warn, type BuildContext } from "./context";
 import { DOCUMENT_ANCHOR } from "./toc";
 import { htmlDocument } from "./document";
@@ -23,7 +24,7 @@ export function buildCover(context: BuildContext): CoverResult | null {
   if (!config.cover) return null;
 
   const file = context.app.metadataCache.getFirstLinkpathDest(
-    config.cover,
+    normalizePath(config.cover),
     `${context.bookRoot}/`,
   );
   if (!file) {

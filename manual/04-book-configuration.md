@@ -30,6 +30,22 @@ Markdown ノートやフォルダからプレビュー・書き出しを始め�
 - `.yaml` が2つ以上なら、どの設定を使うか暗黙に決めず、1つずつ選択するよう表示します。同じフォルダ内の複数設定も別々に数えます。
 - `.yml` は対象外です。設定ファイルには `.yaml` 拡張子を使ってください。
 
+### パスの区切り文字
+
+パスは Windows でも `/` で書くことを推奨します。`theme`、`cover`、`coverPage`、`sections.*`、Vault 内の `embedFonts[].src`、Vault 相対の `output` は、`\` で書いた場合も参照時に `/` に正規化します。
+
+`theme` と Vault 内の `embedFonts[].src` は Vault ルートからの相対パスです。`cover`、`coverPage`、`sections.*` は本のフォルダを基準に Obsidian のリンク解決を使います。`output` は Vault 相対パスまたは絶対パスです。区切り文字を変えても、この基準は変わりません。
+
+```yaml
+theme: themes/my-book.css
+embedFonts:
+  - family: MyFont
+    src: 'fonts\MyFont.ttf'
+output: 'exports\book.pdf'
+```
+
+YAML の二重引用符では `\n` や `\t` が改行・タブとして解釈されます。`\` を使う場合は上の例のように単一引用符で囲んでください。二重引用符で囲む場合は `"themes\\my-book.css"` のように `\` を重ねます。YAML 読み込み時に変わった文字や構文エラーは、パスの正規化では修復できません。`css` はパスではなく CSS 本文です。
+
 ### `.yaml` と `.css` を Obsidian 内で編集する
 
 標準の Obsidian は Markdown ノートを中心に扱うため、任意の `.yaml` や `.css` を編集する汎用エディタはありません。Vivlio はプラグイン設定の **「.yaml / .css / .epub をファイルエクスプローラーに表示する」** がオンなら、これらを原稿と同じファイルエクスプローラーに表示します。`vivlio.yaml` と自作テーマは、インデントなどを直せる最低限のプレーンテキストエディタで開きます。

@@ -1,4 +1,4 @@
-import type { TFile } from "obsidian";
+import { normalizePath, type TFile } from "obsidian";
 import { warn, type BuildContext } from "./context";
 import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
@@ -70,7 +70,7 @@ export function planSections(context: BuildContext): SectionPlan[] {
     }
 
     const file = context.app.metadataCache.getFirstLinkpathDest(
-      value,
+      normalizePath(value),
       `${context.bookRoot}/`,
     );
     if (!file) {

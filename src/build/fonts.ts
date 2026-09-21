@@ -1,3 +1,4 @@
+import { normalizePath } from "obsidian";
 import { warn, type BuildContext } from "./context";
 import type { EmbedFont } from "../config/types";
 import { assetFileName, normalizeAbsolute, sha1, mimeType, extname } from "../util/paths";
@@ -156,10 +157,10 @@ export function fontFaceRules(context: BuildContext): string {
 }
 
 function resolveFontUrl(context: BuildContext, font: EmbedFont): string | null {
-  const isAbsolute = /^([a-zA-Z]:[\\/]|\/)/.test(font.src);
+  const isAbsolute = /^([a-zA-Z]:[\\/]|\\\\|\/)/.test(font.src);
 
   if (!isAbsolute) {
-    const file = context.app.vault.getFileByPath(font.src);
+    const file = context.app.vault.getFileByPath(normalizePath(font.src));
     if (!file) {
       warn(context, { kind: "missing-font", message: `${font.family}: ${font.src}` });
       return null;
