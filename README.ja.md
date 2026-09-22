@@ -115,12 +115,15 @@ linesPerPage: 15
 footnote: gcpm            # ページ下部に
 
 cover: 装丁/表紙.png
+# 裏表紙は任意:
+# backCover: 装丁/裏表紙.png
+# backCoverFit: contain
 sections:
   titlePage: auto
   toc: auto
   preface: まえがき.md
   colophon: auto
-pageNumbering: continuous # 表紙を除き、前付けから本文まで通し番号
+pageNumbering: continuous # 表紙・裏表紙とそれらの番号対象外の白紙を除く通し番号
 startPage: 1             # 通し番号の開始値。0以下は数えるが表示しない
 cropMarks: false         # トンボなし
 bleed: 3mm               # 塗り足し 3mm。用紙がそのぶん広がります
@@ -131,7 +134,9 @@ output: 原稿/出力/猫.pdf
 で書き出すので、日本の印刷会社の言う「トンボなし・塗り足し3mm」がそのまま作れます。版面は仕上がり
 から見た位置のまま動きません。
 
-表紙画像と `coverPage` の地色は、トンボの有無にかかわらず塗り足しの外端まで届きます。
+`backCover` で末尾に裏表紙を追加できます。`backCoverFit` は `cover`（全面を埋めて切り抜き、既定値）または `contain`（画像全体を収める）です。PDF・プレビューでは内側を白紙にし、ノンブルの開始値に関係なく最後の物理的な偶数ページへ配置します。裏表紙と追加した白紙にはノンブル・柱を出さず、目次にも載せません。PDF書き出しの **表紙・裏表紙を含める**で両方をまとめて切り替えます。EPUBには白紙なしで画像だけを末尾に追加し、本棚サムネイルは表紙画像を使います。
+
+表紙・裏表紙画像と `coverPage` の地色は、トンボの有無にかかわらず塗り足しの外端まで届きます。
 本文で 1 ページの断ち切り画像にするには `![[images/挿絵.png|bleed]]` と書きます。地色のページは
 `<div class="vivlio-bleed" style="background: #18202a"></div>` のように、紙面にする要素へ
 `vivlio-bleed` クラスを付けます。通常の本文画像は従来どおり版面内に収まります。

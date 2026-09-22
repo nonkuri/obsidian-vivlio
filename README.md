@@ -141,12 +141,15 @@ linesPerPage: 15
 footnote: gcpm            # bottom of the page
 
 cover: 装丁/表紙.png
+# Optional closing image:
+# backCover: 装丁/裏表紙.png
+# backCoverFit: contain
 sections:
   titlePage: auto
   toc: auto
   preface: まえがき.md
   colophon: auto
-pageNumbering: continuous # one sequence through front matter and body, excluding the cover
+pageNumbering: continuous # excludes covers and their unnumbered padding pages
 startPage: 1             # first folio; zero and negative values count but stay hidden
 cropMarks: false         # many Japanese printers ask for no marks
 bleed: 3mm               # …and 3mm of bleed; the sheet grows to carry it
@@ -158,7 +161,15 @@ at the trim size plus twice the bleed, which is the shape a Japanese printer
 means by 「トンボなし・塗り足し3mm」; the text block keeps its place relative to
 the trim.
 
-The cover image and a `coverPage` background reach the outer bleed edge with
+Use `backCover` to append a back cover, with `backCoverFit: cover` (fill and crop,
+the default) or `contain` (fit the whole image). PDF and preview add a blank
+inside and any padding needed to place it on the final even physical page,
+independently of folio numbering. These closing pages have no folios, running
+heads or contents entries. The PDF export switch **Include front and back
+covers** controls both together. EPUB appends only the image, without blank
+pages, and keeps the front cover as its shelf thumbnail.
+
+The front/back cover images and a `coverPage` background reach the outer bleed edge with
 or without crop marks. Use `![[images/illustration.png|bleed]]` for a full-page
 bleeding illustration in the body. For a tinted page, put the class on the
 page element, for example

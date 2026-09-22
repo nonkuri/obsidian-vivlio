@@ -218,6 +218,9 @@ CSS 自体は本全体へ読み込まれますが、上の規則は `class: abou
 | `:root.vivlio-front-matter` | 前付け |
 | `:root.vivlio-toc` | 自動目次 |
 | `:root.vivlio-cover` | 表紙 |
+| `:root.vivlio-back-cover` | 裏表紙とその内側・面合わせ用の白紙 |
+
+裏表紙画像は `.back-cover img`、内側の白紙は `.back-cover-inside`、名前付きページは `back-cover` です。共通CSSが全面画像・偶数ページへの配置・ページカウンターの停止を担当し、同梱テーマは柱とノンブルを抑止します。独自テーマでも `:root.vivlio-back-cover` の柱・ノンブルを非表示にしてください。EPUBには内側の白紙要素を生成しません。
 
 ### 本文中の要素
 
