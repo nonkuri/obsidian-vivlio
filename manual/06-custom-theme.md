@@ -61,6 +61,22 @@ columns: 1
 
 別ノートへの参照は `href="01-start.md#fig-start"`、表への参照は `data-ref="tbl"` と書きます。番号を手書きする必要はありません。通常のリンクの表示名は維持します。番号はEPUBにも含まれます。
 
+表の中身はMarkdownで書けます。表題と参照先IDだけHTMLで付け、HTMLタグとMarkdown表の間に空行を置きます。
+
+```markdown
+<figure class="tbl" id="tbl-settings">
+<figcaption>最初に見直す設定</figcaption>
+
+| 設定名 | 指定例 | 用途 |
+| :--- | :--- | :--- |
+| `size` | A5 | 用紙の大きさ。 |
+| `baseFontSize` | 10pt | 本文の文字サイズ。 |
+
+</figure>
+
+<a href="#tbl-settings" data-ref="tbl"></a>を参照してください。
+```
+
 図とキャプションは一緒に置き、図を後の章へ浮動配置しません。8行以下（見出し行を含む）のキャプション付き表は一まとまりで配置し、それより長い表は分割して表題・列見出しを繰り返します。行自体が1ページより高い表や、ページに収まらない巨大な図は原稿側でも分割・縮小してください。
 
 採番は `theme: manual` の組み立て処理です。`@import url("vivlio:manual")` だけを指定した自作テーマには、スタイルだけが適用されます。

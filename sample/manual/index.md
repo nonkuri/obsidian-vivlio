@@ -17,7 +17,7 @@ Vivlio 0.15.0以降で、このフォルダ全体をVaultにコピーし、`vivl
 - 注意・補足は `> [!warning] 注意：…`、`> [!tip] ヒント：…`、`> [!note] 補足：…`。タイトルに種類を明記すると、色に頼らず意味を伝えられます。
 - キー名は `<kbd>Enter</kbd>`。
 - 図は `<figure id="fig-name"><img src="figures/name.svg" alt="説明"><figcaption>説明</figcaption></figure>`。
-- 表は `<table id="tbl-name"><caption>説明</caption>…</table>` または `figure` と `figcaption` で囲む形式。
+- 表はMarkdownの表を `figure` と `figcaption` で囲む形式。`02-layout.md` と、長表の例である `04-checklist.md` を参照してください。HTMLタグとMarkdown表の間には空行を入れ、列指定の `:---` で左揃えにします。
 - 本文内の図表参照は `<a href="#fig-name" data-ref="fig"></a>`。別原稿なら `<a href="01-start.md#fig-flow" data-ref="fig"></a>`。表は `data-ref="tbl"`。
 - 字下げを使う本は `paragraphIndent: 1em`。既定は字下げなしです。
 

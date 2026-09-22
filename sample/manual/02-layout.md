@@ -18,17 +18,19 @@ baseFontSize: 10pt
 paragraphIndent: 0
 ```
 
-<table id="tbl-settings">
-<caption>最初に見直す設定</caption>
-<thead><tr><th>設定名</th><th>指定例</th><th>用途</th></tr></thead>
-<tbody>
-<tr><td><code>size</code></td><td>A5</td><td>配布する用紙の大きさ。</td></tr>
-<tr><td><code>baseFontSize</code></td><td>10pt</td><td>本文の文字サイズ。</td></tr>
-<tr><td><code>paragraphIndent</code></td><td>0</td><td>段落冒頭の字下げ。文章中心の資料では1emも選べます。</td></tr>
-<tr><td><code>pageNumbering</code></td><td><code>roman-then-arabic</code></td><td>前付けをローマ数字、本文を算用数字にします。</td></tr>
-<tr><td><code>monospaceFontFamily</code></td><td>Consolas</td><td>コードや設定値に使う等幅書体。</td></tr>
-<tr><td><code>tocDepth</code></td><td>2</td><td>目次に含める見出しの深さ。</td></tr>
-</tbody></table>
+<figure class="tbl" id="tbl-settings">
+<figcaption>最初に見直す設定</figcaption>
+
+| 設定名 | 指定例 | 用途 |
+| :--- | :--- | :--- |
+| `size` | A5 | 配布する用紙の大きさ。 |
+| `baseFontSize` | 10pt | 本文の文字サイズ。 |
+| `paragraphIndent` | 0 | 段落冒頭の字下げ。文章中心の資料では1emも選べます。 |
+| `pageNumbering` | `roman-then-arabic` | 前付けをローマ数字、本文を算用数字にします。 |
+| `monospaceFontFamily` | Consolas | コードや設定値に使う等幅書体。 |
+| `tocDepth` | 2 | 目次に含める見出しの深さ。 |
+
+</figure>
 
 <a href="#tbl-settings" data-ref="tbl"></a>の項目を一つずつ変えて、結果を見比べます。複数の値を同時に変えると、どの変更が効いたか分かりにくくなります。
 
