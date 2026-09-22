@@ -1,6 +1,8 @@
 # 原稿の書き方と本の組み立て方
 
-[前: 本ごとの設定](04-book-configuration.md) / [マニュアル目次](00_vivlio_plugin_manual.md) / [次: 自作テーマ](06-custom-theme.md)
+[前: 本ごとの設定](04-book-configuration.md) / [マニュアル目次](00_vivlio_plugin_manual.md) / [次: テーマ別の原稿](05a-theme-writing.md)
+
+この章はテーマ共通の記法と本の構造を説明します。テーマごとの原稿例、図表番号・節番号の参照は [テーマ別の原稿の書き方](05a-theme-writing.md) を参照してください。
 
 ## 本にする対象を選ぶ
 

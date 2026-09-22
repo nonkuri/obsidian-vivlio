@@ -18,6 +18,7 @@
 
 - [本ごとの設定 — vivlio.yaml とフロントマター](04-book-configuration.md)
 - [原稿の書き方と本の組み立て方](05-writing-and-structure.md)
+- [テーマ別の原稿の書き方](05a-theme-writing.md)
 - [自分でテーマを作ってみる](06-custom-theme.md)
 - [書き出し・点検・トラブルシューティング](07-export-and-troubleshooting.md)
 
