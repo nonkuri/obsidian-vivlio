@@ -644,12 +644,12 @@ async function main(): Promise<void> {
     ),
     check(
       "and the cover page is the whole sheet",
-      /@page cover, cover-document \{[^}]*margin: 0;[^}]*width: auto;[^}]*height: auto;/.test(css),
+      /@page cover, cover-document, back-cover \{[^}]*margin: 0;[^}]*width: auto;[^}]*height: auto;/.test(css),
       css.slice(css.indexOf("@page cover"), css.indexOf("@page cover") + 160),
     ),
     check(
       "so the cover image is free of the cap",
-      /\.cover img,\s*\[role='doc-cover'\] img \{[\s\S]*?max-width: none;/.test(css),
+      /\.cover img,\s*\.back-cover img,\s*\[role='doc-cover'\] img \{[\s\S]*?max-width: none;/.test(css),
       css.slice(css.indexOf(".cover img"), css.indexOf(".cover img") + 260),
     ),
     check(
@@ -905,7 +905,7 @@ async function main(): Promise<void> {
       "the break goes inside the part, not on it",
       sidedCss.includes("#vivlio-start:not(.cover):not(.copyright-page) > :first-child"),
     ),
-    check("and a book that says nothing is not broken at all", !anySide.includes("break-before: left")),
+    check("an unspecified start side does not force chapter sides", !anySide.includes("#vivlio-start:not(.cover):not(.copyright-page) > :first-child")),
     // The leaf that goes in is a page of the book, and carries nothing.
     check(
       "an inserted leaf carries no folio",

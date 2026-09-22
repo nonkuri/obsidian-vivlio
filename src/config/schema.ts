@@ -119,6 +119,8 @@ export const BookConfigInputSchema = v.object({
   cover: v.optional(v.string()),
   coverPage: v.optional(v.string()),
   coverFit: v.optional(CoverFitSchema),
+  backCover: v.optional(v.string()),
+  backCoverFit: v.optional(CoverFitSchema),
   coverInPdf: v.optional(v.boolean()),
 
   fontFamily: v.optional(v.string()),

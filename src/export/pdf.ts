@@ -24,7 +24,7 @@ export interface RenderResult {
   pageNumbers: number[];
 }
 
-export type PageClass = "cover" | "cover-verso" | "front" | "body";
+export type PageClass = "cover" | "cover-verso" | "back-cover" | "front" | "body";
 
 interface WebviewTag extends HTMLElement {
   src: string;
@@ -151,7 +151,7 @@ interface LayoutInfo {
  */
 async function readLayout(webview: WebviewTag, context: BuildContext): Promise<LayoutInfo> {
   const kinds = context.chapters.map((chapter): PageClass =>
-    chapter.role === "doc-cover" ? "cover" : chapter.isFrontMatter ? "front" : "body",
+    chapter.isBackCover ? "back-cover" : chapter.role === "doc-cover" ? "cover" : chapter.isFrontMatter ? "front" : "body",
   );
   const result = await webview
     .executeJavaScript(
@@ -167,6 +167,7 @@ async function readLayout(webview: WebviewTag, context: BuildContext): Promise<L
          // start the new sequence on the following content page.
          const pageNumbers = pages.map(page => page.vivlioPageNumber);
          const preResetBlanks = pages.map((page, index) =>
+           kinds[Number(page.getAttribute('data-vivliostyle-spine-index'))] !== 'back-cover' &&
            index + 1 < pages.length &&
            pageNumbers[index] === pageNumbers[index + 1] &&
            page.getAttribute('data-vivliostyle-spine-index') ===

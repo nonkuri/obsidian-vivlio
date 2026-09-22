@@ -236,6 +236,12 @@
   --vs-page--mbox-visibility: hidden;
 }
 
+/* The closing image and its inside/padding leaves carry no running matter. */
+:root.vivlio-back-cover {
+  --vs-page--mbox-visibility: hidden;
+  --vivlio-folio: none;
+}
+
 h2 {
   break-before: page;
 }

@@ -130,6 +130,8 @@ async function main(): Promise<void> {
       "book/vivlio.yaml": String.raw`
 theme: 'themes\mine.css'
 cover: 'book\cover.svg'
+backCover: 'book\back.svg'
+backCoverFit: contain
 sections:
   preface: 'book\preface.md'
 embedFonts:
@@ -141,6 +143,7 @@ css: 'p::before { content: "\2192"; }'
       "themes/extra.css": "p { letter-spacing: 0.1em; }",
       "fonts/MyFont.woff2": "",
       "book/cover.svg": '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="200"></svg>',
+      "book/back.svg": '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="200"></svg>',
       "book/cover.md": "# Cover note",
       "book/preface.md": "# Preface",
       "book/01.md": "# Chapter",
@@ -168,10 +171,27 @@ css: 'p::before { content: "\2192"; }'
     check("Windows extra CSS path loads the stylesheet", result.workspace.getFile(BOOK_STYLESHEET)?.text?.includes(sources["themes/extra.css"]) === true);
     check("inline CSS escapes are preserved", result.context.config.css.includes(String.raw`\2192`));
     check("Windows paths do not produce missing-file warnings", result.warnings.length === 0, JSON.stringify(result.warnings));
+    check("Windows back cover path measures the image", result.context.imageSizes.get("book/back.svg")?.width === 120);
+    check("back cover is the final spine item", result.chapters.at(-1)?.isBackCover === true);
+    check("back cover fit is read from YAML", result.context.config.backCoverFit === "contain");
+    check("print back cover includes an inside blank", result.workspace.getFile("back-cover.html")?.text?.includes('class="back-cover-inside"') === true);
+    for (const audience of ["print", "nav"] as const) {
+      check(`back cover is absent from ${audience} contents`, !buildTocEntries(result.context, result.chapters, audience).some((entry) => entry.href.startsWith("back-cover.html")));
+    }
+
+    const omitted = await buildBook({ ...request, mode: "pdf", overrides: { coverInPdf: false } });
+    check("exclude covers omits both front and back in PDF", !omitted.chapters.some((chapter) => chapter.isBackCover || chapter.role === "doc-cover"));
+    const missing = await buildBook({ ...request, overrides: { backCover: "missing.png" } });
+    check("missing back cover warns without adding blank pages", !missing.chapters.some((chapter) => chapter.isBackCover) && missing.warnings.some((warning) => warning.kind === "missing-asset" && warning.message === "missing.png"));
+    const frontmatter = resolveConfig({ settings: DEFAULT_SETTINGS, frontmatter: extractFrontmatterConfig({ "vivlio-back-cover": "back.png", "vivlio-back-cover-fit": "contain" }) });
+    check("back cover properties resolve from note frontmatter", frontmatter.config.backCover === "back.png" && frontmatter.config.backCoverFit === "contain");
 
     const exported = await buildBook({ ...request, mode: "epub", overrides: { coverPage: String.raw`book\cover.md` } });
     check("Windows coverPage path resolves its note", exported.chapters[0].file?.path === "book/cover.md");
     check("Windows font path registers an export asset", [...exported.workspace.assets.values()].some((asset) => asset.vaultPath === "fonts/MyFont.woff2"));
+    const backHtml = exported.workspace.getFile("back-cover.html")?.text ?? "";
+    check("EPUB includes the back image without padding", backHtml.includes('class="back-cover"') && !backHtml.includes('class="back-cover-inside"'));
+    check("back cover does not claim EPUB cover metadata", !backHtml.includes('role="doc-cover"'));
 
     for (const src of [String.raw`C:\Fonts\MyFont.ttf`, String.raw`\\server\fonts\MyFont.ttf`]) {
       const context = tocContext([]);

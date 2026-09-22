@@ -19,16 +19,17 @@ export interface CoverResult {
  * The cover role and class select our page-counter and full-sheet image
  * rules in bookStylesheet, including exclusion from the folio count.
  */
-export function buildCover(context: BuildContext): CoverResult | null {
+export function buildCover(context: BuildContext, back = false): CoverResult | null {
   const { config } = context;
-  if (!config.cover) return null;
+  const path = back ? config.backCover : config.cover;
+  if (!path) return null;
 
   const file = context.app.metadataCache.getFirstLinkpathDest(
-    normalizePath(config.cover),
+    normalizePath(path),
     `${context.bookRoot}/`,
   );
   if (!file) {
-    warn(context, { kind: "missing-asset", message: config.cover });
+    warn(context, { kind: "missing-asset", message: path });
     return null;
   }
 
@@ -40,16 +41,20 @@ export function buildCover(context: BuildContext): CoverResult | null {
     const widthMm = pageWidth + (bleed ? Number(bleed[1]) * 2 : 0);
     asset.displayWidthPx = Math.max(asset.displayWidthPx ?? 0, mmToPx(widthMm));
   }
-  const body = `<section class="cover" role="doc-cover" id="${DOCUMENT_ANCHOR}">
+  const image = `<section class="${back ? "back-cover" : "cover"}"${back ? "" : ' role="doc-cover"'} id="${back ? "vivlio-back-cover" : DOCUMENT_ANCHOR}">
 <img src="${escapeHtml(srcFor(context, asset))}" alt="">
 </section>`;
+  // EPUB is reflowable: include the image, without physical padding pages.
+  const body = back && context.mode !== "epub"
+    ? `<div class="back-cover-pages"><div class="back-cover-inside" aria-hidden="true"></div>${image}</div>`
+    : image;
 
   return {
     html: htmlDocument({
-    writingMode: config.writingMode,
+      writingMode: config.writingMode,
       lang: config.lang,
       title: config.title || "cover",
-      rootClass: "vivlio-cover",
+      rootClass: back ? "vivlio-back-cover" : "vivlio-cover",
       body,
     }),
     asset,

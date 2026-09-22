@@ -234,6 +234,21 @@ function bookTheme(context: BuildContext): string {
 }
 
 const EPUB_OVERRIDES = `
+/* The closing image follows the reader's viewport, with no print padding. */
+.vivlio-back-cover,
+.vivlio-back-cover body,
+.back-cover {
+  page: auto;
+  block-size: auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+}
+.back-cover img {
+  inline-size: 100%;
+  block-size: auto;
+}
+
 /* Reflowable output: the reader paginates, so paged-media artefacts go.
 
    The backstop the paged stylesheet carries is measured in millimetres,

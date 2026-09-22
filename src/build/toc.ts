@@ -94,6 +94,7 @@ export function buildTocEntries(
   const entries: TocEntry[] = [];
 
   for (const chapter of chapters) {
+    if (chapter.isBackCover) continue;
     // The contents itself is never an entry in itself, in either audience:
     // in print it is the page being read, in an EPUB it is the navigation.
     if (chapter.slot === "toc") continue;

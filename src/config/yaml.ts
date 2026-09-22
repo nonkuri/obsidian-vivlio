@@ -153,6 +153,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   },
 
   cover: { group: "cover", ja: "表紙画像", en: "Cover image" },
+  backCover: { group: "cover", ja: "裏表紙画像（末尾に追加。PDFでは内側を白紙にして偶数ページへ配置）", en: "Back cover image (appended at the end, with a blank inside and an even physical page in PDF)" },
+  backCoverFit: { group: "cover", ja: "裏表紙画像の合わせ方: cover | contain", en: "Back cover image fit: cover | contain" },
   coverPage: {
     group: "cover",
     ja: "表紙として組むノート（cover より優先）",
@@ -163,7 +165,7 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
     ja: "表紙画像の合わせ方: cover（判型いっぱいに広げ、はみ出しを裁ち落とす）| contain（画像全体を収め、余白を出す）",
     en: "How the cover image fills the page: cover (fill and crop the overflow) | contain (fit the whole image, leaving margins)",
   },
-  coverInPdf: { group: "cover", ja: "PDF に表紙を含める", en: "Include the cover in the PDF" },
+  coverInPdf: { group: "cover", ja: "PDF に表紙・裏表紙を含める", en: "Include front and back covers in the PDF" },
 
   fontFamily: { group: "fonts", ja: "本文フォント", en: "Body font" },
   headingFontFamily: { group: "fonts", ja: "見出しフォント", en: "Heading font" },
@@ -296,6 +298,8 @@ const KEY_LABELS: Record<NoteKey, StringKey> = {
   imageWidthUnit: "settings.imageWidthUnit",
 
   cover: "settings.cover",
+  backCover: "settings.backCover",
+  backCoverFit: "settings.backCoverFit",
   coverPage: "settings.coverPage",
   coverFit: "settings.coverFit",
   coverInPdf: "settings.coverInPdf",

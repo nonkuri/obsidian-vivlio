@@ -28,6 +28,14 @@
    anything is served. */
 @import url(../@vivliostyle/theme-techbook/theme.css);
 
+:root.vivlio-back-cover {
+  --vs-page--mbox-visibility: hidden;
+  --vivlio-folio: none;
+  --vs-theme--page-top-left-content: none;
+  --vs-theme--page-top-right-content: none;
+  --vs-theme--page-bottom-content: none;
+}
+
 /* Title and contents start on rectos, with a blank verso when needed.
    Inner blocks make the break effective across spine documents. */
 :where(html.vivlio-vertical) .titlepage > :first-child,

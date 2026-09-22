@@ -53,7 +53,7 @@ export const en = {
   "export.format": "Format",
   "export.destination": "Destination",
   "export.browse": "Browse…",
-  "export.includeCover": "Include the cover",
+  "export.includeCover": "Include front and back covers",
   "export.run": "Export",
   "export.cancel": "Cancel",
   "export.preflight": "Pre-export checks",
@@ -90,7 +90,7 @@ export const en = {
     "The page this book is set on. The preset has already answered these; change one only where this book differs.",
   "wizard.step.sections.desc":
     "The parts around the body, in the order they are laid out. Some the plugin writes from what you typed on the earlier steps; the rest are notes of your own, and the wizard can start one for you.",
-  "wizard.step.cover.desc": "The first page, and the thumbnail an EPUB shelf shows.",
+  "wizard.step.cover.desc": "Choose front and back covers. The front cover image also becomes the EPUB shelf thumbnail.",
   "wizard.step.fonts.desc":
     "Anything installed on this computer can be picked here, but a reader who does not have it gets a substitute, which is why every default names a stack of several.",
   "wizard.step.output.desc":
@@ -181,6 +181,8 @@ export const en = {
   "settings.imageWidthUnit.mm": "Millimetres on paper (mm)",
   "settings.cover": "Cover image",
   "settings.coverPage": "Cover note",
+  "settings.backCover": "Back cover image",
+  "settings.backCoverFit": "How the back cover image meets the page",
   "settings.coverFit": "How the cover image meets the page",
   "settings.coverFit.cover": "Fill the page, cropping what hangs over (cover)",
   "settings.coverFit.contain": "Fit the whole image in, leaving margins (contain)",
@@ -290,7 +292,7 @@ export const en = {
   "settings.pdfMetadata": "PDF metadata",
   "settings.dpiWarnThreshold": "Warn below this effective dpi",
   "settings.dpiWarnThreshold.desc": "0 disables the check.",
-  "settings.coverInPdf": "Include the cover in the PDF",
+  "settings.coverInPdf": "Include front and back covers in the PDF",
   "settings.downloadRemoteImages": "Download remote images when exporting",
   "settings.allowOutsideVaultPaths": "Allow files outside the vault",
   "settings.allowDynamicScripts": "Run dataviewjs / templater blocks",

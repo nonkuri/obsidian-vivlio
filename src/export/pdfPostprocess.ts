@@ -12,7 +12,7 @@ import type { BookConfig } from "../config/types";
 import type { ViewerTocItem } from "./pdf";
 import { log } from "../util/log";
 
-export type PageClass = "cover" | "cover-verso" | "front" | "body";
+export type PageClass = "cover" | "cover-verso" | "back-cover" | "front" | "body";
 
 export interface PostprocessOptions {
   config: BookConfig;
@@ -190,7 +190,7 @@ function applyPageLabels(
 type LabelKind = PageClass | "hidden";
 
 function labelKind(pageClass: PageClass, number: number, config: BookConfig): LabelKind {
-  if (pageClass === "cover-verso" || number <= 0) return "hidden";
+  if (pageClass === "cover-verso" || pageClass === "back-cover" || number <= 0) return "hidden";
   return pageClass === "front" && config.pageNumbering === "continuous" ? "body" : pageClass;
 }
 

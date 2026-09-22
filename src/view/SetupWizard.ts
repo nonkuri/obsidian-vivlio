@@ -352,6 +352,8 @@ export class SetupWizard extends Modal {
       notes.map((note) => ({ value: note.path, label: note.path })),
     );
     this.selectRow(container, "coverFit");
+    this.selectRow(container, "backCover");
+    this.selectRow(container, "backCoverFit");
     this.boolRow(container, "coverInPdf");
   }
 

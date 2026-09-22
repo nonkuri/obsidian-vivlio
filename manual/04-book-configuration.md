@@ -32,9 +32,9 @@ Markdown ノートやフォルダからプレビュー・書き出しを始め�
 
 ### パスの区切り文字
 
-パスは Windows でも `/` で書くことを推奨します。`theme`、`cover`、`coverPage`、`sections.*`、Vault 内の `embedFonts[].src`、Vault 相対の `output` は、`\` で書いた場合も参照時に `/` に正規化します。
+パスは Windows でも `/` で書くことを推奨します。`theme`、`cover`、`backCover`、`coverPage`、`sections.*`、Vault 内の `embedFonts[].src`、Vault 相対の `output` は、`\` で書いた場合も参照時に `/` に正規化します。
 
-`theme` と Vault 内の `embedFonts[].src` は Vault ルートからの相対パスです。`cover`、`coverPage`、`sections.*` は本のフォルダを基準に Obsidian のリンク解決を使います。`output` は Vault 相対パスまたは絶対パスです。区切り文字を変えても、この基準は変わりません。
+`theme` と Vault 内の `embedFonts[].src` は Vault ルートからの相対パスです。`cover`、`backCover`、`coverPage`、`sections.*` は本のフォルダを基準に Obsidian のリンク解決を使います。`output` は Vault 相対パスまたは絶対パスです。区切り文字を変えても、この基準は変わりません。
 
 ```yaml
 theme: themes/my-book.css
@@ -237,7 +237,18 @@ colophonExtra:
 | `cover` | 画像の Vault 相対パス | 一枚画像を表紙に使用。EPUB の表紙画像にもなります。 |
 | `coverPage` | Markdown ノートのパス | ノートを表紙ページとして組版。`cover` より優先。 |
 | `coverFit` | `cover` / `contain` | `cover` は全面を埋めて切り抜き、`contain` は全体を収めます。 |
-| `coverInPdf` | 真偽値 | PDF へ表紙を含めるか。対話式の書き出しではダイアログの **表紙を含める**が最優先です。 |
+| `backCover` | 画像のパス | 本の末尾に追加する裏表紙。空なら追加しません。`cover` と同様に本のフォルダを基準に解決します。 |
+| `backCoverFit` | `cover` / `contain` | 裏表紙画像の収め方。既定は `cover`。 |
+| `coverInPdf` | 真偽値 | PDF へ表紙・裏表紙を含めるか。対話式の書き出しではダイアログの **表紙・裏表紙を含める**が最優先です。 |
+
+```yaml
+backCover: images/back-cover.jpg
+backCoverFit: contain
+```
+
+PDF とプレビューでは、裏表紙の内側を必ず白紙にし、最終ページが物理的な偶数ページになるよう白紙を1〜2ページ追加します。表紙がある場合は表紙を1ページ目として数え、ノンブルの開始値には依存しません。縦書き（右綴じ）では右ページ、横書き（左綴じ）では左ページが裏表紙です。裏表紙と追加した白紙はノンブル・柱・目次・PDFのしおりの対象にせず、ページ番号も進めません。
+
+EPUB には末尾の裏表紙画像だけを追加し、白紙は追加しません。本棚サムネイルは引き続き表紙画像を使います。ノートのプロパティでは `vivlio-back-cover` と `vivlio-back-cover-fit` を使います。
 
 ### フォント
 

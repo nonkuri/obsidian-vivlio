@@ -283,6 +283,8 @@ export interface BookConfig {
   cover: string;
   coverPage: string;
   coverFit: CoverFit;
+  backCover: string;
+  backCoverFit: CoverFit;
   coverInPdf: boolean;
 
   // fonts (SPEC 5.10)

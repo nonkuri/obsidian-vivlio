@@ -616,7 +616,7 @@ function coverCss(context: BuildContext): string {
    novel theme set them from the character grid and let the margins take the
    rest, which is right for a page of text and wrong for a cover. A cover is
    not set inside the text block, it is the sheet. */
-@page cover, cover-document {
+@page cover, cover-document, back-cover {
   margin: 0;
   width: auto;
   height: auto;
@@ -625,12 +625,15 @@ function coverCss(context: BuildContext): string {
 }
 
 .vivlio-cover,
-.vivlio-cover body {
+.vivlio-cover body,
+.vivlio-back-cover,
+.vivlio-back-cover body {
   margin: 0;
   block-size: 100%;
 }
 
 .cover,
+.back-cover,
 [role='doc-cover'] {
   /* Named here rather than relying on theme-base, which assigns
      \`cover-document\` through \`body:has([role='doc-cover'])\` - a selector the
@@ -645,6 +648,7 @@ function coverCss(context: BuildContext): string {
 }
 
 .cover img,
+.back-cover img,
 [role='doc-cover'] img {
   inline-size: 100%;
   block-size: 100%;
@@ -659,6 +663,40 @@ function coverCss(context: BuildContext): string {
   max-height: none;
   object-fit: ${fit};
   display: block;
+}
+
+/* The inside occupies a recto and the image the following verso. A forced
+   recto may add one more padding page; neither depends on the folio value.
+   Share the cover's full-bleed geometry across all themes. */
+.vivlio-back-cover,
+.vivlio-back-cover body,
+.back-cover-pages,
+.back-cover {
+  page: back-cover;
+}
+
+.back-cover-inside {
+  block-size: 1px;
+}
+
+:root.vivlio-back-cover {
+  --vs-page--mbox-visibility: hidden;
+}
+
+.vivlio-vertical .back-cover-inside {
+  break-before: left;
+}
+
+.vivlio-horizontal .back-cover-inside {
+  break-before: right;
+}
+
+.back-cover-pages > .back-cover {
+  break-before: page;
+}
+
+.back-cover img {
+  object-fit: ${context.config.backCoverFit === "contain" ? "contain" : "cover"};
 }
 `.trim();
 }

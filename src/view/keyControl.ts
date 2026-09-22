@@ -71,6 +71,7 @@ export function keyChoices(app: App, key: NoteKey, current = ""): Choice[] {
     case "imageWidthUnit":
       return labelled(["px", "percent", "mm"], "settings.imageWidthUnit");
     case "coverFit":
+    case "backCoverFit":
       return labelled(["cover", "contain"], "settings.coverFit");
     case "pageNumbering":
       return labelled(["continuous", "roman-then-arabic", "none"], "settings.pageNumbering");
@@ -80,6 +81,7 @@ export function keyChoices(app: App, key: NoteKey, current = ""): Choice[] {
         label: `${choice.value} — ${t(choice.labelKey as StringKey)}`,
       }));
     case "cover":
+    case "backCover":
       return paths(app.vault.getFiles().filter((file: TFile) => isImagePath(file.path)));
     case "coverPage":
       return paths(app.vault.getMarkdownFiles());

@@ -38,6 +38,8 @@ export interface Chapter {
   isBody: boolean;
   /** Front matter gets roman numerals under `roman-then-arabic`. */
   isFrontMatter: boolean;
+  /** Closing image and its unnumbered inside/padding pages. */
+  isBackCover?: boolean;
   /** Pre-generated HTML for documents with no source note. */
   html?: string;
   /** `counter-reset: page` value at this document's numbered start. */

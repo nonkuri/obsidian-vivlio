@@ -167,6 +167,8 @@ export function baseBookConfig(): BookConfig {
     cover: "",
     coverPage: "",
     coverFit: "cover",
+    backCover: "",
+    backCoverFit: "cover",
     coverInPdf: true,
 
     fontFamily: DEFAULT_SERIF_STACK,

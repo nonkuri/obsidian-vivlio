@@ -173,10 +173,13 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   const coverFile = config.cover
     ? app.metadataCache.getFirstLinkpathDest(normalizePath(config.cover), `${bookRoot}/`)
     : null;
+  const backCoverFile = config.backCover
+    ? app.metadataCache.getFirstLinkpathDest(normalizePath(config.backCover), `${bookRoot}/`)
+    : null;
   context.imageSizes = await collectImageSizes(
     app,
     notes,
-    coverFile ? [coverFile] : [],
+    [coverFile, backCoverFile].filter((file): file is TFile => file !== null),
     signal,
   );
   throwIfAborted(signal);
@@ -332,11 +335,20 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
     });
   }
 
+  if (includeCover && config.backCover) {
+    const backCover = buildCover(context, true);
+    if (backCover) chapters.push({
+      docName: "back-cover.html", file: null, title: t("settings.backCover"),
+      role: null, slot: null, isBody: false, isFrontMatter: false,
+      isBackCover: true, html: backCover.html,
+    });
+  }
+
   // In continuous mode startPage belongs to the first numbered leaf, not to
   // the first body chapter. The cover is outside the pagination; a title page,
   // contents page or inserted blank before the preface is part of it.
   if (config.pageNumbering === "continuous" && config.startPage !== null) {
-    const firstNumbered = chapters.find((chapter) => chapter.role !== "doc-cover");
+    const firstNumbered = chapters.find((chapter) => chapter.role !== "doc-cover" && !chapter.isBackCover);
     if (firstNumbered) firstNumbered.startPage = config.startPage;
   }
 

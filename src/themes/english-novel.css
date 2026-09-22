@@ -159,6 +159,11 @@
   --vs-page--mbox-visibility: hidden;
 }
 
+:root.vivlio-back-cover {
+  --vs-page--mbox-visibility: hidden;
+  --vivlio-folio: none;
+}
+
 /* Body typography -------------------------------------------------------- */
 
 p {
