@@ -563,6 +563,16 @@ figcaption, caption { font-size: 0.85rem; line-height: 1.5; }
 .vivlio-manual-numbered { --vs-crossref--marker-display: none; }
 .vivlio-manual-ref::before { content: none !important; }
 .vivlio-manual-short-table { break-inside: avoid; }
+/* Repeated captions sit inside the table header, above the table's frame. */
+table:has(> thead > .vivlio-manual-table-caption) {
+  border-block-start: 0;
+}
+.vivlio-manual-table-caption {
+  border: 0;
+}
+.vivlio-manual-table-caption + tr {
+  border-block-start: var(--vs--table-border-width-block-start, 1px) solid;
+}
 .vivlio-manual-table-caption th {
   background: none;
   border: 0;
