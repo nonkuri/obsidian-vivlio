@@ -22,8 +22,8 @@ and the same stylesheet the PDF will.*
 One thing the preview cannot do on its own: the page numbers on a contents
 page read `??` until every page has been laid out, because the number comes
 from `target-counter`, which has nothing to count against a page that has not
-been composed yet. An export always composes the whole book, so the PDF and
-the EPUB are correct. To see the real numbers on screen, turn on **Render
+been composed yet. PDF export composes the whole book and resolves the numbers;
+reflowable EPUB output hides contents-page numbers. To see the real numbers on screen, turn on **Render
 every page up front** in the settings — the preview then takes longer to
 appear and is right from the first frame.
 
@@ -118,8 +118,14 @@ Three layers; a lower one overrides the one above it.
 1. **Settings tab** — vault-wide defaults.
 2. **`vivlio.yaml`** next to the book — the real place for a book's settings.
    Nesting and comments allowed.
-3. **A note's frontmatter** — flat `vivlio-*` keys only, so Obsidian's property
-   editor can edit them (it cannot edit nested YAML).
+3. **A note's frontmatter** — flat `vivlio-*` keys are recommended for Obsidian's
+   property editor. Hand-written nested `vivlio:` settings are also accepted.
+
+For a single-note book, that note supplies layer 3. For a folder or selected YAML,
+the table-of-contents note supplies it; for a book built from links, the selected
+note does. These settings apply to the whole book. Ordinary chapter notes cannot
+override the theme or writing mode individually; use note classes and CSS for
+chapter styling. `vivlio-order`, `vivlio-toc` and `vivlio-paper-role` are note metadata.
 
 ### Editing `.yaml` and `.css` inside Obsidian
 
@@ -377,8 +383,9 @@ is why the preview and the EPUB read exactly the same text.
 
 Local files named by `url(...)` are resolved relative to the stylesheet that
 contains the declaration, including stylesheets brought in through `@import`.
-Vivlio rewrites those references to book assets and packs images and fonts into
-the EPUB. Remote URLs, data URLs and fragment-only references are left as
+Vivlio rewrites those references to book assets and packs images into the EPUB.
+Fonts, including those referenced by CSS, are included only when **Embed fonts in EPUB**
+is enabled (off by default). Remote URLs, data URLs and fragment-only references are left as
 written; a missing local file is reported before export.
 
 ```css

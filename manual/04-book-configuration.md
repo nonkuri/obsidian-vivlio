@@ -68,7 +68,9 @@ Obsidian では、1つの拡張子を同時に複数のプラグインが担当�
 
 ### ノートのフロントマター
 
-個別ノートだけを変更するときに使います。Obsidian のプロパティ UI と相性のよいフラット形式は次の形です。
+単独ノートを書き出す場合はそのノート、フォルダまたは YAML から本を組む場合は目次ノート、「このノートを目次として本を組む」では選択したノートの設定が、本全体へ適用されます。通常の章ノートに `vivlio-writing-mode` や `vivlio-theme` を書いても、その章だけの組方向やテーマは変更されません。章ごとのスタイルは [ノートのクラスと CSS](06-custom-theme.md#ノートごとにスタイルを使い分ける) で指定します。`vivlio-order`、`vivlio-toc`、`vivlio-paper-role` はノート固有の情報として扱います。
+
+Obsidian のプロパティ UI と相性のよいフラット形式は次の形です。下の組方向の指定は、このノートを単独で書き出す場合など、本全体の設定元になるときに有効です。
 
 ```yaml
 ---
@@ -206,7 +208,7 @@ colophonExtra:
 
 | キー | 値・例 | 説明 |
 |---|---|---|
-| `theme` | `novel`、`novel-2col`、`english-novel`、`manual`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`novel-2col`（縦組み二段組の小説）、`english-novel`（英語小説）、`manual`（横組みのマニュアル・技術書）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
+| `theme` | `novel`、`novel-2col`、`english-novel`、`manual`、`paper`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`novel-2col`（縦組み二段組の小説）、`english-novel`（英語小説）、`manual`（横組みのマニュアル・技術書）、`paper`（論文・レポート）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
 | `writingMode` | `vertical-rl` / `horizontal-tb` | 縦組み / 横組み。 |
 | `size` | `文庫`、`四六判`、`A5`、`6x9`、`128mm 188mm` | 判型。`文庫`・`新書`・`JIS-B6`・`四六判`（127×188mm）・`A5`・`JIS-B5`・`B5`・`A4`・`6x9`（152.4×228.6mm）・`letter`。`文庫` と `A6` は同じ `105mm 148mm` なので、選択欄には `文庫・A6（105×148mm）` として一つだけ出ます。任意の CSS `size` 値も可。 |
 | `charsPerLine` | 数値 / `null` | 1 行の字数（二段組なら 1 段の字詰め）。`linesPerPage` と組で指定します。 |
@@ -396,7 +398,7 @@ syntax:
 
 ## ノート専用キー
 
-次の二つは本の設定ではなく、章としてのノートに属します。`vivlio.yaml` ではなくフロントマターへ書きます。
+次の三つは本の設定ではなく、章としてのノートに属します。`vivlio.yaml` ではなくフロントマターへ書きます。
 
 | フロントマター | 説明 |
 |---|---|
@@ -420,7 +422,7 @@ syntax:
 
 ```yaml
 # --- 組版 ---
-# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス
+# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（論文・レポート）| Vault 内の .css ファイルのパス
 # theme: novel
 # 判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | 6x9 | ...
 # size: 文庫
