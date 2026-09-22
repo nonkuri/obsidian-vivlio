@@ -40,6 +40,7 @@ import { log } from "../util/log";
 import { t } from "../i18n";
 import { CONFIG_FILE } from "./target";
 import { assemblePaper } from "./paper";
+import { numberManualFigures } from "./manual";
 
 export { CONFIG_FILE } from "./target";
 
@@ -214,6 +215,7 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
 
   // The extra stylesheet from the settings tab is appended after the theme.
   rewritePaperLinks();
+  numberManualFigures(context, chapters);
   await appendExtraCss(context);
 
   workspace.putText("publication.json", publicationManifest(context, chapters));

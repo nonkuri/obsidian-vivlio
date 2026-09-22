@@ -57,19 +57,11 @@
 
 /* Paragraphs ---------------------------------------------------------------
  *
- * A Japanese paragraph opens one character in, set across the page as much as
- * down it. theme-techbook says nothing about the indent, so what arrived here
- * was theme-base's `0` - and the conversion removes the ideographic space a
- * manuscript indents with (SPEC 5.3 #15) on the understanding that the
- * stylesheet does the indenting properly. With neither, a manuscript set
- * horizontally lost its paragraph openings altogether, while the same note
- * kept them in novel.css, which states its own 1em.
- *
- * A book that wants its paragraphs flush - a manual written in short, headed
- * sections often does - says `paragraphIndent: 0`.
+ * Short operational paragraphs align with lists and settings. Prose-heavy
+ * handbooks can restore a Japanese first-line indent with paragraphIndent: 1em.
  */
 :root {
-  --vs--p-text-indent: 1em;
+  --vs--p-text-indent: 0;
 }
 
 /* Figures ------------------------------------------------------------------
@@ -128,11 +120,11 @@ figcaption {
    the way down reads as composed; starting at the top reads as the first
    page of the text. */
 .titlepage {
-  padding-block-start: 10rem;
+  padding-block-start: 15vh;
 }
 
 .halftitle {
-  padding-block-start: 12rem;
+  padding-block-start: 18vh;
 }
 
 /* The series stands above the title, smaller and lighter: it is the shelf the
@@ -185,7 +177,7 @@ figcaption {
    another. Keeping the names well clear of the title and the publisher
    further still is what separates "who wrote this" from "who published it". */
 .titlepage .imprint {
-  margin-block-start: 6rem;
+  margin-block-start: 3rem;
 }
 
 .titlepage .byline {
@@ -235,15 +227,8 @@ figcaption {
  * where another book prints ten.
  */
 [role='doc-colophon'] {
-  /* A colophon sits low on its page and cannot be pushed there: distributing
-     free space needs a definite block extent, and a margin-laid theme leaves
-     --vs-page--height at `auto` (theme-base page.css), so
-     `margin-block-start: auto` has nothing to work against.
-
-     The offset is stated instead, and against the page rather than against a
-     paper size: this theme is handed A5, B5 and A4 alike, and 36rem is the
-     lower half of one of them only. */
-  padding-block-start: 55vh;
+  /* Leave room for publication records and long addresses on smaller sheets. */
+  padding-block-start: 25vh;
   font-size: 0.85rem;
 }
 
@@ -306,6 +291,8 @@ figcaption {
 
 .colophon-row dd {
   margin-inline-start: 0;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
 }
 
 /* An address or a website belongs to the publisher named above it, so it hangs
@@ -444,11 +431,145 @@ thead {
   display: table-header-group;
 }
 
-/* A head names its column - it is a label, not prose, and breaking it reads
-   as damage. Japanese gives the layout algorithm no unbreakable word to size
-   a column against, since a line may break between any two characters, so an
-   auto-laid table will fold a three-character head onto two lines to hand the
-   width to a column of running text. */
+/* Long labels must be able to wrap on narrow sheets. */
 th {
-  white-space: nowrap;
+  white-space: normal;
 }
+
+/* Operational reading: a restrained ink palette that also works in grayscale.
+ * Keep knobs on :root so book settings and vault styles can override them. */
+:root {
+  --vs-manual--accent: #285467;
+  --vs-manual--panel: #f2f5f6;
+  --vs--h2-margin-block: 1.8rem 0.65rem;
+  --vs--h3-margin-block: 1.4rem 0.5rem;
+  --vs--h4-margin-block: 1.1rem 0.4rem;
+  --vs--table-cell-padding-inline: 0.5rem;
+  --vs--figure-break-inside: avoid;
+  --vs-theme--page-top-left-content: var(--vivlio-book-title, env(pub-title));
+  --vs-prism--background: var(--vs-manual--panel);
+  --vs-prism--color: #242b30;
+  --vs-prism--text-shadow: none;
+  --vs-prism--color-comment: #505a61;
+  --vs-prism--color-prolog: #505a61;
+  --vs-prism--color-doctype: #505a61;
+  --vs-prism--color-cdata: #505a61;
+  --vs-prism--color-punctuation: #242b30;
+  --vs-prism--color-namespace: #242b30;
+  --vs-prism--color-property: #713252;
+  --vs-prism--color-tag: #713252;
+  --vs-prism--color-constant: #713252;
+  --vs-prism--color-symbol: #713252;
+  --vs-prism--color-deleted: #713252;
+  --vs-prism--color-boolean: #604080;
+  --vs-prism--color-number: #604080;
+  --vs-prism--color-selector: #286047;
+  --vs-prism--color-attr-name: #286047;
+  --vs-prism--color-string: #286047;
+  --vs-prism--color-char: #286047;
+  --vs-prism--color-builtin: #286047;
+  --vs-prism--color-inserted: #286047;
+  --vs-prism--color-operator: #242b30;
+  --vs-prism--color-entity: #242b30;
+  --vs-prism--color-url: #242b30;
+  --vs-prism--color-variable: #242b30;
+  --vs-prism--color-atrule: #715014;
+  --vs-prism--color-attr-value: #715014;
+  --vs-prism--color-function: #715014;
+  --vs-prism--color-class-name: #715014;
+  --vs-prism--color-keyword: #285467;
+  --vs-prism--color-regex: #715014;
+  --vs-prism--color-important: #715014;
+}
+
+:root.vivlio-body h1 {
+  border-block-end: 2px solid var(--vs-manual--accent);
+  padding-block-end: 0.6rem;
+}
+:root.vivlio-body h2 {
+  border-inline-start: 3px solid var(--vs-manual--accent);
+  padding-inline-start: 0.6rem;
+}
+:is(h1,h2,h3,h4,h5,h6) { break-after: avoid; }
+:root.vivlio-body p { text-align: start; }
+
+/* A long step or callout may span pages; its title must not stand alone. */
+:root.vivlio-body ol:not(.cite-items) > li {
+  break-inside: auto;
+  margin-block: 0.55rem;
+  padding-inline-start: 0.25rem;
+}
+:root.vivlio-body ol:not(.cite-items) > li::marker {
+  font-weight: bold;
+  color: var(--vs-manual--accent);
+}
+:root.vivlio-body li > p { margin-block: 0.35rem; }
+:root.vivlio-body li > p:first-child:not(:last-child) { break-after: avoid; }
+.callout[data-callout] {
+  break-inside: auto;
+  border: 1px solid var(--vs-manual--rule-ink);
+  border-inline-start: 3px solid var(--vs-manual--accent);
+  border-radius: 0;
+  background: var(--vs-manual--panel);
+  box-decoration-break: clone;
+}
+.callout[data-callout] .callout-title {
+  text-indent: 0;
+  break-after: avoid;
+  color: var(--vs-manual--accent);
+}
+.callout:is([data-callout='warning'],[data-callout='caution'],[data-callout='danger'],[data-callout='error']) {
+  border-inline-start: 5px double #714614;
+  background: #faf5ed;
+}
+.callout:is([data-callout='warning'],[data-callout='caution'],[data-callout='danger'],[data-callout='error']) .callout-title { color: #714614; }
+.callout:is([data-callout='tip'],[data-callout='hint'],[data-callout='success']) { border-inline-start-style: dashed; }
+
+pre, pre[class*='language-'] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow: visible;
+  break-inside: auto;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  border: 1px solid var(--vs-manual--rule-ink);
+  box-decoration-break: clone;
+}
+pre code { white-space: inherit; }
+code, :root.vivlio-body a { overflow-wrap: anywhere; }
+kbd {
+  font-family: var(--vs--monospace-font-family);
+  font-size: 0.85em;
+  border: 1px solid #999;
+  border-block-end-width: 2px;
+  border-radius: 3px;
+  padding: 0.05em 0.3em;
+}
+table {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+th, td { vertical-align: top; overflow-wrap: anywhere; }
+th { background: var(--vs-manual--panel); text-align: start; }
+/* Settings tables need more room for identifiers than ordinary checklist IDs. */
+table:has(td:first-child code) th:first-child { inline-size: 35%; }
+table code { font-size: 0.85em; }
+figure:has(table) { break-inside: auto; }
+figure img { max-inline-size: 100%; height: auto; }
+figcaption, caption { font-size: 0.85rem; line-height: 1.5; }
+.vivlio-manual-number { font-weight: bold; }
+.vivlio-manual-numbered { --vs-crossref--marker-display: none; }
+.vivlio-manual-ref::before { content: none !important; }
+.vivlio-manual-short-table { break-inside: avoid; }
+.vivlio-manual-table-caption th {
+  background: none;
+  border: 0;
+  padding: 0 0 0.5em;
+  font-weight: normal;
+  text-align: start;
+  font-size: 0.85rem;
+}
+.vivlio-manual-continued { display: none; }
+table::nth-fragment(n+2) .vivlio-manual-continued { display: inline; }

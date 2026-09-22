@@ -199,6 +199,7 @@ export const PRESETS: Preset[] = [
       // asking for characters and lines here would take that away from it.
       charsPerLine: null,
       linesPerPage: null,
+      columns: 1,
       footnote: "gcpm",
       highlight: "mark",
       autoTcy: false,

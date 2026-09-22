@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="210" viewBox="0 0 900 210">
+<rect width="900" height="210" fill="#fff"/>
+<g fill="#f2f5f6" stroke="#285467" stroke-width="2"><rect x="10" y="20" width="260" height="170" rx="8"/><rect x="320" y="20" width="260" height="170" rx="8"/><rect x="630" y="20" width="260" height="170" rx="8"/></g>
+<g font-family="Meiryo, sans-serif" text-anchor="middle" fill="#242b30"><g font-size="22" fill="#285467"><text x="140" y="60">01 / PREPARE</text><text x="450" y="60">02 / REVIEW</text><text x="760" y="60">03 / SHARE</text></g><g font-size="30" font-weight="bold"><text x="140" y="108">原稿を用意</text><text x="450" y="108">紙面を確認</text><text x="760" y="108">配布・保存</text></g><g font-size="21"><text x="140" y="152">本文・図・設定</text><text x="450" y="152">プレビューで調整</text><text x="760" y="152">PDF / EPUB</text></g></g>
+<path d="M280 105h27m-9-8 9 8-9 8M590 105h27m-9-8 9 8-9 8" fill="none" stroke="#285467" stroke-width="3"/>
+</svg>

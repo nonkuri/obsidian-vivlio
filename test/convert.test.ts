@@ -810,19 +810,16 @@ async function main(): Promise<void> {
     ),
   );
 
-  // The conversion removes the ideographic space a manuscript indents with
-  // (#15) because the stylesheet is to do the indenting. A theme that leaves
-  // theme-base's `--vs--p-text-indent: 0` therefore loses the indent
-  // altogether - which is what the horizontal manual theme did, while the
-  // same note set vertically kept it from theme-bunko.
+  // Prose themes supply the indent removed by conversion. Operational manuals
+  // deliberately default to flush paragraphs; paragraphIndent can override it.
   for (const name of SELECTABLE_THEMES) {
     const theme = flattenBundledTheme(bundledThemePath(name)!);
     const declared = [...theme.matchAll(/--vs--p-text-indent:\s*([^;]+);/g)];
     const effective = declared.at(-1)?.[1].trim() ?? "(none)";
     checks.push(
       check(
-        `${name} indents its paragraphs`,
-        declared.length > 0 && effective !== "0",
+        `${name} uses its intended paragraph indent`,
+        declared.length > 0 && (name === "manual" ? effective === "0" : effective !== "0"),
         effective,
       ),
     );

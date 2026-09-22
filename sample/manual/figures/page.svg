@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="440" viewBox="0 0 800 440">
+<rect width="800" height="440" fill="#fff"/><rect x="45" y="10" width="330" height="420" fill="#fff" stroke="#89969d" stroke-width="2"/>
+<g font-family="Meiryo, sans-serif" fill="#242b30"><text x="72" y="44" font-size="14">操作ガイド</text><text x="72" y="95" font-size="25" font-weight="bold">紙面を整える</text><path d="M72 113h270" stroke="#285467" stroke-width="3"/>
+<g font-size="18"><text x="75" y="160">1. 用紙を決める</text><text x="75" y="207">2. 文字を確認する</text><text x="75" y="254">3. 図と表を見直す</text></g><rect x="72" y="288" width="270" height="65" fill="#f2f5f6"/><path d="M72 288v65" stroke="#285467" stroke-width="4"/><text x="88" y="326" font-size="18">補足：実寸で確かめる</text><text x="320" y="405" font-size="16">5</text>
+<g font-size="23" fill="#285467"><text x="467" y="49">柱：資料名を確認</text><text x="467" y="104">見出し：作業の目的</text><text x="467" y="217">手順：操作を順に追う</text><text x="467" y="329">補足：本文と区別</text><text x="467" y="410">ノンブル：現在の位置</text></g></g>
+<g stroke="#89969d" fill="none"><path d="M380 40h65M380 96h65M380 207h65M380 320h65M380 402h65"/></g>
+</svg>

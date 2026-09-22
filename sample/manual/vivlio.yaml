@@ -1,0 +1,26 @@
+title: 小さな資料を、一冊に
+subtitle: Vivlio 操作ガイド — 原稿の準備から配布前の確認まで
+author: Vivlio サンプル編集部
+publisher: マニュアル組版サンプル
+lang: ja
+theme: manual
+writingMode: horizontal-tb
+size: A5
+columns: 1
+charsPerLine: null
+linesPerPage: null
+baseFontSize: 10pt
+fontFamily: "'Yu Gothic', 'Meiryo', sans-serif"
+headingFontFamily: "'Yu Gothic', 'Meiryo', sans-serif"
+startSide: any
+footnote: gcpm
+highlight: mark
+autoTcy: false
+pageNumbering: roman-then-arabic
+tocDepth: 2
+includeToc: false
+sections:
+  halfTitle: off
+  titlePage: auto
+  toc: auto
+  colophon: auto

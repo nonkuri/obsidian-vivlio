@@ -29,6 +29,8 @@ appear and is right from the first frame.
 
 ## What it does
 
+The [manual sample](sample/manual/index.md) exercises the updated `manual` theme with four Japanese chapters, two schematic figures, settings, callouts, code, cross-note figure references and a 36-row checklist. See the [setup and verification notes](sample/manual-README.md).
+
 | | |
 |---|---|
 | **Preview** | A pane showing the real page composition — the same engine and stylesheet the PDF will use. Vertical writing, hanging punctuation and Japanese/Latin spacing included, none of which Obsidian's own PDF export can produce. |
@@ -44,6 +46,7 @@ Download complete source-and-output examples. Extract the source folder into a v
 
 | Sample | What it demonstrates | Download |
 |---|---|---|
+| Manual / handbook | Four Japanese source notes, two schematic figures, settings, cross-note references, callouts, a 36-row checklist, a 16-page PDF and EPUB | [0.15.0 sample](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.15.0/vivlio-sample-manual-0.15.0.zip) |
 | Paper / report | Seven source notes with automatic numbering, five floating figures, six tables, synthetic data and a verified 15-page PDF exported from Obsidian | [0.14.0 sample](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.14.0/vivlio-sample-paper-0.14.0.zip) |
 | Akutagawa Ryunosuke short stories | The same Markdown manuscript and multiple YAML configurations exported as two-column A5 PDFs with and without crop marks and bleed, 127 × 188 mm and bunko PDFs, and EPUB | [0.10.1 sample (30.1 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.10.1/vivlio-sample-akutagawa-0.10.1.zip) |
 | *The Adventures of Sherlock Holmes* | An English novel using custom CSS from inside the vault, with PDF, EPUB, and source | [0.8.0 sample (2.7 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) |
