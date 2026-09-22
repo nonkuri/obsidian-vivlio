@@ -4,3 +4,5 @@ main.js.map
 *.tgz
 .DS_Store
 /sample/*.zip
+/output/
+/sample/paper/paper.pdf

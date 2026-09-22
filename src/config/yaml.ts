@@ -30,7 +30,7 @@ interface KeyDoc {
  * A key a note may carry: the book's own keys, plus the two that only ever
  * describe one note's place in the running order.
  */
-export type NoteKey = keyof BookConfig | "order" | "toc";
+export type NoteKey = keyof BookConfig | "order" | "toc" | "paperRole";
 
 /**
  * Documentation for every configuration key.
@@ -78,8 +78,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
 
   theme: {
     group: "layout",
-    ja: "テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| Vault 内の .css ファイルのパス",
-    en: "Theme: novel (a vertical novel) | novel-2col (a vertical novel in two columns) | english-novel (an English trade paperback) | manual (a horizontal manual or tech book) | the path of a .css file in the vault",
+    ja: "テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（横組みの論文・レポート）| Vault 内の .css ファイルのパス",
+    en: "Theme: novel (a vertical novel) | novel-2col (a vertical novel in two columns) | english-novel (an English trade paperback) | manual (a horizontal manual or tech book) | paper (an academic paper or report) | the path of a .css file in the vault",
   },
   writingMode: {
     group: "layout",
@@ -214,6 +214,11 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
     ja: "このノートの並び順を固定する（ファイル名順より優先）",
     en: "Pin this note's place in the running order (beats the file-name order)",
   },
+  paperRole: {
+    group: "structure", noteOnly: true,
+    ja: "paperでの役割：body（本文・既定）、abstract（要旨）、references（文献）、appendix（付録）、unnumbered（番号なし）",
+    en: "Paper role: body (default), abstract, references, appendix, or unnumbered",
+  },
   toc: {
     group: "structure",
     noteOnly: true,
@@ -319,6 +324,7 @@ const KEY_LABELS: Record<NoteKey, StringKey> = {
   startPage: "settings.startPage",
   includeToc: "settings.includeToc",
   order: "key.order",
+  paperRole: "key.paperRole",
   toc: "key.toc",
 
   output: "settings.output",

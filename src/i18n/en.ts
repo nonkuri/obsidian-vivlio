@@ -162,7 +162,7 @@ export const en = {
   "settings.defaultPreset.desc": "Starting point for new book configurations.",
   "settings.theme": "Default theme",
   "settings.theme.desc":
-    "Four themes ship with the plugin: novel and novel-2col for Japanese fiction, english-novel for a western trade paperback, and manual for a manual or tech book. Put a .css file anywhere in the vault and it joins this list under its own path \u2014 use a vivlio: import to build on a bundled theme rather than from nothing.",
+    "Five themes ship with the plugin: novel and novel-2col for Japanese fiction, english-novel for a western trade paperback, manual for a manual or tech book, and paper for an academic paper or report. Put a .css file anywhere in the vault and it joins this list under its own path \u2014 use a vivlio: import to build on a bundled theme rather than from nothing.",
   "settings.size": "Default paper size",
   "settings.writingMode": "Default writing mode",
   "settings.writingMode.vertical-rl": "Vertical, read right to left (vertical-rl)",
@@ -369,6 +369,8 @@ export const en = {
   "theme.novel": "novel — a novel, set vertically",
   "theme.novel-2col": "novel-2col — a novel, set vertically in two columns",
   "theme.english-novel": "english-novel — an English trade paperback",
+  "theme.paper": "paper — an academic paper or report",
+  "preset.paper": "Paper / report (A4, horizontal)",
   "theme.manual": "manual — a manual or tech book, set across the page",
 
   "book.theme": "Theme",
@@ -383,6 +385,7 @@ export const en = {
   "key.embedFonts": "Embedded fonts",
   "key.sections": "Front and back matter",
   "key.order": "Place in the running order",
+  "key.paperRole": "Role in the paper",
   "key.toc": "Use this note as the contents",
   "key.syntax": "Syntax switches",
   "key.vfm": "VFM options",

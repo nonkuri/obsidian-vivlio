@@ -39,6 +39,7 @@ import { joinPosix, stripExtension } from "../util/paths";
 import { log } from "../util/log";
 import { t } from "../i18n";
 import { CONFIG_FILE } from "./target";
+import { assemblePaper } from "./paper";
 
 export { CONFIG_FILE } from "./target";
 
@@ -203,6 +204,7 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
 
   // Generated parts come last: the table of contents needs every chapter's
   // headings, and the cover needs the asset table.
+  const rewritePaperLinks = assemblePaper(context, chapters);
   for (const chapter of chapters) {
     throwIfAborted(signal);
     if (chapter.file) continue;
@@ -211,6 +213,7 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   }
 
   // The extra stylesheet from the settings tab is appended after the theme.
+  rewritePaperLinks();
   await appendExtraCss(context);
 
   workspace.putText("publication.json", publicationManifest(context, chapters));

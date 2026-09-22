@@ -1,0 +1,14 @@
+{
+  "seed": 20260922,
+  "trials_per_condition": 48,
+  "evaluations": 1296,
+  "mean_difference_linear_minus_nearest": -0.10232763238583124,
+  "bootstrap_95_percentile_interval": [
+    -0.12892501518244887,
+    -0.07734432702840488
+  ],
+  "linear_wins_of_48": 43,
+  "python": "3.13.5",
+  "numpy": "2.5.3",
+  "matplotlib": "3.10.8"
+}

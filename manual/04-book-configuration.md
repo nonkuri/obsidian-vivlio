@@ -400,6 +400,7 @@ syntax:
 
 | フロントマター | 説明 |
 |---|---|
+| `vivlio-paper-role: appendix` | paperテーマでの原稿の役割。`body`（既定）、`abstract`、`references`、`appendix`、`unnumbered`。本全体のYAMLには指定しません。 |
 | `vivlio-order: 3` | 完成した本の 1 始まりの位置に固定。目次リンク順やファイル名順より優先。 |
 | `vivlio-toc: true` | このノートを章順を定める目次ノートとして扱う。 |
 

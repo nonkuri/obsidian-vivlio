@@ -1,0 +1,16 @@
+<figure class="tbl" id="tbl-main">
+<figcaption>主解析における補間誤差（σ = 0.15）</figcaption>
+<table><thead><tr><th>欠測長</th><th>手法</th><th>平均RMSE</th><th>標準偏差</th><th>中央値</th><th>90%点</th></tr></thead>
+<tbody>
+<tr><td>4</td><td>直前値保持</td><td>0.343</td><td>0.138</td><td>0.338</td><td>0.529</td></tr>
+<tr><td>4</td><td>最近傍</td><td>0.253</td><td>0.064</td><td>0.260</td><td>0.330</td></tr>
+<tr><td>4</td><td>線形補間</td><td>0.151</td><td>0.064</td><td>0.137</td><td>0.219</td></tr>
+<tr><td>8</td><td>直前値保持</td><td>0.555</td><td>0.187</td><td>0.545</td><td>0.761</td></tr>
+<tr><td>8</td><td>最近傍</td><td>0.366</td><td>0.087</td><td>0.367</td><td>0.465</td></tr>
+<tr><td>8</td><td>線形補間</td><td>0.254</td><td>0.081</td><td>0.238</td><td>0.360</td></tr>
+<tr><td>16</td><td>直前値保持</td><td>0.844</td><td>0.215</td><td>0.823</td><td>1.092</td></tr>
+<tr><td>16</td><td>最近傍</td><td>0.555</td><td>0.123</td><td>0.574</td><td>0.682</td></tr>
+<tr><td>16</td><td>線形補間</td><td>0.452</td><td>0.116</td><td>0.451</td><td>0.613</td></tr>
+</tbody></table>
+<p class="table-note">各条件48系列。標準偏差は系列間のばらつき。90%点は系列別RMSEの分位点であり、信頼区間の上限ではない。</p>
+</figure>

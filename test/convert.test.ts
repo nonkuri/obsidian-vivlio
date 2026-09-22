@@ -1427,7 +1427,7 @@ async function main(): Promise<void> {
     check(
       "an explicit one column overrides a multi-column theme",
       oneColumnCss.includes("--vs-theme--num-of-column: 1;") &&
-        oneColumnCss.includes("column-count: var(--vs-theme--num-of-column);"),
+        oneColumnCss.includes("column-count: auto;"),
       oneColumnCss.slice(0, 700),
     ),
     check(

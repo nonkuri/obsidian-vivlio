@@ -44,6 +44,7 @@ Download complete source-and-output examples. Extract the source folder into a v
 
 | Sample | What it demonstrates | Download |
 |---|---|---|
+| Paper / report | Seven source notes with automatic numbering, five floating figures, six tables, synthetic data and a verified 15-page PDF exported from Obsidian | [0.14.0 sample](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.14.0/vivlio-sample-paper-0.14.0.zip) |
 | Akutagawa Ryunosuke short stories | The same Markdown manuscript and multiple YAML configurations exported as two-column A5 PDFs with and without crop marks and bleed, 127 × 188 mm and bunko PDFs, and EPUB | [0.10.1 sample (30.1 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.10.1/vivlio-sample-akutagawa-0.10.1.zip) |
 | *The Adventures of Sherlock Holmes* | An English novel using custom CSS from inside the vault, with PDF, EPUB, and source | [0.8.0 sample (2.7 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) |
 
@@ -133,7 +134,7 @@ If those files still open in Vivlio's minimal editor after installing Code Space
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel, novel-2col, english-novel or manual, or a CSS path in the vault
+theme: novel              # novel, novel-2col, english-novel, manual or paper, or a CSS path in the vault
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -355,15 +356,19 @@ can start from a bundled one:
 theme: 装丁/私の本.css
 ```
 
-The theme picker offers the four themes built for this plugin — `novel`, for a
+The theme picker offers the five themes built for this plugin — `novel`, for a
 novel set vertically, `novel-2col`, for one set vertically in two columns,
-`english-novel`, for a western trade paperback, and `manual`, for a manual or
-tech book set across the page — followed by **every `.css` file in the vault, listed by its path**. Put
+`english-novel`, for a western trade paperback, `manual`, for a manual or
+tech book set across the page, and `paper`, for an academic paper or report — followed by **every `.css` file in the vault, listed by its path**. Put
 a stylesheet anywhere in the vault and it is in the list; there is nothing to
 register. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and `vivlio:academic`
 — the CC0 Vivliostyle themes — resolve when a book names one, but are left out
 of the picker: they have not been gone over against this plugin's folios and
 headings yet.
+
+For papers and reports, choose **Paper / report (A4, horizontal)** in the setup wizard (Vivlio 0.14.0 or later). The `paper` theme joins the manuscript notes into a continuous flow and automatically numbers chapters, sections, figures and tables across notes. The contents and ID-based references use those numbers. Set the note property `vivlio-paper-role` to `abstract`, `references`, `appendix` or `unnumbered` where appropriate; the default is `body`. Appendices use A, A.1, etc.
+
+Figures float with their captions to page tops, allowing subsequent prose to fill the remaining space. Long tables span pages with repeated captions and column headers. See the [sample manuscript](sample/paper/index.md) and [configuration](sample/paper/vivlio.yaml): no manually entered numbers or additional CSS are needed. Selecting a theme alone does not change the paper size or writing direction. Use `theme: paper` to enable the manuscript processing; importing its CSS alone does not enable automatic numbering across notes.
 
 Any other `@import` is an ordinary one, relative to the file doing the
 importing and read from the vault. Each is followed once, so a ring of imports

@@ -161,7 +161,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.defaultPreset.desc": "本の設定を新規に作るときの初期値。",
   "settings.theme": "既定テーマ",
   "settings.theme.desc":
-    "同梱テーマは novel、novel-2col、english-novel、manual の 4 つです。english-novel は欧米の英語小説向けです。Vault のどこかに .css ファイルを置けば、そのパスでこの一覧に並びます —— 自作テーマは vivlio: 形式の import で同梱テーマを土台にできます。",
+    "同梱テーマは novel、novel-2col、english-novel、manual、paper の 5 つです。paper は論文・レポート向けです。english-novel は欧米の英語小説向けです。Vault のどこかに .css ファイルを置けば、そのパスでこの一覧に並びます —— 自作テーマは vivlio: 形式の import で同梱テーマを土台にできます。",
   "settings.size": "既定用紙サイズ",
   "settings.writingMode": "既定書字方向",
   "settings.writingMode.vertical-rl": "縦組み・右から左へ読み進む（vertical-rl）",
@@ -363,6 +363,8 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "theme.novel": "novel —— 小説を縦組みで",
   "theme.novel-2col": "novel-2col —— 小説を縦組み二段組で",
   "theme.english-novel": "english-novel —— 英語小説を欧米のペーパーバック風に",
+  "theme.paper": "paper —— 論文・レポートを横組みで",
+  "preset.paper": "論文・レポート（A4・横組み）",
   "theme.manual": "manual —— マニュアル・技術書を横組みで",
 
   "book.theme": "テーマ",
@@ -375,6 +377,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "key.embedFonts": "埋め込むフォント",
   "key.sections": "前付け・後付け",
   "key.order": "このノートの並び順",
+  "key.paperRole": "論文内での役割",
   "key.toc": "このノートを目次にする",
   "key.syntax": "記法スイッチ",
   "key.vfm": "VFM オプション",

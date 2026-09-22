@@ -27,10 +27,11 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 
 ## サンプル
 
-入力原稿と出力結果をリリースからダウンロードできます。どちらも入力原稿を Vault に展開して、設定や CSS を変更しながら試せます。
+入力原稿と出力結果をリリースからダウンロードできます。入力原稿を Vault に展開して、設定や CSS を変更しながら試せます。
 
 | サンプル | 内容 | ダウンロード |
 |---|---|---|
+| 論文・レポート | 原稿7ファイルの自動採番、図5点のページフロート、表6点と長表の分割。合成データと実機確認済み15ページのPDFを収録 | [0.14.0 サンプル](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.14.0/vivlio-sample-paper-0.14.0.zip) |
 | 芥川龍之介短編集 | 同じ Markdown 原稿と複数の YAML から作成した A5 縦二段組（トンボ・塗り足しあり／なし）、四六判、文庫版の PDF と EPUB | [0.10.1 サンプル（30.1 MiB）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.10.1/vivlio-sample-akutagawa-0.10.1.zip) |
 | The Adventures of Sherlock Holmes | Vault 内の独自 CSS を適用した英語小説の PDF、EPUB、入力原稿 | [0.8.0 sample（2.7 MiB）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) |
 
@@ -275,7 +276,14 @@ linesPerPage: 17   # 1 段の行数
 theme: 装丁/私の本.css
 ```
 
-テーマの選択欄には、このプラグインのために作られた 4 つのテーマ —— `novel`（小説を縦組みで）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
+テーマの選択欄には、このプラグインのために作られた 5 つのテーマ —— `novel`（小説を縦組みで）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）、`paper`（論文・レポートを横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
+
+### 論文・レポート
+
+Vivlio 0.14.0以降のウィザードで **論文・レポート（A4・横組み）** を選ぶと、`academic` を調整した `paper` テーマを使います。複数原稿を自然につなぎ、章・節・図表を論文全体で自動採番して、目次とID参照へ反映します。要旨・参考文献・付録などはノートの `vivlio-paper-role` で指定し、付録はA、A.1形式にします。
+
+図はキャプションと一緒にページ上部へ浮動配置し、後続の本文で余白を埋めます。長表は表題・列見出しを繰り返してページをまたぎます。[原稿サンプル](sample/paper/index.md) と [設定例](sample/paper/vivlio.yaml) は、手入力の番号や追加CSSを使いません。テーマの選択だけでは判型・組方向は変わりません。複数原稿の処理を有効にするには `theme: paper` を選択してください。CSSのimportだけでは通し採番処理は有効になりません。
+
 
 これ以外の `@import` は通常の取り込みで、書いたファイルからの相対パスとして Vault から読まれます。各ファイルは一度だけ辿るので、import が輪になっていても問題ありません。使う前に 1 枚のスタイルシートに畳まれるので、プレビューと EPUB がまったく同じ内容を読みます。
 

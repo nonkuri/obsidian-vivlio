@@ -13,8 +13,7 @@ export interface Preset {
  *
  * Every preset here names a theme the picker offers (see SELECTABLE_THEMES):
  * a preset that set a theme nobody could then see in the picker would only
- * produce a book whose look could not be adjusted. The academic preset is
- * still held back with its theme for that reason.
+ * produce a book whose look could not be adjusted.
  *
  * The two paperbacks differ by two numbers and nothing else, which is why the
  * labels say the numbers rather than name two kinds of book they cannot tell
@@ -205,6 +204,25 @@ export const PRESETS: Preset[] = [
       autoTcy: false,
       pageNumbering: "continuous",
       fontFamily: DEFAULT_SANS_STACK,
+      headingFontFamily: DEFAULT_SANS_STACK,
+    },
+  },
+  {
+    id: "paper",
+    labelKey: "preset.paper",
+    values: {
+      theme: "paper",
+      writingMode: "horizontal-tb",
+      size: "A4",
+      charsPerLine: null,
+      linesPerPage: null,
+      columns: 1,
+      startSide: "any",
+      footnote: "gcpm",
+      highlight: "mark",
+      autoTcy: false,
+      pageNumbering: "continuous",
+      fontFamily: DEFAULT_SERIF_STACK,
       headingFontFamily: DEFAULT_SANS_STACK,
     },
   },

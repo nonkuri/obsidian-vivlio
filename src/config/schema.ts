@@ -139,6 +139,7 @@ export const BookConfigInputSchema = v.object({
   startPage: v.optional(v.union([v.pipe(v.number(), v.integer(), v.safeInteger()), v.null()])),
   order: v.optional(v.number()),
   toc: v.optional(v.boolean()),
+  paperRole: v.optional(v.picklist(["body", "abstract", "references", "appendix", "unnumbered"])),
 
   output: v.optional(v.string()),
   cropMarks: v.optional(v.boolean()),

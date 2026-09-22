@@ -25,6 +25,10 @@ export interface BuildWarning {
 
 /** One document in the spine. */
 export interface Chapter {
+  /** Source notes joined into one continuous paper document. */
+  sources?: Chapter[];
+  /** Numbered headings with collision-free anchors in a joined document. */
+  tocHeadings?: HeadingEntry[];
   /** Workspace-relative document name, e.g. `ch01.html`. */
   docName: string;
   /** Source note; absent for generated documents (cover, TOC, colophon). */

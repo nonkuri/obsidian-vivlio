@@ -168,7 +168,7 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
       if (Array.isArray(value)) config.embedFonts = value as BookConfig["embedFonts"];
       continue;
     }
-    if (key === "order" || key === "toc") continue; // spine hints, not book config
+    if (key === "order" || key === "toc" || key === "paperRole") continue; // note metadata, not book config
 
     (config as unknown as Record<string, unknown>)[key] = value;
   }
@@ -232,7 +232,7 @@ export function bookValuesFromYaml(
   const values: Partial<BookConfig> = {};
   const record = applied as unknown as Record<string, unknown>;
   for (const key of Object.keys(raw)) {
-    if (!KNOWN_KEYS.has(key) || key === "order" || key === "toc") continue;
+    if (!KNOWN_KEYS.has(key) || key === "order" || key === "toc" || key === "paperRole") continue;
     (values as Record<string, unknown>)[key] = record[key];
   }
   return values;

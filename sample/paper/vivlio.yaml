@@ -1,0 +1,25 @@
+title: 連続欠測を含む周期時系列の補間法比較
+subtitle: 合成信号による再現可能な数値実験
+# 組版検証用の模擬論文。実在する研究者・機関の著者表示ではありません。
+author: Vivlio サンプル編集部
+publisher: 組版検証用資料
+lang: ja
+theme: paper
+writingMode: horizontal-tb
+size: A4
+columns: 1
+charsPerLine: null
+linesPerPage: null
+baseFontSize: 10pt
+startSide: any
+footnote: gcpm
+highlight: mark
+autoTcy: false
+pageNumbering: roman-then-arabic
+tocDepth: 2
+includeToc: false
+sections:
+  titlePage: auto
+  toc: auto
+  colophon: off
+# 追加CSSは使用しない。標準paperの課題はindex.mdに記録する。

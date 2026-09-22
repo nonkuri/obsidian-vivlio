@@ -1,0 +1,157 @@
+/* Vivlio — papers and reports. Keep the upstream academic typography;
+ * src/build/paper.ts materializes numbering and references. Adapt the generated book
+ * sections and page furniture to Vivlio. Paper size and direction remain
+ * book settings (the paper preset selects A4 and horizontal writing).
+ */
+@import url(../@vivliostyle/theme-academic/theme.css);
+
+:root {
+  --vs-writing-mode: horizontal-tb;
+  --vs--html-font-size: 10pt;
+  --vs--figure-display: block;
+  --vs--figcaption-margin-block: 0.4rem 0;
+  --vs-page--mbox-content-top-left: none;
+  --vs-page--mbox-content-bottom-center: var(--vivlio-folio);
+  --vivlio-folio: counter(page);
+  --vs--table-break-inside: auto;
+}
+
+/* Number only the manuscript, never generated or author-supplied front matter. */
+:root:not(.vivlio-body) {
+  --vs-section--marker-display: none;
+}
+
+:root.vivlio-body {
+  --vs-page--mbox-content-top-left: var(--vivlio-book-title, env(pub-title));
+}
+
+:root.vivlio-back-cover {
+  --vs-page--mbox-visibility: hidden;
+  --vivlio-folio: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  break-after: avoid;
+}
+
+/* Let long figures fragment and constrain images to the available text area,
+ * including when the writer selects a smaller sheet than A4. */
+figure {
+  text-align: center;
+}
+
+figure img {
+  display: block;
+  margin-inline: auto;
+  max-inline-size: min(100%, var(--vs-theme--figure-img-max-width));
+  height: auto;
+}
+
+thead { display: table-header-group; }
+tr { break-inside: avoid; }
+
+.titlepage, .halftitle {
+  text-align: center;
+  padding-block-start: 15vh;
+}
+
+.titlepage p, .halftitle p {
+  text-indent: 0;
+  text-align: inherit;
+}
+
+.titlepage .title, .halftitle .title {
+  font-family: var(--vs--heading-font-family);
+  font-size: 1.8rem;
+  font-weight: bold;
+  line-height: 1.5;
+  margin-block: 0;
+  text-wrap: balance;
+}
+
+.halftitle .title { font-size: 1.2rem; }
+.titlepage .series { font-size: 0.9rem; margin-block: 0 1.5rem; }
+.titlepage .subtitle { font-size: 1.1rem; margin-block: 1.5rem 0; }
+.titlepage .imprint { margin-block-start: 5rem; }
+.titlepage .author, .titlepage .translator { margin-block: 0.5rem; }
+.titlepage .role { font-size: 0.8em; margin-inline-end: 0.7em; }
+.titlepage .publisher { margin-block-start: 2rem; }
+
+[role='doc-colophon'] {
+  padding-block-start: 15vh;
+  font-size: 0.9rem;
+}
+
+.colophon {
+  border-block-start: 1px solid #999;
+  padding-block-start: 1rem;
+}
+
+.colophon-title { font-weight: bold; font-size: 1.1em; margin-block: 0 1rem; }
+.colophon-series { font-size: 0.9em; }
+.colophon-rows { margin: 0; }
+.colophon-group + .colophon-group { margin-block-start: 1rem; }
+.colophon-row { display: flex; gap: 1em; margin-block: 0.3rem; }
+.colophon-row dt { flex: 0 0 7.5em; font-weight: normal; }
+.colophon-row dd { margin-inline-start: 0; overflow-wrap: anywhere; }
+.colophon-detail dd { margin-inline-start: 8.5em; }
+.colophon-line { margin-block: 0.3rem; }
+
+/* A contents chapter may span pages; keep only its own link together. */
+:is(#toc, [role='doc-toc']) li { break-inside: auto; }
+:is(#toc, [role='doc-toc']) li > a { break-inside: avoid; }
+
+/* Paper numbering is materialized by the book builder, including in EPUB. */
+:root.vivlio-paper {
+  --vs-section--marker-display: none;
+  --vs-crossref--marker-display: none;
+  --vs-theme--figure-img-max-width: 100%;
+  --vs-theme--figure-img-max-height: none;
+}
+.vivlio-paper-ref::before { content: none !important; }
+.vivlio-paper-manuscript { break-before: auto; break-after: auto; }
+.vivlio-paper h1 { font-size: 1.5rem; text-align: start; margin-block: 1.8rem 0.8rem; }
+.vivlio-paper h2 { font-size: 1.2rem; margin-block: 1.4rem 0.6rem; }
+.vivlio-paper h3 { font-size: 1.05rem; margin-block: 1rem 0.4rem; }
+.vivlio-paper p { text-align: start; }
+.vivlio-paper :is(h1,h2,h3,h4,h5,h6) { break-after: avoid; }
+.vivlio-paper-equation-intro { break-after: avoid; }
+.vivlio-paper-equation { break-inside: avoid; }
+.vivlio-paper figure { margin-block: 1.2rem; text-align: start; }
+/* Page floats let prose fill the space left when a complete figure moves to
+ * the next page. Keep figures in order and flush them before back matter.
+ * Ordinary browsers/EPUB readers ignore the unsupported page-float values. */
+.vivlio-paper .vivlio-paper-figure {
+  break-inside: avoid;
+  float-reference: page;
+  float: top;
+  clear: both;
+  width: 100%;
+}
+.vivlio-paper [data-paper-role='references'],
+.vivlio-paper [data-paper-role='appendix'] { clear: page; }
+.vivlio-paper figure img {
+  max-width: 100%; max-inline-size: 100%; max-height: none;
+  height: auto; padding: 0; box-sizing: content-box;
+}
+.vivlio-paper figcaption { text-align: start; font-size: 0.9rem; line-height: 1.5; }
+.vivlio-paper figure.tbl { break-inside: auto; }
+.vivlio-paper figure.tbl.vivlio-paper-short-table,
+.vivlio-paper table.vivlio-paper-short-table { break-inside: avoid; }
+.vivlio-paper table { width: 100%; font-size: 0.9rem; line-height: 1.5; border-block-start: 0; }
+.vivlio-paper thead tr:not(.vivlio-paper-table-caption) th { border-block-start: 1px solid; }
+.vivlio-paper :is(th,td) { padding: 0.3em 0.6em; vertical-align: top; }
+.vivlio-paper td { font-variant-numeric: tabular-nums; }
+.vivlio-paper thead { display: table-header-group; }
+.vivlio-paper .vivlio-paper-table-caption th {
+  text-align: start; font-weight: normal; border: 0; padding: 0 0 0.6em;
+}
+.vivlio-paper-continued { display: none; }
+.vivlio-paper table::nth-fragment(n+2) .vivlio-paper-continued { display: inline; }
+.vivlio-paper .table-note { text-indent: 0; font-size: 0.85rem; text-align: start; }
+.vivlio-paper [data-paper-role='references'] { text-align: start; overflow-wrap: anywhere; }
+.vivlio-paper [data-paper-role='references'] :is(p,li) { text-align: start; }
+.vivlio-paper [data-paper-role='references'] a[href] { counter-increment: none; }
+.vivlio-paper [data-paper-role='references'] a[href]::before,
+.vivlio-paper [data-paper-role='references'] a[href]::after { content: none; float: none; }
+.vivlio-paper code { overflow-wrap: anywhere; }

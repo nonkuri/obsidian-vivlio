@@ -103,7 +103,7 @@ export function buildTocEntries(
       if (chapter.slot && PRINT_ONLY_OMITS.has(chapter.slot)) continue;
     }
 
-    const headings = chapter.file ? (context.headings.get(chapter.file.path) ?? []) : [];
+    const headings = chapter.tocHeadings ?? (chapter.file ? (context.headings.get(chapter.file.path) ?? []) : []);
     const wanted = headings.filter(
       (heading) => heading.level <= depth && !isBookTitleHeading(context, heading),
     );

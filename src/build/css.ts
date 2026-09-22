@@ -137,10 +137,14 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
  * horizontal gap are different design decisions.
  */
 function columnFlowCss(config: BookConfig): string {
-  if (explicitColumnCount(config) === null) return "";
+  const columns = explicitColumnCount(config);
+  if (columns === null) return "";
+  // A single-column multicol container can place text after a fragmented
+  // table in an overflow column off the page. Use ordinary block flow for
+  // one column; this also overrides a theme's own multi-column layout.
   return `
 :root.vivlio-body body {
-  column-count: var(--vs-theme--num-of-column);
+  column-count: ${columns === 1 ? "auto" : "var(--vs-theme--num-of-column)"};
   column-fill: auto;
 }`.trim();
 }

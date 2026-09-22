@@ -25,6 +25,8 @@
 
 入力原稿と PDF / EPUB をダウンロードできます。
 
+- [論文・レポート（Vivlio 0.14.0）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.14.0/vivlio-sample-paper-0.14.0.zip) — 原稿7ファイル、図5点、表6点、再現用データ・コード、実機確認済み15ページのPDF。通し採番と図のページフロート、長表の分割を確認できる例
+
 - [芥川龍之介短編集（Vivlio 0.10.1）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.10.1/vivlio-sample-akutagawa-0.10.1.zip) — 同じ Markdown 原稿と複数の YAML から A5 縦二段組、トンボ・塗り足し付き入稿用、四六判、文庫版、EPUB を作り分けた例
 - [The Adventures of Sherlock Holmes](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) — Vault 内の独自 CSS で英語小説を組版した例
 
