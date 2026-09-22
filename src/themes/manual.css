@@ -28,6 +28,18 @@
    anything is served. */
 @import url(../@vivliostyle/theme-techbook/theme.css);
 
+/* Title and contents start on rectos, with a blank verso when needed.
+   Inner blocks make the break effective across spine documents. */
+:where(html.vivlio-vertical) .titlepage > :first-child,
+:where(html.vivlio-vertical) #toc > :first-child {
+  break-before: left;
+}
+
+:where(html.vivlio-horizontal) .titlepage > :first-child,
+:where(html.vivlio-horizontal) #toc > :first-child {
+  break-before: right;
+}
+
 :root {
   /* One ink below the body's, for the parts of a book that annotate rather
      than speak: a series name, a role, an address, a label. */
