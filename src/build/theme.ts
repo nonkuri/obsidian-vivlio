@@ -1,6 +1,12 @@
 import { normalizePath, type App, type TFile } from "obsidian";
 import { warn, type BuildContext } from "./context";
-import { SELECTABLE_THEMES, bundledThemePath, themeAssets } from "../vendor/assets";
+import {
+  BUNDLED_THEME_GRIDS,
+  SELECTABLE_THEMES,
+  bundledThemePath,
+  themeAssets,
+  type ThemeGrid,
+} from "../vendor/assets";
 import {
   assetFileName,
   decodeUrlPath,
@@ -67,13 +73,24 @@ export async function resolveVaultTheme(context: BuildContext): Promise<string |
     }
     return null;
   }
-  return flattenVaultTheme(context, file.path, new Set());
+  const inherited: { grid: ThemeGrid | null } = { grid: null };
+  const css = await flattenVaultTheme(context, file.path, new Set(), inherited);
+  // A vault path is not a key in BUNDLED_THEME_GRIDS. Carry the imported
+  // theme's defaults into the build configuration before sizing the text,
+  // images and columns. This changes no saved YAML or explicit book values.
+  if (inherited.grid) {
+    context.config.charsPerLine ||= inherited.grid.chars;
+    context.config.linesPerPage ||= inherited.grid.lines;
+    context.config.columns ??= inherited.grid.columns;
+  }
+  return css;
 }
 
 async function flattenVaultTheme(
   context: BuildContext,
   path: string,
   seen: Set<string>,
+  inherited: { grid: ThemeGrid | null },
 ): Promise<string> {
   if (seen.has(path)) return "";
   seen.add(path);
@@ -95,7 +112,7 @@ async function flattenVaultTheme(
   const resolved = new Map<string, string>();
   for (const target of targets) {
     if (resolved.has(target)) continue;
-    resolved.set(target, await inlineImport(context, dirname(path), target, seen));
+    resolved.set(target, await inlineImport(context, dirname(path), target, seen, inherited));
   }
 
   // Resolve URLs before inserting imported text. Each stylesheet's relative
@@ -113,15 +130,20 @@ async function inlineImport(
   from: string,
   target: string,
   seen: Set<string>,
+  inherited: { grid: ThemeGrid | null },
 ): Promise<string> {
   const bundled = BUNDLED_SCHEME.exec(target);
-  if (bundled) return flattenBundledTheme(bundledThemePath(bundled[1].trim()) ?? "");
+  if (bundled) {
+    const name = bundled[1].trim();
+    inherited.grid = BUNDLED_THEME_GRIDS[name] ?? null;
+    return flattenBundledTheme(bundledThemePath(name) ?? "");
+  }
 
   // A remote stylesheet is left where it is: the preview can fetch it, and an
   // EPUB may not carry it anyway.
   if (/^[a-z]+:/i.test(target)) return `@import url("${target}");`;
 
-  return flattenVaultTheme(context, joinPosix(from, target), seen);
+  return flattenVaultTheme(context, joinPosix(from, target), seen, inherited);
 }
 
 /** Register and rewrite local files referenced by one Vault stylesheet. */

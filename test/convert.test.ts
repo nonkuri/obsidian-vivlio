@@ -1553,6 +1553,35 @@ async function main(): Promise<void> {
   own.config.theme = "themes/mine.css";
 
   const resolvedTheme = await resolveVaultTheme(own);
+  // Imported grid defaults must participate in the same sizing pipeline as
+  // directly selected themes, including nested imports and partial overrides.
+  sources["themes/nested.css"] = '@import "./grid.css";';
+  sources["themes/grid.css"] = '@import "vivlio:novel-2col";';
+  sources["themes/plain.css"] = '@import "vivlio:base";';
+  for (const name of ["essay", "haiku", "tanka", "bunko"]) {
+    sources[`themes/${name}.css`] = `@import "vivlio:${name}";`;
+  }
+  for (const [theme, bundled, overrides] of [
+    ["themes/mine.css", "novel", {}],
+    ["themes/nested.css", "novel-2col", {}],
+    ["themes/essay.css", "essay", {}],
+    ["themes/haiku.css", "haiku", {}],
+    ["themes/tanka.css", "tanka", {}],
+    ["themes/bunko.css", "bunko", {}],
+    ["themes/nested.css", "novel-2col", { charsPerLine: 30, columns: 1 }],
+    ["themes/mine.css", "novel", { linesPerPage: 20, baseFontSize: "3mm" }],
+    ["themes/plain.css", "base", {}],
+  ] as const) {
+    const custom = makeContext({ app: own.app });
+    const direct = makeContext();
+    Object.assign(custom.config, { theme, size: "四六判", charsPerLine: null, linesPerPage: null, columns: null, ...overrides });
+    Object.assign(direct.config, { theme: bundled, size: "四六判", charsPerLine: null, linesPerPage: null, columns: null, ...overrides });
+    await resolveVaultTheme(custom);
+    const sizing = (context: BuildContext) => bookStylesheet(context, "theme.css")
+      .match(/--(?:vs--html-font-size|vs-theme--num-of-(?:character|line|column)): [^;]+;/g)?.join("\n") ?? "";
+    checks.push(check(`imported grid matches ${bundled}: ${JSON.stringify(overrides)}`, sizing(custom) === sizing(direct), sizing(custom)));
+    checks.push(check("theme resolution preserves the custom theme path", custom.config.theme === theme));
+  }
   own.workspace.putText(THEME_STYLESHEET, resolvedTheme ?? "");
   own.workspace.putText(BOOK_STYLESHEET, bookStylesheet(own, themeUrlFor(own)));
   const themeAssets = [...own.workspace.assets.values()];

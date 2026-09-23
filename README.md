@@ -357,8 +357,6 @@ can start from a bundled one:
 @import url("vivlio:novel");
 
 :root {
-  --vs-novel--chars-per-line: 42;
-  --vs-novel--lines-per-page: 17;
   --vs-novel--boten-font-size: 0.32rem;
   --vs-novel--secondary-ink: #4a4a4a;
 }
@@ -370,6 +368,13 @@ can start from a bundled one:
 # vivlio.yaml
 theme: 装丁/私の本.css
 ```
+
+Since 0.17.3, importing `novel`, `novel-2col`, `essay`, `haiku`, `tanka` or
+`bunko` inherits its default character grid for automatic font sizing. You
+can leave `charsPerLine`, `linesPerPage` and `columns` unset. To change the
+grid, set these book options; an explicit `baseFontSize` takes precedence.
+The [chapter-title CSS sample](sample/novel-title-page.css) puts each chapter
+title on a separate left page and starts its text on the following left page.
 
 The theme picker offers the eight themes built for this plugin — `novel`, for a
 novel set vertically, `novel-2col`, for one set vertically in two columns,

@@ -1,0 +1,47 @@
+/*
+ * novel の章扉サンプル（短編集では各短編の扉）。
+ * このファイルの内容を Vault の themes/novel-title-page.css に保存し、
+ * 本の vivlio.yaml に次のように指定する。
+ *
+ * theme: themes/novel-title-page.css
+ * writingMode: vertical-rl
+ * startSide: any
+ *
+ * 字数・行数は省略できる。novel の既定値を継承し、判型に合わせて自動計算する。
+ * size は文庫・四六判・A5など任意の判型、または独自寸法を指定できる。
+ * baseFontSize は空欄／省略にして自動計算を使う。縦組み・一段組用。
+ *
+ * 章／短編のタイトルを見出しとして書くこと。
+ * 複数ノートの本なら各ノートの # 見出し、単独ノートの本なら
+ * 書名の # 見出しの下に置く各章の ## 見出しが対象になる。
+ */
+@import url("vivlio:novel");
+
+/* 章扉の前後だけを左ページへ送る。間には本文のない右ページを挟む。 */
+:root.vivlio-body .vivlio-chapter-title {
+  page: novel-chapter-title;
+  break-before: left;
+  break-after: left;
+
+  /* 改ページを効かせるため見出しを通常のブロックに保つ。 */
+  display: block;
+  box-sizing: border-box;
+  break-inside: avoid;
+  margin: 0;
+  /* 縦組みの左右方向へ、1行分の見出しを中央に置く。 */
+  /* 後ろ半分を padding で埋めない。折り返したタイトルの幅を確保し、
+     扉を独立させる処理は break-after に任せる。 */
+  padding-block: calc((var(--vs-novel--block-extent) - 2.8rem) / 2) 0;
+  padding-inline: 0;
+  text-indent: 0;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: normal;
+  line-height: 2;
+  letter-spacing: 0.12em;
+}
+
+/* 扉には柱とノンブルを刷らない。本文ページは novel の設定に戻る。 */
+@page novel-chapter-title {
+  --vs-page--mbox-visibility: hidden;
+}

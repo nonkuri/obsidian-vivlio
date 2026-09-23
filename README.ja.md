@@ -273,8 +273,6 @@ linesPerPage: 17   # 1 段の行数
 @import url("vivlio:novel");
 
 :root {
-  --vs-novel--chars-per-line: 42;
-  --vs-novel--lines-per-page: 17;
   --vs-novel--boten-font-size: 0.32rem;
   --vs-novel--secondary-ink: #4a4a4a;
 }
@@ -286,6 +284,8 @@ linesPerPage: 17   # 1 段の行数
 # vivlio.yaml
 theme: 装丁/私の本.css
 ```
+
+0.17.3以降では `novel`・`novel-2col`・`essay`・`haiku`・`tanka`・`bunko` の読み込み元の既定グリッドを引き継ぎ、判型に応じて文字サイズを自動計算します。`charsPerLine`・`linesPerPage`・`columns` は省略できます。字数・行数・段数を変える場合は本設定で指定してください。`baseFontSize` を明示した場合はその値が優先されます。[章扉サンプルCSS](sample/novel-title-page.css) を使うと、各章タイトルとその本文開始を、それぞれ独立した左ページにできます。
 
 テーマの選択欄には、このプラグインのために作られた 8 つのテーマ —— `novel`（小説を縦組みで）、`essay`（一般書・エッセイを縦組みで）、`haiku`（句集）、`tanka`（歌集）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）、`paper`（論文・レポートを横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
 

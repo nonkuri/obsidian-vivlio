@@ -214,7 +214,9 @@ CSS 自体は本全体へ読み込まれますが、上の規則は `class: abou
 | `--vs--h1-margin-block` | `0 4rem` | H1 前後の空き |
 | `--vs-page--mbox-font-family` | 本文を継承 | 柱・ノンブルのフォント |
 
-`charsPerLine` と `linesPerPage` が本に設定されている場合、Vivlio は `--vs-theme--num-of-character` と `--vs-theme--num-of-line` を生成します。`columns` を明示した場合は、グリッドの有無にかかわらず `--vs-theme--num-of-column` を生成し、本文の `body` をその段数へ分割します。`columns: null` ならテーマ自身の段組規則を変更しません。テーマ側の `--vs-novel--chars-per-line` などを変えても、本設定の値が優先される点に注意してください。
+`charsPerLine` と `linesPerPage` が本に設定されている場合、Vivlio は `--vs-theme--num-of-character` と `--vs-theme--num-of-line` を生成します。0.17.3以降では、自作CSSが `novel`・`novel-2col`・`essay`・`haiku`・`tanka`・`bunko` を読み込む場合も、未指定の字数・行数・段数を読み込み元の既定値で補い、判型に応じて文字サイズを自動計算します。別のCSSを経由した読み込みも対象です。本設定をファイルへ書き戻すことはありません。
+
+`columns` を明示した場合、または読み込み元の既定段数を補った場合は、`--vs-theme--num-of-column` を生成し、本文の `body` をその段数へ分割します。それ以外の `columns: null` はテーマ自身の段組規則を変更しません。字数・行数・段数の変更には本設定を使ってください。生成された設定が `--vs-novel--chars-per-line` などのCSS側の既定値より優先されます。任意のCSS式を解析してグリッドを推定する機能ではありません。`baseFontSize` を明示した場合は、自動計算よりその値が優先されます。
 
 ## Vivlio が付けるクラスと属性
 
