@@ -44,10 +44,12 @@ The [manual sample](sample/manual/index.md) exercises the updated `manual` theme
 
 ## Samples and CSS customizations
 
-- **Restyle your own manuscript** → [CSS customizations](sample/README.md#cssカスタマイズ): standalone CSS with setup instructions, starting with chapter title pages.
+- **Restyle your own manuscript** → [CSS customizations](sample/README.md#cssカスタマイズ): chapter title pages and vertical multicolumn layouts with illustrations and callout boxes.
 - **Try a complete book** → [Complete samples](sample/README.md#完成サンプル): manuscripts, YAML settings, required assets and example outputs for fiction, essays, haiku/tanka, manuals and papers.
 
 See the [sample catalog (Japanese)](sample/README.md) for versions and downloads, and the [manual (Japanese)](manual/02-first-book.md#サンプル一式で試す) for setup. Samples using built-in themes need no additional CSS. Follow each sample's README for vault placement and folder names.
+
+The [illustrated vertical layout sample](sample/css/vertical-feature/README.md) includes Markdown, YAML, standalone CSS, original SVG illustrations and a spread preview. It demonstrates four vertical text bands on A4, a panorama occupying the first band, images within individual bands, callout boxes, and running heads and folios on the outer edges of facing pages.
 
 ## Installing
 

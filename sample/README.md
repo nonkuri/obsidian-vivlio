@@ -11,11 +11,12 @@ CSSだけをダウンロードする場合も、本の設定は必要です。�
 
 ## CSSカスタマイズ
 
-専用の原稿一式を用意せず、自分の原稿に適用できる作例です。Vivlioの書籍用CSSであり、Obsidianの「CSSスニペット」では設定しません。
+自分の原稿に適用できるCSSの作例です。配置を試せるMarkdown・YAML・画像を同梱した作例もあります。Vivlioの書籍用CSSであり、Obsidianの「CSSスニペット」では設定しません。
 
 | 作例 | できること | 適用条件 | 入手・使い方 |
 |---|---|---|---|
 | 小説の章扉 | 章タイトルを独立した左ページに配置する | `novel`を土台にした縦一段組。章見出しとYAMLの設定が必要 | [使い方・バージョンの注意](css/novel-title-page/README.md) / [CSS](css/novel-title-page/novel-title-page.css) |
+| 図版付きの縦書き段組み | 先頭の横長図版・段内画像・囲みコラム・見開きの柱とノンブル | A4縦四段。先頭図版が一段分を使用。独立CSS、Vivlio 0.17.3で確認 | [使い方・組見本](css/vertical-feature/README.md) / [CSS](css/vertical-feature/vertical-feature.css) / [Markdown原稿](css/vertical-feature/book/01-風の尾根.md) / [設定](css/vertical-feature/book/vivlio.yaml) |
 
 CSSのリンク先で **Raw** を開き、内容を `.css` ファイルとしてVault内へ保存してください。必要な設定は各作例の説明にあります。
 

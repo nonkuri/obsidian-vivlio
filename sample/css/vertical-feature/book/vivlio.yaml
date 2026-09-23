@@ -1,0 +1,22 @@
+# vertical-feature フォルダ全体を Vault の直下へコピーして使用する。
+title: 風の尾根
+author: サンプル編集室
+lang: ja
+theme: vertical-feature/vertical-feature.css
+writingMode: vertical-rl
+size: A4
+columns: 4
+charsPerLine: null
+linesPerPage: null
+baseFontSize: 10pt
+fontFamily: "'Yu Mincho', 'Hiragino Mincho ProN', serif"
+headingFontFamily: "'Yu Gothic', sans-serif"
+startSide: any
+pageNumbering: continuous
+syntax:
+  callout: true
+sections:
+  halfTitle: off
+  titlePage: off
+  toc: off
+  colophon: off

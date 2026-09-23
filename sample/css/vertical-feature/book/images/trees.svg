@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="600" viewBox="0 0 300 600" role="img" aria-labelledby="title">
+  <title id="title">雨上がりの林を描いた縦長の模式図</title>
+  <rect width="300" height="600" fill="#eaf0e9"/>
+  <path d="M0 470Q140 400 300 465V600H0Z" fill="#bdcdc0"/>
+  <path d="M64 70V535M155 25V550M243 85V530" stroke="#526b61" stroke-width="15"/>
+  <path d="M64 260 20 170M64 345 108 250M155 185 105 98M155 330 207 216M243 272 285 176" fill="none" stroke="#526b61" stroke-width="9"/>
+  <path d="M15 120Q50 45 115 115Q84 178 15 120M98 72Q148 4 219 72Q181 137 98 72M193 142Q234 60 294 126Q272 198 193 142" fill="#8fae9d"/>
+  <path d="M114 600Q215 510 160 451" fill="none" stroke="#f7f5e9" stroke-width="27"/>
+  <rect x="3" y="3" width="294" height="594" fill="none" stroke="#526b61" stroke-width="6"/>
+</svg>

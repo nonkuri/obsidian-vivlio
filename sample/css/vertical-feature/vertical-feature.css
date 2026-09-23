@@ -1,0 +1,210 @@
+/*
+ * 縦書き特集ページ — 独自実装の組版サンプル。
+ * Vivliostyle 専用のページフロートを使う。設定と原稿例は README.md 参照。
+ * 外部フォント・画像・テーマへの依存なし。A4 を基準に設計。
+ */
+:root {
+  --feature-columns: 4;
+  --feature-gap: 7mm;
+  --feature-image-height: 56mm;
+  --feature-inline-image-width: 44mm;
+  --feature-rule: #aaa;
+  writing-mode: vertical-rl;
+  font-family: var(--vs-font-family, "Yu Mincho", "Hiragino Mincho ProN", serif);
+  font-size: var(--vs--html-font-size, 10pt);
+  line-height: 1.8;
+  color: #222;
+  line-break: strict;
+  overflow-wrap: break-word;
+}
+
+@page {
+  size: var(--vs-page--size, A4);
+  margin: 18mm 18mm 17mm;
+}
+
+/* 見開きの小口側へ。ページ番号の奇偶ではなく実際の左右を使う。 */
+@page :left {
+  @top-left {
+    content: var(--vivlio-book-title, "風の尾根");
+    writing-mode: horizontal-tb;
+    font: 8pt sans-serif;
+    color: #666;
+    vertical-align: middle;
+    text-align: left;
+  }
+  @bottom-left {
+    content: counter(page);
+    writing-mode: horizontal-tb;
+    font: 8pt sans-serif;
+    vertical-align: middle;
+    text-align: left;
+  }
+}
+
+@page :right {
+  @top-right {
+    content: var(--vivlio-book-title, "風の尾根");
+    writing-mode: horizontal-tb;
+    font: 8pt sans-serif;
+    color: #666;
+    vertical-align: middle;
+    text-align: right;
+  }
+  @bottom-right {
+    content: counter(page);
+    writing-mode: horizontal-tb;
+    font: 8pt sans-serif;
+    vertical-align: middle;
+    text-align: right;
+  }
+}
+
+body { margin: 0; }
+
+/* 縦書きでは段が上から下に並ぶ。先頭段を図版に使い、本文は下の三段へ。
+ * 続くページは図版がなければ四段。段を手動で区切らず文章を流す。
+ * Vivlio では columns: 4 を指定し、生成CSSの段数とも一致させる。
+ */
+body {
+  column-count: var(--feature-columns);
+  column-gap: var(--feature-gap);
+  column-fill: auto;
+}
+
+/* 本文中の図版は通常の文章の流れに置き、段の高さ以内に収める。
+ * 枠の中では元の縦横比を保持。横長・縦長とも切り抜かない。
+ * 入らない場合は図版全体が次の段へ移る。
+ */
+figure {
+  writing-mode: horizontal-tb;
+  box-sizing: border-box;
+  width: var(--feature-inline-image-width);
+  height: 100%;
+  margin: 0 3mm;
+  padding: 0;
+  break-inside: avoid;
+}
+figure img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}
+/* VFMの自動キャプションは刷らず、代替テキストはimgに残す。 */
+figcaption { display: none; }
+
+/* float-reference は Vivliostyle のページフロート。
+ * column-span では縦組みページの上辺いっぱいに広げられないため使わない。
+ */
+/* 原稿先頭のMarkdown画像をVFMがfigureへ変換する。HTML記法は不要。 */
+body > figure:first-child {
+  float-reference: page;
+  float: top;
+  writing-mode: horizontal-tb;
+  width: 100%;
+  height: var(--feature-image-height);
+  margin: 0 0 var(--feature-gap);
+  padding: 0;
+  break-inside: avoid;
+}
+body > figure:first-child img {
+  display: block;
+  /* Vivlioが付加する画像寸法より、この図版枠の寸法を優先する。 */
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+}
+
+h1, h2, h3 {
+  font-family: var(--vs--heading-font-family, "Yu Gothic", sans-serif);
+  text-indent: 0;
+  text-align: start;
+  break-before: auto;
+  break-after: avoid;
+  break-inside: avoid;
+}
+h1 {
+  margin: 0 0 0 4mm;
+  font-size: 22pt;
+  line-height: 1.5;
+  letter-spacing: .08em;
+}
+/* 題名直後の段落を著者名として扱う。 */
+h1 + p {
+  text-indent: 0;
+  text-align: end;
+  margin: 0 0 0 5mm;
+  font-size: 9pt;
+}
+h2 {
+  margin: 0 5mm 0 3mm;
+  padding-block-start: 2mm;
+  border-block-start: 1.2mm solid var(--feature-rule);
+  font-size: 12pt;
+  line-height: 1.6;
+}
+h3 { margin: 0 3mm; font-size: 11pt; }
+p {
+  margin: 0;
+  text-indent: 1em;
+  text-align: justify;
+  orphans: 2;
+  widows: 2;
+}
+rt { font-size: .5em; }
+.tcy { text-combine-upright: all; }
+
+/* Obsidianコールアウトを縦組みの囲みコラムにする。
+ * 高さ・幅を固定せず、長いコラムは段・ページをまたいで続ける。
+ * 分割された各枠にも余白と罫線を付け、タイトルだけの分離を避ける。
+ */
+.callout {
+  margin-block: 1em;
+  margin-inline: 0;
+  padding: .8em;
+  border: .2mm solid #c2beb4;
+  border-block-start: .8mm solid #8a8578;
+  background: #f5f3ed;
+  font-size: .9rem;
+  line-height: 1.8;
+  break-inside: auto;
+  box-decoration-break: clone;
+}
+.callout > .callout-title {
+  font-family: var(--vs--heading-font-family, "Yu Gothic", sans-serif);
+  font-size: 1em;
+  font-weight: bold;
+  text-indent: 0;
+  text-align: start;
+  margin-block-end: .8em;
+  break-after: avoid;
+  break-inside: avoid;
+}
+.callout > p + p { margin-block-start: .5em; }
+.callout[data-callout="tip"] {
+  border-color: #aebcb5;
+  border-block-start-color: #587267;
+  border-block-start-style: double;
+  background: #f0f4f1;
+}
+
+/* 通常ブラウザー用。印刷ページの再現は Vivliostyle で確認する。
+ * 横スクロールを避け、内容を読むための一段の横書き表示にする。
+ */
+@media screen {
+  :root { writing-mode: horizontal-tb; }
+  body { columns: auto; max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }
+  figure { height: auto; max-width: 100%; margin: 1rem auto; }
+  figure img { height: auto !important; }
+  body > figure:first-child { float: none; height: auto; margin: 0 0 2rem; }
+  body > figure:first-child img { height: auto !important; }
+  h1 { margin: 1rem 0; }
+  h2 { margin: 2rem 0 1rem; padding: 0 0 0 .6em; border: 0; border-left: .25em solid var(--feature-rule); }
+  h1 + p { margin: 0 0 2rem; }
+  p { margin-bottom: 1em; }
+}
