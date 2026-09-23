@@ -4,6 +4,8 @@
 
 この章では、同梱テーマを使って原稿を書く方法を説明します。ルビ・脚注・画像などの共通記法は [原稿の書き方と本の組み立て方](05-writing-and-structure.md)、CSS の変更は [自分でテーマを作ってみる](06-custom-theme.md) を参照してください。
 
+原稿と設定をまとめて試すには[完成サンプル一覧](../sample/README.md#完成サンプル)を参照してください。`essay`、`haiku` / `tanka`、`manual`、`paper` のサンプルは内蔵テーマを使い、追加CSSは不要です。
+
 ## テーマを選ぶ
 
 | テーマ | 主な用途 | 原稿を書くときのポイント |
@@ -124,6 +126,8 @@ sections:
 
 ## novel・novel-2col：日本語小説
 
+判型・段組を比較する完成例は[芥川龍之介短編集](../sample/README.akutagawa.ja.md)を参照してください。
+
 ### 本の設定
 
 縦一段組の例です。
@@ -172,32 +176,7 @@ linesPerPage: 17
 
 ### 章タイトルを独立したページにする
 
-[章扉サンプル CSS](../sample/novel-title-page.css) の内容を、Obsidian の Vault 内に `themes/novel-title-page.css` という名前で保存します。たとえば本を `books/短編集/` に置くなら、ファイルの配置は次のとおりです。
-
-```text
-Vault/
-├─ themes/
-│  └─ novel-title-page.css
-└─ books/
-   └─ 短編集/
-      ├─ vivlio.yaml
-      ├─ 01_最初の短編.md
-      └─ 02_次の短編.md
-```
-
-この `vivlio.yaml` には次のように書きます。Vivlio 0.17.3以降では、字数・行数を省略しても `novel` の既定値を引き継ぎ、判型に応じて文字サイズを自動計算します。
-
-```yaml
-title: 短編集
-theme: themes/novel-title-page.css
-writingMode: vertical-rl
-size: 文庫
-startSide: any
-```
-
-`theme` は **Vault のルートからのパス**です。`vivlio.yaml` のあるフォルダを起点にしません。CSS を別の場所に保存した場合は、`theme` もその場所に合わせます。判型、字数、行数はこの例に合わせる必要はなく、既存の本の設定を使えます。以前の例を使って `startSide: left` と書いた場合は、`startSide: any` に変更してください。左ページ固定はサンプル CSS が章扉だけに適用します。`startSide: left` は通常の `##` 節見出しまで左ページに送ります。
-
-各短編の `#` 見出しが、左右中央にタイトルだけを置いた左ページになります。本文は、本文のない右ページを挟んだ次の左ページから始まります。右ページに印刷される柱・ノンブルは、元の `novel` テーマの設定に従います。一つのノートに本全体を書く場合は、書名を `#`、各章のタイトルを `##` にします。
+[小説の章扉：使い方とCSS](../sample/css/novel-title-page/README.md)を利用できます。`novel` を土台にした縦一段組用で、専用の原稿一式は不要です。各章の見出しを独立した左ページに配置します。保存先・YAML・原稿の最小例・バージョンの注意はリンク先を参照してください。
 
 ### 場面転換と改ページ
 
@@ -214,6 +193,8 @@ startSide: any
 `novel-2col` でも改ページは次のページへの指定です。次の段へ送るための記号ではありません。
 
 ## english-novel：英語小説
+
+本全体の構成例は[Sherlock Holmesサンプル](../sample/README.sherlock.md)を参照してください。これは内蔵テーマだけを選ぶ例ではなく、付属の独自CSS一式を利用する完成サンプルです。
 
 ### 本の設定
 

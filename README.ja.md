@@ -27,24 +27,12 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 | **EPUB 3** | リフロー型。テーマの CSS、表紙、ランドマークを含みます。 |
 | **書き出し前の点検** | 300 dpi を下回る画像、この PC にないフォント、ページと縦横比の合わない表紙を報告します。 |
 
-## サンプル
+## サンプル・カスタマイズ
 
-- [句集・歌集の配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.2/sample/downloads/vivlio-sample-verse-0.17.2.zip) — 原稿・設定、1・2・3作品／頁のPDFとEPUB。[使い方](sample/verse-README.md)。テーマはプラグイン内蔵で、追加CSSは不要です。
+- **自分の原稿の見た目を変えたい** → [CSSカスタマイズ集](sample/README.md#cssカスタマイズ)。章扉などのCSSと使い方を掲載しています。
+- **原稿と設定をまとめて試したい** → [完成サンプル集](sample/README.md#完成サンプル)。小説・エッセイ・句集／歌集・マニュアル・論文の原稿、設定、組見本を一式で入手できます。
 
-- [一般書・エッセイ](sample/essay/index.md) — `essay` テーマ用の随筆集。章・節・引用・箇条書き・図版の組版を確認できます。[利用・検証方法](sample/essay-README.md)。[原稿・PDF・EPUBの配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-essay-0.16.0.zip)（0.16.0以降）。
-
-- [マニュアル・操作ガイド](sample/manual/index.md) — Vivlio 0.15.0以降の `manual` テーマ用。4原稿、模式図2点、設定表、36行のチェックリストで、手順・注意書き・コード・図表参照・改ページを確認できます。[利用・検証方法](sample/manual-README.md)。
-
-入力原稿と出力結果をダウンロードできます。0.17.0以降のサンプルはリポジトリから配布し、プラグインのリリース資産には添付しません。入力原稿を Vault に展開して、設定や CSS を変更しながら試せます。
-
-| サンプル | 内容 | ダウンロード |
-|---|---|---|
-| マニュアル・操作ガイド | 4原稿、模式図2点、設定表、36行の長表。図表参照と注意書きの分割、16ページのPDF・EPUBを収録 | [0.15.0 サンプル](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.15.0/vivlio-sample-manual-0.15.0.zip) |
-| 論文・レポート | 原稿7ファイルの自動採番、図5点のページフロート、表6点と長表の分割。合成データと実機確認済み15ページのPDFを収録 | [0.14.0 サンプル](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.14.0/vivlio-sample-paper-0.14.0.zip) |
-| 芥川龍之介短編集 | 同じ Markdown 原稿と複数の YAML から作成した A5 縦二段組（トンボ・塗り足しあり／なし）、四六判、文庫版の PDF と EPUB | [0.10.1 サンプル（30.1 MiB）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.10.1/vivlio-sample-akutagawa-0.10.1.zip) |
-| The Adventures of Sherlock Holmes | Vault 内の独自 CSS を適用した英語小説の PDF、EPUB、入力原稿 | [0.8.0 sample（2.7 MiB）](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) |
-
-各 ZIP の README に、入力原稿の展開方法、出力との対応、原典とライセンス上の注意を記載しています。サンプル内のフォルダ名は `vivlio.yaml` から参照されているため、まずは名前を変えずに Vault のルートへ展開してください。
+対応バージョンとダウンロードは[サンプル一覧](sample/README.md)、共通の導入手順は[マニュアル](manual/02-first-book.md#サンプル一式で試す)を参照してください。
 
 ## インストール
 

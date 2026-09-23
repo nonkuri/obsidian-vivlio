@@ -42,22 +42,12 @@ The [manual sample](sample/manual/index.md) exercises the updated `manual` theme
 | **EPUB 3** | Reflowable, with the theme's CSS, a cover and landmarks. |
 | **Pre-export checks** | Images that will print below 300 dpi, fonts this machine does not have, a cover whose aspect ratio does not match the page. |
 
-## Samples
+## Samples and CSS customizations
 
-- [Haiku and tanka sample package](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.2/sample/downloads/vivlio-sample-verse-0.17.2.zip) — manuscripts, settings, six PDF layouts and two EPUBs. Requires 0.17.0 or later. Samples are distributed from the repository, separately from plugin release assets.
+- **Restyle your own manuscript** → [CSS customizations](sample/README.md#cssカスタマイズ): standalone CSS with setup instructions, starting with chapter title pages.
+- **Try a complete book** → [Complete samples](sample/README.md#完成サンプル): manuscripts, YAML settings, required assets and example outputs for fiction, essays, haiku/tanka, manuals and papers.
 
-- [Japanese nonfiction and essays](sample/essay/index.md) — a two-chapter sample for the new `essay` theme, with quotations, lists and a captioned figure. [Usage and verification (Japanese)](sample/essay-README.md). [Download manuscript, PDF and EPUB](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-essay-0.16.0.zip) (requires 0.16.0 or later).
-
-Download complete source-and-output examples. Extract the source folder into a vault to experiment with the settings and stylesheets.
-
-| Sample | What it demonstrates | Download |
-|---|---|---|
-| Manual / handbook | Four Japanese source notes, two schematic figures, settings, cross-note references, callouts, a 36-row checklist, a 16-page PDF and EPUB | [0.15.0 sample](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.15.0/vivlio-sample-manual-0.15.0.zip) |
-| Paper / report | Seven source notes with automatic numbering, five floating figures, six tables, synthetic data and a verified 15-page PDF exported from Obsidian | [0.14.0 sample](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.14.0/vivlio-sample-paper-0.14.0.zip) |
-| Akutagawa Ryunosuke short stories | The same Markdown manuscript and multiple YAML configurations exported as two-column A5 PDFs with and without crop marks and bleed, 127 × 188 mm and bunko PDFs, and EPUB | [0.10.1 sample (30.1 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.10.1/vivlio-sample-akutagawa-0.10.1.zip) |
-| *The Adventures of Sherlock Holmes* | An English novel using custom CSS from inside the vault, with PDF, EPUB, and source | [0.8.0 sample (2.7 MiB)](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.8.0/vivlio-sample-sherlock-holmes-0.8.0.zip) |
-
-Each package has a README explaining how to unpack the source, which settings produced each output, and the source-text licensing notes. Keep the source folder's name when first extracting it: `vivlio.yaml` refers to that path.
+See the [sample catalog (Japanese)](sample/README.md) for versions and downloads, and the [manual (Japanese)](manual/02-first-book.md#サンプル一式で試す) for setup. Samples using built-in themes need no additional CSS. Follow each sample's README for vault placement and folder names.
 
 ## Installing
 
