@@ -34,7 +34,7 @@ Markdown ノートやフォルダからプレビュー・書き出しを始め�
 
 パスは Windows でも `/` で書くことを推奨します。`theme`、`cover`、`backCover`、`coverPage`、`sections.*`、Vault 内の `embedFonts[].src`、Vault 相対の `output` は、`\` で書いた場合も参照時に `/` に正規化します。
 
-`theme` と Vault 内の `embedFonts[].src` は Vault ルートからの相対パスです。`cover`、`backCover`、`coverPage`、`sections.*` は本のフォルダを基準に Obsidian のリンク解決を使います。`output` は Vault 相対パスまたは絶対パスです。区切り文字を変えても、この基準は変わりません。
+`theme` と Vault 内の `embedFonts[].src` は Vault ルートからの相対パスです。`cover`、`backCover`、`coverPage`、`sections.*` は本のフォルダからの相対パスをまず完全一致で確認し、見つからなければVaultルートからの完全一致を確認します。`./`・`../` で始まる指定は本のフォルダ基準のみ、`/` で始まる指定はVaultルート基準のみです。ディレクトリ付きパスは他フォルダの同名ファイルへ曖昧に解決しません。ファイル名だけの指定に限り、完全一致で見つからない場合にObsidianのリンク解決を使います。`output` は Vault 相対パスまたは絶対パスです。区切り文字を変えても、この基準は変わりません。
 
 ```yaml
 theme: themes/my-book.css
@@ -208,7 +208,7 @@ colophonExtra:
 
 | キー | 値・例 | 説明 |
 |---|---|---|
-| `theme` | `novel`、`novel-2col`、`english-novel`、`manual`、`paper`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`novel-2col`（縦組み二段組の小説）、`english-novel`（英語小説）、`manual`（横組みのマニュアル・技術書）、`paper`（論文・レポート）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
+| `theme` | `novel`、`essay`、`novel-2col`、`english-novel`、`manual`、`paper`、`装丁/my.css` | テーマ選択欄に出るのは `novel`（縦組みの小説）、`essay`（縦組みの一般書・エッセイ）、`novel-2col`（縦組み二段組の小説）、`english-novel`（英語小説）、`manual`（横組みのマニュアル・技術書）、`paper`（論文・レポート）、および Vault 内のすべての `.css` です。`bunko`、`techbook`、`academic`、`base` も書けば解決します。 |
 | `writingMode` | `vertical-rl` / `horizontal-tb` | 縦組み / 横組み。 |
 | `size` | `文庫`、`四六判`、`A5`、`6x9`、`128mm 188mm` | 判型。`文庫`・`新書`・`JIS-B6`・`四六判`（127×188mm）・`A5`・`JIS-B5`・`B5`・`A4`・`6x9`（152.4×228.6mm）・`letter`。`文庫` と `A6` は同じ `105mm 148mm` なので、選択欄には `文庫・A6（105×148mm）` として一つだけ出ます。任意の CSS `size` 値も可。 |
 | `charsPerLine` | 数値 / `null` | 1 行の字数（二段組なら 1 段の字詰め）。`linesPerPage` と組で指定します。 |
@@ -222,7 +222,7 @@ colophonExtra:
 | `highlight` | `boten` / `strong` / `mark` / `off` | `==...==` の変換先。 |
 | `botenMark` | `﹅`、`○`、`▲` など任意の文字 | `《《...》》` と傍点モードの `==...==` に使う記号。既定はゴマ点 `﹅`。 |
 | `autoTcy` | 真偽値 | 1〜2 桁の数字を自動正立。 |
-| `imageWidthUnit` | `px` / `percent` / `mm` | `![[画像.png\|300]]` のような単位なし幅の解釈。画像側の `%`、`mm`、`px` が優先。 |
+| `imageWidthUnit` | `px` / `percent` / `mm` | `![[画像.png\|300]]` や `![説明\|300](画像.png)` の単位なし幅の解釈。初期値は `px`。画像側の `%`、`mm`、`px` が優先。`300x200` は常に px。[画像サイズの指定方法](05-writing-and-structure.md#画像)を参照。 |
 
 `columns` は本文の段数です。既定は `null` で、テーマ自身の段数（`novel-2col` は 2、それ以外の同梱テーマは 1）に従います。1 以上の整数を明示するとテーマに関係なく本文へ適用され、`columns: 1` なら `novel-2col` も一段へ戻ります。表紙、扉、目次、奥付は段組にしません。
 
@@ -236,7 +236,7 @@ colophonExtra:
 
 | キー | 値 | 説明 |
 |---|---|---|
-| `cover` | 画像の Vault 相対パス | 一枚画像を表紙に使用。EPUB の表紙画像にもなります。 |
+| `cover` | 本のフォルダ相対、またはVault相対の画像パス | 一枚画像を表紙に使用。EPUB の表紙画像にもなります。 |
 | `coverPage` | Markdown ノートのパス | ノートを表紙ページとして組版。`cover` より優先。 |
 | `coverFit` | `cover` / `contain` | `cover` は全面を埋めて切り抜き、`contain` は全体を収めます。 |
 | `backCover` | 画像のパス | 本の末尾に追加する裏表紙。空なら追加しません。`cover` と同様に本のフォルダを基準に解決します。 |
@@ -422,7 +422,7 @@ syntax:
 
 ```yaml
 # --- 組版 ---
-# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（論文・レポート）| Vault 内の .css ファイルのパス
+# テーマ: novel（縦組みの小説）| essay（縦組みの一般書・エッセイ）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（論文・レポート）| Vault 内の .css ファイルのパス
 # theme: novel
 # 判型: 文庫（A6・105x148mm）| 新書 | JIS-B6 | A5 | 6x9 | ...
 # size: 文庫

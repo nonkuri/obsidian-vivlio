@@ -1,4 +1,5 @@
-import { normalizePath, type TFile } from "obsidian";
+import type { TFile } from "obsidian";
+import { resolveBookFile } from "./bookPaths";
 import { warn, type BuildContext } from "./context";
 import { htmlDocument } from "./document";
 import { escapeHtml } from "./vfm";
@@ -69,10 +70,7 @@ export function planSections(context: BuildContext): SectionPlan[] {
       continue;
     }
 
-    const file = context.app.metadataCache.getFirstLinkpathDest(
-      normalizePath(value),
-      `${context.bookRoot}/`,
-    );
+    const file = resolveBookFile(context.app, context.bookRoot, value, true);
     if (!file) {
       warn(context, { kind: "config", message: `sections.${slot}: ${value} not found` });
       continue;

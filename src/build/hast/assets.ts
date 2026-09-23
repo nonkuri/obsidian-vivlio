@@ -31,6 +31,32 @@ import {
 /** `![[file.ext]]` with the optional `|300` / `|300x200` size suffix. */
 const IMAGE_EMBED = /!\[\[([^\]|#^]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g;
 
+const IMAGE_SIZE_PROPERTY = "dataVivlioImageSize";
+
+/** Separate layout hints before VFM copies image alt into a caption. */
+export function imageSizePlugin() {
+  return (tree: UNode): void => {
+    visit(tree, (node) => {
+      if (node.type !== "image" && node.type !== "imageReference") return;
+      const alt = String(node.alt ?? "");
+      const pipe = alt.lastIndexOf("|");
+      if (pipe === -1) return;
+      const suffix = alt.slice(pipe + 1);
+      const size = parseSize(suffix);
+      if (size.width === null && !size.bleed) return;
+      node.alt = alt.slice(0, pipe);
+      const data = (node.data ?? {}) as Record<string, unknown>;
+      node.data = {
+        ...data,
+        hProperties: {
+          ...(data.hProperties as Record<string, unknown> | undefined),
+          [IMAGE_SIZE_PROPERTY]: suffix,
+        },
+      };
+    });
+  };
+}
+
 interface SizeHint {
   width: number | null;
   height: number | null;
@@ -114,6 +140,8 @@ function rewriteImageElements(
   visit(tree, (node) => {
     if (!isElement(node, "img")) return;
     const image = node;
+    const sizeSuffix = image.properties[IMAGE_SIZE_PROPERTY];
+    delete image.properties[IMAGE_SIZE_PROPERTY];
     const rawSrc = String(image.properties.src ?? "");
     if (!rawSrc) return;
 
@@ -127,8 +155,8 @@ function rewriteImageElements(
     // Obsidian puts the size in the alt text: ![alt|300](fig.png)
     const alt = String(image.properties.alt ?? "");
     const pipe = alt.lastIndexOf("|");
-    let size: SizeHint = emptySizeHint();
-    if (pipe !== -1) {
+    let size: SizeHint = typeof sizeSuffix === "string" ? parseSize(sizeSuffix) : emptySizeHint();
+    if (sizeSuffix === undefined && pipe !== -1) {
       const parsed = parseSize(alt.slice(pipe + 1));
       if (parsed.width !== null || parsed.bleed) {
         size = parsed;

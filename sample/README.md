@@ -4,6 +4,8 @@ This directory is the local staging area for the sample packages linked from the
 
 Published asset names:
 
+- [vivlio-sample-essay-0.16.0.zip](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.16.0/vivlio-sample-essay-0.16.0.zip) — two humorous Japanese essays, cover and diagram, YAML configuration, a verified 16-page PDF and an EPUB. Requires Vivlio 0.16.0 or later.
+
 - `vivlio-sample-manual-0.15.0.zip` — four Japanese manuscript notes, two schematic SVG figures, settings, a 36-row checklist, a verified 16-page A5 PDF and an EPUB. Includes setup instructions and source licensing.
   - SHA-256: `ff21f5385defb1cc7f3a84bb55c87307994d887fc6f4891b3b18a78af526ae2d`
 
@@ -18,6 +20,10 @@ Published asset names:
 The source archives deliberately retain the top-level folder names `A5二段組` and `English Novel Sample`. Their `vivlio.yaml` files contain vault-relative paths beginning with those names. Repackage without renaming any existing entry, and use UTF-8 ZIP entry names.
 
 The package-specific README source files in this directory are added to the corresponding outer ZIP before upload.
+
+## 一般書・エッセイ
+
+一般書・エッセイ用のソースサンプルは [essay/](essay/index.md) にあります。[利用・検証方法](essay-README.md)を参照してください。
 
 ## マニュアル・操作ガイド
 

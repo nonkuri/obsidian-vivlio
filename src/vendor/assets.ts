@@ -24,6 +24,7 @@ export type { EmbeddedAsset };
  */
 export const BUNDLED_THEMES: Record<string, string> = {
   novel: "vivlio/novel.css",
+  essay: "vivlio/essay.css",
   "novel-2col": "vivlio/novel-2col.css",
   "english-novel": "vivlio/english-novel.css",
   manual: "vivlio/manual.css",
@@ -39,7 +40,7 @@ export const BUNDLED_THEMES: Record<string, string> = {
  *
  * These are the ones built for this plugin, and the ones its own page
  * geometry, folio placement and heading spacing are tuned against - `novel`
- * and `novel-2col` vertically, `english-novel`, `manual` and `paper` horizontally. The
+ * and `novel-2col` plus `essay` vertically, `english-novel`, `manual` and `paper` horizontally. The
  * upstream themes
  * still resolve - a book that names one gets it - but offering them in a
  * picker would promise a result nobody has checked, so they are left out
@@ -48,6 +49,7 @@ export const BUNDLED_THEMES: Record<string, string> = {
 export const SELECTABLE_THEMES: string[] = [
   "novel",
   "novel-2col",
+  "essay",
   "english-novel",
   "manual",
   "paper",
@@ -82,6 +84,7 @@ export interface ThemeGrid {
  */
 export const BUNDLED_THEME_GRIDS: Record<string, ThemeGrid> = {
   novel: { chars: 40, lines: 16, columns: 1 },
+  essay: { chars: 40, lines: 16, columns: 1 },
   "novel-2col": { chars: 23, lines: 17, columns: 2 },
   bunko: { chars: 39, lines: 15, columns: 1 },
 };

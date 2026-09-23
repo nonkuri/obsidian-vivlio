@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="77" viewBox="0 0 420 180">
+  <rect x="2" y="2" width="416" height="176" rx="22" fill="#fff3c4"/>
+  <g stroke="#23354b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="67" cy="75" r="34" fill="#f47c68"/>
+    <path d="M67 53 V75 L84 84 M40 35 L28 45 M94 35 L106 45" fill="none"/>
+    <path d="M116 76 H143 M134 67 L143 76 L134 85" fill="none"/>
+    <rect x="162" y="60" width="93" height="48" rx="8" fill="#68c6be"/>
+    <path d="M171 98 V112 M247 98 V112 M176 60 V44 H239 V60" fill="none"/>
+    <rect x="180" y="48" width="24" height="15" rx="5" fill="white"/>
+    <path d="M269 76 H296 M287 67 L296 76 L287 85" fill="none"/>
+    <path d="M317 49 H371 V91 Q344 118 317 91 Z" fill="white"/>
+    <path d="M373 59 Q399 56 393 76 Q389 87 373 82 M331 31 V20 M350 31 V20" fill="none"/>
+  </g>
+  <g font-family="sans-serif" font-weight="bold" font-size="19" text-anchor="middle" fill="#23354b">
+    <text x="67" y="149">提案</text><text x="208" y="149">継続審議</text><text x="350" y="149">可決！</text>
+  </g>
+</svg>

@@ -27,6 +27,8 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 
 ## サンプル
 
+- [一般書・エッセイ](sample/essay/index.md) — `essay` テーマ用の随筆集。章・節・引用・箇条書き・図版の組版を確認できます。[利用・検証方法](sample/essay-README.md)。[原稿・PDF・EPUBの配布ZIP](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.16.0/vivlio-sample-essay-0.16.0.zip)（0.16.0以降）。
+
 - [マニュアル・操作ガイド](sample/manual/index.md) — Vivlio 0.15.0以降の `manual` テーマ用。4原稿、模式図2点、設定表、36行のチェックリストで、手順・注意書き・コード・図表参照・改ページを確認できます。[利用・検証方法](sample/manual-README.md)。
 
 入力原稿と出力結果をリリースからダウンロードできます。入力原稿を Vault に展開して、設定や CSS を変更しながら試せます。
@@ -113,7 +115,7 @@ Code Space を入れたのにファイルが Vivlio の簡易エディタで開�
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel、novel-2col、english-novel、manual、paper、または Vault 内の CSS のパス
+theme: novel              # novel、novel-2col、essay、english-novel、manual、paper、または Vault 内の CSS のパス
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -212,7 +214,7 @@ charsPerLine: 39
 | `> [!任意]` | 囲み罫のコールアウト。種別は何でもよく、`callout-<種別>` として残るのでテーマで差をつけられます |
 | `![[fig.png\|300]]` | 幅を指定して画像を配置。`300`、`300x200`、`60%`、`80mm`、`300px` |
 | `![[fig.png\|bleed]]` | 画像だけの裁ち落としページ。画像を塗り足しの外端まで広げます |
-| `![キャプション](fig.png)` | `<figure>` になり、キャプションが図の下に出ます。`![[…]]` は幅、こちらはキャプション |
+| `![キャプション](fig.png)` | 単独の段落ではキャプション付きの `<figure>`。`![キャプション\|50mm](fig.png)` のように幅も指定でき、サイズ指定はキャプションに表示しません。[指定方法](manual/05-writing-and-structure.md#画像) |
 | `![[ノート]]`、`![[ノート#見出し]]` | そのノートの本文をその場に組み込みます（深さ 3 まで。循環は拒否） |
 | `[[ノート]]`、`[[ノート\|表示名]]` | 本に含まれるノートならリンク、含まれなければプレーンテキスト |
 | `- [ ]` | ☐ / ☑。フォーム部品ではなく文字として描画 |
@@ -281,7 +283,7 @@ linesPerPage: 17   # 1 段の行数
 theme: 装丁/私の本.css
 ```
 
-テーマの選択欄には、このプラグインのために作られた 5 つのテーマ —— `novel`（小説を縦組みで）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）、`paper`（論文・レポートを横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
+テーマの選択欄には、このプラグインのために作られた 6 つのテーマ —— `novel`（小説を縦組みで）、`essay`（一般書・エッセイを縦組みで）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）、`paper`（論文・レポートを横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
 
 ### 論文・レポート
 

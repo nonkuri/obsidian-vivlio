@@ -1,4 +1,4 @@
-import { normalizePath } from "obsidian";
+import { resolveBookFile } from "./bookPaths";
 import { warn, type BuildContext } from "./context";
 import { DOCUMENT_ANCHOR } from "./toc";
 import { htmlDocument } from "./document";
@@ -24,10 +24,7 @@ export function buildCover(context: BuildContext, back = false): CoverResult | n
   const path = back ? config.backCover : config.cover;
   if (!path) return null;
 
-  const file = context.app.metadataCache.getFirstLinkpathDest(
-    normalizePath(path),
-    `${context.bookRoot}/`,
-  );
+  const file = resolveBookFile(context.app, context.bookRoot, path);
   if (!file) {
     warn(context, { kind: "missing-asset", message: path });
     return null;

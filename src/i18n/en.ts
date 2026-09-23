@@ -144,6 +144,7 @@ export const en = {
   "preset.a52col": "A5, vertical, two columns (26 x 19 each)",
   "preset.englishNovel": "English novel (6 × 9 in, horizontal)",
   "preset.manual": "Manual or tech book (A5, horizontal)",
+  "preset.essay": "Japanese nonfiction or essays (Shiroku, vertical)",
   "preset.custom": "Custom",
 
   "settings.heading.general": "General",
@@ -162,7 +163,7 @@ export const en = {
   "settings.defaultPreset.desc": "Starting point for new book configurations.",
   "settings.theme": "Default theme",
   "settings.theme.desc":
-    "Five themes ship with the plugin: novel and novel-2col for Japanese fiction, english-novel for a western trade paperback, manual for a manual or tech book, and paper for an academic paper or report. Put a .css file anywhere in the vault and it joins this list under its own path \u2014 use a vivlio: import to build on a bundled theme rather than from nothing.",
+    "Six themes ship with the plugin: novel and novel-2col for Japanese fiction, essay for Japanese nonfiction and essays, english-novel for a western trade paperback, manual for a manual or tech book, and paper for an academic paper or report. Put a .css file anywhere in the vault and it joins this list under its own path \u2014 use a vivlio: import to build on a bundled theme rather than from nothing.",
   "settings.size": "Default paper size",
   "settings.writingMode": "Default writing mode",
   "settings.writingMode.vertical-rl": "Vertical, read right to left (vertical-rl)",
@@ -372,6 +373,7 @@ export const en = {
   "theme.paper": "paper — an academic paper or report",
   "preset.paper": "Paper / report (A4, horizontal)",
   "theme.manual": "manual — a manual or tech book, set across the page",
+  "theme.essay": "essay — Japanese nonfiction and essays, set vertically",
 
   "book.theme": "Theme",
   "book.size": "Paper size",

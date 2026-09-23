@@ -1639,6 +1639,36 @@ async function main(): Promise<void> {
     );
   }
 
+  // Size hints must be removed before VFM derives both caption and alt.
+  for (const mode of ["preview", "pdf", "epub"] as const) {
+    for (const suffix of ["50mm", "60%", "180px", "180", "180x77"]) {
+      const sized = makeContext({ mode });
+      const result = await convertChapter(sized, sized.chapters[0], chapterOne,
+        `![起床会議|${suffix}](fig.png)`);
+      checks.push(check(`${mode}: ${suffix} sizes the image without leaking into its caption`,
+        /<figcaption[^>]*>起床会議<\/figcaption>/.test(result) &&
+        result.includes('alt="起床会議"') && /<img[^>]*style="[^"]*width:/.test(result) &&
+        !result.includes(`|${suffix}`) && !result.includes("data-vivlio-image-size"), result));
+    }
+  }
+  for (const [label, markdown, expected] of [
+    ["size-only alt creates no caption", "![|180](fig.png)", (s: string) => !s.includes("<figcaption") && s.includes('alt=""')],
+    ["non-size pipe text stays in the caption", "![説明|補足](fig.png)", (s: string) => /<figcaption[^>]*>説明\|補足<\/figcaption>/.test(s)],
+    ["earlier pipes remain caption text", "![説明|補足|180](fig.png)", (s: string) => /<figcaption[^>]*>説明\|補足<\/figcaption>/.test(s)],
+    ["reference images retain their size", "![説明|180][fig]\n\n[fig]: fig.png", (s: string) => s.includes('alt="説明"') && /<img[^>]*style="[^"]*width:/.test(s)],
+    ["handwritten HTML captions stay intact", '<figure><img src="fig.png" alt="説明|180"><figcaption>手書き|180</figcaption></figure>', (s: string) => /<figcaption[^>]*>手書き\|180<\/figcaption>/.test(s)],
+  ] as const) {
+    const ctx = makeContext();
+    const result = await convertChapter(ctx, ctx.chapters[0], chapterOne, markdown);
+    checks.push(check(label, expected(result), result));
+  }
+  const inlineCaption = makeContext();
+  inlineCaption.config.vfm = { parseFigcaptionAsInline: true };
+  const formattedCaption = await convertChapter(inlineCaption, inlineCaption.chapters[0], chapterOne,
+    "![**起床会議**|50mm](fig.png)");
+  checks.push(check("formatted captions keep markup without the size hint",
+    /<figcaption[^>]*><strong>起床会議<\/strong><\/figcaption>/.test(formattedCaption), formattedCaption));
+
   let failed = 0;
   for (const result of checks) {
     if (!result.ok) failed += 1;

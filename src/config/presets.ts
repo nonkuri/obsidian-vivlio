@@ -37,6 +37,25 @@ export interface Preset {
  */
 export const PRESETS: Preset[] = [
   {
+    id: "essay",
+    labelKey: "preset.essay",
+    values: {
+      lang: "ja",
+      theme: "essay",
+      writingMode: "vertical-rl",
+      size: "四六判",
+      charsPerLine: 44,
+      linesPerPage: 17,
+      columns: 1,
+      footnote: "gcpm",
+      highlight: "boten",
+      autoTcy: true,
+      pageNumbering: "continuous",
+      fontFamily: DEFAULT_SERIF_STACK,
+      headingFontFamily: DEFAULT_SERIF_STACK,
+    },
+  },
+  {
     id: "bunko",
     labelKey: "preset.bunko",
     values: {

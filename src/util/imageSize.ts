@@ -95,12 +95,32 @@ function webpSize(bytes: Uint8Array, view: DataView): ImageSize | null {
 /** SVG is vector, but the declared size is still needed for layout. */
 function svgSize(bytes: Uint8Array): ImageSize | null {
   const head = new TextDecoder().decode(bytes.slice(0, 2048));
-  const viewBox = head.match(/viewBox\s*=\s*["']\s*[\d.-]+[ ,]+[\d.-]+[ ,]+([\d.]+)[ ,]+([\d.]+)/i);
-  if (viewBox) return { width: Math.round(Number(viewBox[1])), height: Math.round(Number(viewBox[2])) };
-  const width = head.match(/\bwidth\s*=\s*["']([\d.]+)/i);
-  const height = head.match(/\bheight\s*=\s*["']([\d.]+)/i);
-  if (width && height) return { width: Math.round(Number(width[1])), height: Math.round(Number(height[1])) };
+  const root = head.match(/<svg\b[^>]*>/i)?.[0];
+  if (!root) return null;
+  const attribute = (name: string): string | undefined =>
+    root.match(new RegExp(`\\s${name}\\s*=\\s*["']([^"']*)["']`, "i"))?.[1];
+  // viewBox describes drawing coordinates, not the physical viewport. A
+  // 180px illustration can legitimately use a 420-unit coordinate system.
+  const width = svgLengthPx(attribute("width"));
+  const height = svgLengthPx(attribute("height"));
+  if (width !== null && height !== null) return { width, height };
+  const box = attribute("viewBox")?.trim().split(/[\s,]+/).map(Number);
+  if (box?.length === 4 && box.every(Number.isFinite) && box[2] > 0 && box[3] > 0) {
+    if (width !== null) return { width, height: width * box[3] / box[2] };
+    if (height !== null) return { width: height * box[2] / box[3], height };
+    return { width: box[2], height: box[3] };
+  }
   return null;
+}
+
+/** Only absolute SVG lengths have a context-free pixel size. */
+function svgLengthPx(value: string | undefined): number | null {
+  if (value === undefined) return null;
+  const match = /^\s*(\+?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)\s*(px|in|cm|mm|q|pt|pc)?\s*$/i.exec(value);
+  if (!match) return null;
+  const scales: Record<string, number> = { px: 1, in: 96, cm: 96 / 2.54, mm: 96 / 25.4, q: 96 / 101.6, pt: 96 / 72, pc: 16 };
+  const length = Number(match[1]) * scales[(match[2] || "px").toLowerCase()];
+  return Number.isFinite(length) && length > 0 ? length : null;
 }
 
 const MM_PER_INCH = 25.4;

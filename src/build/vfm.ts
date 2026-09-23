@@ -11,7 +11,7 @@ import { vivlioFrontmatterKeys } from "../config/resolve";
 import { embedPlugin } from "./mdast/embed";
 import { dynamicRenderPlugin } from "./mdast/render";
 import { notationRules, PAGE_BREAK_CLASS } from "./replace/rules";
-import { assetsPlugin } from "./hast/assets";
+import { assetsPlugin, imageSizePlugin } from "./hast/assets";
 import { applyIndentPlugin, readManuscriptIndentPlugin } from "./hast/indent";
 import { linksPlugin } from "./hast/links";
 import { sanitizePlugin } from "./hast/sanitize";
@@ -100,6 +100,7 @@ export async function convertChapter(
           ...(context.config.syntax.dynamic
             ? [dynamicRenderPlugin(context, file.path)]
             : []),
+          imageSizePlugin,
           ...plugins.mdastPlugins,
         ],
         mdastToHastHandlers: plugins.mdastToHastHandlers,

@@ -1029,6 +1029,8 @@ width: 53.55mm; height: auto     ← 60% を、版面幅 89.25mm に対して解
 
 #### (4) VFM の figure / figcaption 変換
 
+Markdown 画像の末尾のサイズ指定（例：`![説明|50mm](fig.png)`）は、VFM がキャプションを生成する前に mdast 段階で分離し、画像の寸法処理へ渡す。`alt` と `figcaption` は説明文だけにする。説明文が空なら `captionlessImagePolicy` に従う。サイズとして解釈できないパイプの後の文字列、キャプションのインライン装飾、手書き HTML の `figcaption` は保持する。
+
 VFM が担当する部分で、frontmatter の `vfm:` にそのまま流せる。
 
 - 画像だけの段落 + `alt` あり → `<figure><img><figcaption>alt</figcaption></figure>`
@@ -2249,3 +2251,10 @@ Phase 0〜2 の全項目と、Phase 3 のうち PDF の栞・メタデータ・�
 - Electron `webContents.printToPDF`: https://www.electronjs.org/docs/latest/api/web-contents
 - 先行実装の参考（Electron 印刷まわり）: https://github.com/l1xnan/obsidian-better-export-pdf
 - Obsidian コミュニティプラグイン一覧: https://github.com/obsidianmd/obsidian-releases/blob/master/community-plugins.json
+
+
+### 一般書・エッセイ向けテーマ `essay`
+
+`essay` は日本語縦組みの一般書・随筆集向けの同梱テーマ。`novel` をimportし、版面・ルビ・脚注・柱・ノンブル・前後付けを共有する。文字グリッドの既定値は40字×16行・一段で、ウィザードの四六判プリセットは44字×17行を指定する。
+
+本文の `.vivlio-chapter-title` のみ改ページし、それ以外の節・小見出しは本文に続ける。引用は字下げと余白で区別し、長い引用・補足は分割を許す。図版は横組みキャプション付きの本文内配置で、自動図番号は出さない。構造変換や採番処理は追加しないため、Vault CSSの `vivlio:essay` importからも同じ装飾を利用できる。初期対象は日本語の縦一段組。詳細は[原稿マニュアル](../manual/05a-theme-writing.md)と[サンプル](../sample/essay-README.md)を参照する。

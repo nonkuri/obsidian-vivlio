@@ -143,6 +143,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "preset.a52col": "A5 縦組み二段組（1段 26字×19行）",
   "preset.englishNovel": "英語小説（6×9インチ・横組み）",
   "preset.manual": "マニュアル・技術書（A5 横組み）",
+  "preset.essay": "一般書・エッセイ（四六判 縦組み）",
   "preset.custom": "カスタム",
 
   "settings.heading.general": "全般",
@@ -161,7 +162,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "settings.defaultPreset.desc": "本の設定を新規に作るときの初期値。",
   "settings.theme": "既定テーマ",
   "settings.theme.desc":
-    "同梱テーマは novel、novel-2col、english-novel、manual、paper の 5 つです。paper は論文・レポート向けです。english-novel は欧米の英語小説向けです。Vault のどこかに .css ファイルを置けば、そのパスでこの一覧に並びます —— 自作テーマは vivlio: 形式の import で同梱テーマを土台にできます。",
+    "同梱テーマは novel、novel-2col、essay、english-novel、manual、paper の 6 つです。essay は縦組みの一般書・エッセイ向けです。paper は論文・レポート向けです。english-novel は欧米の英語小説向けです。Vault のどこかに .css ファイルを置けば、そのパスでこの一覧に並びます —— 自作テーマは vivlio: 形式の import で同梱テーマを土台にできます。",
   "settings.size": "既定用紙サイズ",
   "settings.writingMode": "既定書字方向",
   "settings.writingMode.vertical-rl": "縦組み・右から左へ読み進む（vertical-rl）",
@@ -366,6 +367,7 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "theme.paper": "paper —— 論文・レポートを横組みで",
   "preset.paper": "論文・レポート（A4・横組み）",
   "theme.manual": "manual —— マニュアル・技術書を横組みで",
+  "theme.essay": "essay —— 一般書・エッセイを縦組みで",
 
   "book.theme": "テーマ",
   "book.size": "判型",

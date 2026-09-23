@@ -42,6 +42,8 @@ The [manual sample](sample/manual/index.md) exercises the updated `manual` theme
 
 ## Samples
 
+- [Japanese nonfiction and essays](sample/essay/index.md) — a two-chapter sample for the new `essay` theme, with quotations, lists and a captioned figure. [Usage and verification (Japanese)](sample/essay-README.md). [Download manuscript, PDF and EPUB](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.16.0/vivlio-sample-essay-0.16.0.zip) (requires 0.16.0 or later).
+
 Download complete source-and-output examples. Extract the source folder into a vault to experiment with the settings and stylesheets.
 
 | Sample | What it demonstrates | Download |
@@ -143,7 +145,7 @@ If those files still open in Vivlio's minimal editor after installing Code Space
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel, novel-2col, english-novel, manual or paper, or a CSS path in the vault
+theme: novel              # novel, novel-2col, essay, english-novel, manual or paper, or a CSS path in the vault
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -266,7 +268,7 @@ out. `Vivlio: Add configuration to this note` offers both.
 | an ideographic space starting a line | that paragraph is indented, and the character itself goes |
 | `> [!anything]` | a framed callout. Any type; it survives as `callout-<type>` for a theme to style |
 | `![[fig.png\|300]]` | a picture at a stated width — `300`, `300x200`, `60%`, `80mm`, `300px` |
-| `![caption](fig.png)` | a `<figure>` with the caption under it. The wiki form takes a width, this one a caption |
+| `![caption](fig.png)` | a captioned `<figure>` when placed in its own paragraph. `![caption\|50mm](fig.png)` also sets the width; the size hint is omitted from the caption. [Image sizing (Japanese)](manual/05-writing-and-structure.md#画像) |
 | `![[Note]]`, `![[Note#Heading]]` | the note's text, set in place (three deep; a cycle is refused) |
 | `[[Note]]`, `[[Note\|shown]]` | a link when the note is in the book, plain text when it is not |
 | `- [ ]` | ☐ / ☑, drawn as text rather than as a form control |
@@ -365,9 +367,9 @@ can start from a bundled one:
 theme: 装丁/私の本.css
 ```
 
-The theme picker offers the five themes built for this plugin — `novel`, for a
+The theme picker offers the six themes built for this plugin — `novel`, for a
 novel set vertically, `novel-2col`, for one set vertically in two columns,
-`english-novel`, for a western trade paperback, `manual`, for a manual or
+`essay`, for Japanese nonfiction and essays, `english-novel`, for a western trade paperback, `manual`, for a manual or
 tech book set across the page, and `paper`, for an academic paper or report — followed by **every `.css` file in the vault, listed by its path**. Put
 a stylesheet anywhere in the vault and it is in the list; there is nothing to
 register. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and `vivlio:academic`

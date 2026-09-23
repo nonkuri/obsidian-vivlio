@@ -78,8 +78,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
 
   theme: {
     group: "layout",
-    ja: "テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（横組みの論文・レポート）| Vault 内の .css ファイルのパス",
-    en: "Theme: novel (a vertical novel) | novel-2col (a vertical novel in two columns) | english-novel (an English trade paperback) | manual (a horizontal manual or tech book) | paper (an academic paper or report) | the path of a .css file in the vault",
+    ja: "テーマ: novel（縦組みの小説）| essay（縦組みの一般書・エッセイ）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（横組みの論文・レポート）| Vault 内の .css ファイルのパス",
+    en: "Theme: novel (a vertical novel) | essay (vertical Japanese nonfiction and essays) | novel-2col (a vertical novel in two columns) | english-novel (an English trade paperback) | manual (a horizontal manual or tech book) | paper (an academic paper or report) | the path of a .css file in the vault",
   },
   writingMode: {
     group: "layout",

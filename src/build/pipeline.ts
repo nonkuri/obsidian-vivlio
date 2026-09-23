@@ -1,4 +1,5 @@
 import { TFile, normalizePath, type App, type Component } from "obsidian";
+import { resolveBookFile } from "./bookPaths";
 import { load as loadYaml } from "js-yaml";
 import type { BookConfig, VivlioSettings } from "../config/types";
 import { extractFrontmatterConfig, resolveConfig } from "../config/resolve";
@@ -173,10 +174,10 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
   // that sizes a picture is synchronous and cannot read a file, and the box
   // it has to compute depends on the picture's shape (SPEC 5.8(3)).
   const coverFile = config.cover
-    ? app.metadataCache.getFirstLinkpathDest(normalizePath(config.cover), `${bookRoot}/`)
+    ? resolveBookFile(app, bookRoot, config.cover)
     : null;
   const backCoverFile = config.backCover
-    ? app.metadataCache.getFirstLinkpathDest(normalizePath(config.backCover), `${bookRoot}/`)
+    ? resolveBookFile(app, bookRoot, config.backCover)
     : null;
   context.imageSizes = await collectImageSizes(
     app,
@@ -250,10 +251,7 @@ function planChapters(context: BuildContext, notes: TFile[]): Chapter[] {
   const includeCover = context.mode === "epub" || config.coverInPdf || context.mode === "preview";
   if (includeCover) {
     if (config.coverPage) {
-      const file = app.metadataCache.getFirstLinkpathDest(
-        normalizePath(config.coverPage),
-        `${context.bookRoot}/`,
-      );
+      const file = resolveBookFile(app, context.bookRoot, config.coverPage, true);
       if (file) {
         context.headings.set(file.path, []);
         chapters.push({

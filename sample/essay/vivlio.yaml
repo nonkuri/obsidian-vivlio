@@ -1,0 +1,22 @@
+title: やる気は充電中
+subtitle: 今日も予定どおりにいかない
+author: Vivlio サンプル編集部
+lang: ja
+theme: essay
+cover: ./images/cover.png
+writingMode: vertical-rl
+size: 四六判
+charsPerLine: 40
+linesPerPage: 16
+columns: 1
+# Pin the sample's typography instead of inheriting the vault's font settings.
+fontFamily: "'游ゴシック Medium', 'Yu Gothic Medium', 'YuGothic', 'Yu Gothic UI', 'Hiragino Sans', 'ヒラギノ角ゴシック', 'Noto Sans CJK JP', 'Noto Sans JP', 'Meiryo', sans-serif"
+headingFontFamily: "'游ゴシック Medium', 'Yu Gothic Medium', 'YuGothic', 'Yu Gothic UI', 'Hiragino Sans', 'ヒラギノ角ゴシック', 'Noto Sans CJK JP', 'Noto Sans JP', 'Meiryo', sans-serif"
+mboxFontFamily: "'游ゴシック Medium', 'Yu Gothic Medium', 'YuGothic', 'Yu Gothic UI', 'Hiragino Sans', 'ヒラギノ角ゴシック', 'Noto Sans CJK JP', 'Noto Sans JP', 'Meiryo', sans-serif"
+footnote: gcpm
+pageNumbering: continuous
+tocDepth: 2
+sections:
+  titlePage: auto
+  toc: auto
+  colophon: auto

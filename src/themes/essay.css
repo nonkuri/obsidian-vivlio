@@ -1,0 +1,185 @@
+/* Japanese general nonfiction and essays.
+ * Reuse the novel's vertical grid, ruby, notes and book furniture. Keep its
+ * 2em body leading in sync with the builder's grid calculation. Only body
+ * documents receive the editorial styles below; front/back matter stay intact.
+ */
+@import url(./novel.css);
+
+:root {
+  --vivlio-essay--secondary-ink: #444;
+  --vivlio-essay--rule-ink: #aaa;
+  --vivlio-essay--quote-inset: 2em;
+  --vivlio-essay--chapter-size: 1.5rem;
+  --vivlio-essay--tip-ink: #285b57;
+  --vivlio-essay--warning-ink: #754529;
+}
+
+/* In a multi-note book H1 names a chapter and H2 names a section. In a
+ * single-note book the builder marks H2 as chapters instead. Use that semantic
+ * marker rather than forcing every H2 onto a new page as novel does.
+ */
+:root.vivlio-body :is(h1, h2, h3, h4, h5, h6) {
+  break-before: auto;
+  break-after: avoid;
+  break-inside: avoid;
+  text-align: start;
+  text-indent: 0;
+  line-height: 2rem;
+  letter-spacing: 0.05em;
+}
+
+:root.vivlio-body h1 {
+  font-size: 1.5rem;
+  margin-block: 0 4rem;
+}
+
+:root.vivlio-body h2 {
+  font-size: 1.2rem;
+  margin-block: 2rem 2rem;
+}
+
+:root.vivlio-body :is(h3, h4, h5, h6) {
+  font-size: 1rem;
+  margin-block: 2rem 0;
+}
+
+:root.vivlio-body .vivlio-chapter-title {
+  break-before: page;
+  font-size: var(--vivlio-essay--chapter-size);
+  margin-block: 0 4rem;
+  padding-inline-start: 2rem;
+  letter-spacing: 0.1em;
+}
+
+/* Quotation size stays on the body grid. Long quotations may fragment. */
+:root.vivlio-body blockquote {
+  margin-block: 2rem;
+  margin-inline: var(--vivlio-essay--quote-inset);
+  padding: 0;
+  border: none;
+  font-size: 1rem;
+  font-style: normal;
+  line-height: 2;
+  break-inside: auto;
+}
+
+:root.vivlio-body blockquote p {
+  text-indent: 0;
+}
+
+:root.vivlio-body blockquote > :last-child {
+  margin-block-end: 0;
+}
+
+/* Optional attribution inside a quote; no special markup is required for
+ * ordinary Markdown quotations. */
+:root.vivlio-body .essay-source {
+  text-align: end;
+  font-size: 0.85rem;
+  color: var(--vivlio-essay--secondary-ink);
+}
+
+/* Exclude endnotes, whose hanging markers are supplied by the base theme. */
+:root.vivlio-body :is(ul, ol):not(.footnotes, [role='doc-endnotes']):not(.footnotes *, [role='doc-endnotes'] *) {
+  margin-block: 2rem;
+  break-inside: auto;
+}
+
+:root.vivlio-body :is(ul, ol) :is(ul, ol) {
+  margin-block: 0;
+}
+
+:root.vivlio-body li > p {
+  text-indent: 0;
+}
+
+/* In-flow figures with horizontal captions, without academic numbering or
+ * page floats. A width hint in the manuscript leaves room for the caption.
+ * Full-bleed pages are owned by the plugin's common stylesheet.
+ */
+:root.vivlio-body figure:not(.vivlio-bleed) {
+  writing-mode: horizontal-tb;
+  margin: 1rem;
+  padding: 0;
+  break-inside: avoid;
+}
+
+:root.vivlio-body figcaption {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0.6em 0 0;
+  padding: 0;
+  color: var(--vivlio-essay--secondary-ink);
+  text-align: start;
+  text-indent: 0;
+}
+
+:root.vivlio-body figure figcaption::before {
+  content: none;
+}
+
+/* An enclosed aside: both entry and exit must be visible in vertical prose.
+ * Clone the frame when fragmented so each page has a complete boundary.
+ */
+:root.vivlio-body .callout {
+  margin-block: 2rem;
+  margin-inline: 1rem;
+  padding: 1rem;
+  border: 0.5pt solid var(--vivlio-essay--rule-ink);
+  border-radius: 0;
+  background: transparent;
+  break-inside: auto;
+  box-decoration-break: clone;
+}
+
+:root.vivlio-body .callout-title {
+  font-family: var(--vs--heading-font-family, var(--vs-font-family));
+  font-weight: bold;
+  text-indent: 0;
+  margin-block-end: 1rem;
+  break-after: avoid;
+}
+
+/* NOTE / INFO and unknown types keep the quiet solid frame above. Changes in
+ * frame style also distinguish the other families in monochrome printing.
+ */
+:root.vivlio-body .callout:is([data-callout='tip'], [data-callout='hint']) {
+  border: 1pt dashed var(--vivlio-essay--tip-ink);
+  border-radius: 0.5rem;
+}
+
+:root.vivlio-body .callout:is([data-callout='tip'], [data-callout='hint']) > .callout-title {
+  color: var(--vivlio-essay--tip-ink);
+}
+
+:root.vivlio-body .callout:is([data-callout='warning'], [data-callout='caution']) {
+  border: 0.5pt solid var(--vivlio-essay--warning-ink);
+  border-block: 3pt double var(--vivlio-essay--warning-ink);
+}
+
+:root.vivlio-body .callout:is([data-callout='warning'], [data-callout='caution']) > .callout-title {
+  color: var(--vivlio-essay--warning-ink);
+}
+
+/* This is a pull quote, not a new style for ordinary Markdown blockquotes.
+ * Preserve upright Japanese text and let long passages fragment normally.
+ */
+:root.vivlio-body .callout:is([data-callout='quote'], [data-callout='cite']) {
+  border: none;
+  border-block: 0.75pt solid var(--vivlio-essay--rule-ink);
+  border-radius: 0;
+  margin-inline: var(--vivlio-essay--quote-inset);
+  padding-inline: 0;
+  padding-block: 1.5rem;
+}
+
+:root.vivlio-body .callout:is([data-callout='quote'], [data-callout='cite']) > .callout-title {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: var(--vivlio-essay--secondary-ink);
+}
+
+:root.vivlio-body .callout:is([data-callout='quote'], [data-callout='cite']) > p {
+  text-indent: 0;
+  text-align: start;
+}
