@@ -1,0 +1,115 @@
+/* Shared short-form poetry layout. The grid also serves ordinary prose and
+ * book matter. Work count and line count are deliberately independent. */
+@import url(./novel.css);
+
+:root {
+  --vs-novel--chars-per-line: 34;
+  --vs-novel--lines-per-page: 12;
+  --vivlio-verse--per-page: 2;
+  --vivlio-verse--inset: 2rem;
+  --vivlio-verse--slot: calc((var(--vs-page--width) - 1px) / var(--vivlio-verse--per-page));
+}
+
+/* Poetry uses the shared vertical title-page placement, with lighter type. */
+.titlepage .title {
+  font-size: 1.8rem;
+  font-weight: normal;
+  letter-spacing: 0.12em;
+}
+.titlepage .subtitle {
+  font-size: 0.85rem;
+  margin-block: 0.75rem 0;
+}
+/* Ordinary headings retain their hierarchy; only chapter titles are half
+ * titles. Sequence headings share a page with their opening works. */
+:root.vivlio-body :is(h1, h2, h3, h4, h5, h6) {
+  break-before: auto;
+  break-after: avoid;
+  text-indent: 0;
+  font-weight: normal;
+  margin-block: 0 1rem;
+  padding-inline-start: 2rem;
+}
+:root.vivlio-body .vivlio-chapter-title {
+  page: verse-divider;
+  break-before: left;
+  break-after: page;
+  display: block;
+  box-sizing: border-box;
+  min-block-size: var(--vs-novel--block-extent);
+  margin: 0;
+  padding: 0;
+  padding-block: calc((var(--vs-novel--block-extent) - 2.8rem) / 2);
+  padding-inline-start: 4rem;
+  font-size: 1.4rem;
+  line-height: 2;
+  letter-spacing: 0.15em;
+}
+:root.vivlio-body.vivlio-horizontal .vivlio-chapter-title {
+  break-before: right;
+}
+
+@page verse-divider {
+  --vs-page--mbox-visibility: hidden;
+}
+
+.vivlio-verse-sequence {
+  --vivlio-verse--slot: calc((var(--vs-page--width) - 1px - 3rem) / var(--vivlio-verse--per-page));
+}
+:root.vivlio-body .vivlio-verse-sequence > :is(h1, h2, h3, h4, h5, h6) {
+  font-size: 1rem;
+  line-height: 2;
+  margin-block: 0 1rem;
+  padding-inline-start: 2rem;
+  letter-spacing: 0.1em;
+}
+
+.vivlio-verse-page {
+  break-before: page;
+  break-after: page;
+}
+
+.vivlio-verse {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  break-inside: avoid;
+  margin: 0;
+  border: none;
+  min-block-size: var(--vivlio-verse--slot);
+  padding-block: 0.5rem;
+  padding-inline: var(--vivlio-verse--inset) 0;
+  text-align: start;
+}
+.vivlio-verse p {
+  margin: 0;
+  text-indent: 0;
+  text-align: start;
+  hanging-punctuation: none;
+  white-space: normal;
+  line-height: 2;
+}
+.vivlio-verse .vivlio-verse-preface,
+.vivlio-verse .vivlio-verse-author {
+  font-size: 0.7rem;
+  line-height: 1.8;
+}
+.vivlio-verse .vivlio-verse-preface {
+  margin-block-end: 0.5rem;
+}
+.vivlio-verse .vivlio-verse-author {
+  margin-block-start: 0.5rem;
+  text-align: end;
+}
+.vivlio-verse .vivlio-blank-lines {
+  margin-block-start: 0;
+}
+
+/* Oversized works are isolated by the builder and may flow over pages. */
+.vivlio-verse-long {
+  display: block;
+  min-block-size: 0;
+  padding-block: 1rem;
+  break-inside: auto;
+}

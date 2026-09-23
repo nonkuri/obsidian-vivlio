@@ -17,6 +17,7 @@ import { linksPlugin } from "./hast/links";
 import { sanitizePlugin } from "./hast/sanitize";
 import { blankLinesPlugin } from "./hast/spacing";
 import { obsidianPlugin } from "./hast/obsidian";
+import { versePagesPlugin } from "./hast/verse";
 import { multicolTableWarningPlugin } from "./hast/tables";
 import {
   addClass,
@@ -134,6 +135,7 @@ export async function convertChapter(
             chapterHeadingLevel(context, chapter, file),
             context.config.pageNumbering === "roman-then-arabic",
           ),
+          versePagesPlugin(context, file.path),
           // Last mutation, so that it sees the tree the document is actually built
           // from: whatever the manuscript wrote, whatever `rehype-raw` let
           // through, and whatever the stages above put there themselves.

@@ -1,5 +1,7 @@
 # Vivlio
 
+New in 0.17.0: `haiku` / `tanka` themes with [manuscripts, settings and verification instructions](sample/verse-README.md). Explicit work boundaries let the same manuscript use one, two or three works per page. These themes are built into the plugin; no extra theme CSS is needed.
+
 **English** | [日本語](README.ja.md)
 
 Typeset Obsidian notes with [Vivliostyle](https://vivliostyle.org/) — CSS paged
@@ -42,7 +44,9 @@ The [manual sample](sample/manual/index.md) exercises the updated `manual` theme
 
 ## Samples
 
-- [Japanese nonfiction and essays](sample/essay/index.md) — a two-chapter sample for the new `essay` theme, with quotations, lists and a captioned figure. [Usage and verification (Japanese)](sample/essay-README.md). [Download manuscript, PDF and EPUB](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.16.0/vivlio-sample-essay-0.16.0.zip) (requires 0.16.0 or later).
+- [Haiku and tanka sample package](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-verse-0.17.0.zip) — manuscripts, settings, six PDF layouts and two EPUBs. Requires 0.17.0 or later. Samples are distributed from the repository, separately from plugin release assets.
+
+- [Japanese nonfiction and essays](sample/essay/index.md) — a two-chapter sample for the new `essay` theme, with quotations, lists and a captioned figure. [Usage and verification (Japanese)](sample/essay-README.md). [Download manuscript, PDF and EPUB](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-essay-0.16.0.zip) (requires 0.16.0 or later).
 
 Download complete source-and-output examples. Extract the source folder into a vault to experiment with the settings and stylesheets.
 
@@ -145,7 +149,7 @@ If those files still open in Vivlio's minimal editor after installing Code Space
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel, novel-2col, essay, english-novel, manual or paper, or a CSS path in the vault
+theme: novel              # novel, novel-2col, essay, haiku, tanka, english-novel, manual or paper, or a CSS path in the vault
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -367,9 +371,9 @@ can start from a bundled one:
 theme: 装丁/私の本.css
 ```
 
-The theme picker offers the six themes built for this plugin — `novel`, for a
+The theme picker offers the eight themes built for this plugin — `novel`, for a
 novel set vertically, `novel-2col`, for one set vertically in two columns,
-`essay`, for Japanese nonfiction and essays, `english-novel`, for a western trade paperback, `manual`, for a manual or
+`essay`, for Japanese nonfiction and essays, `haiku` and `tanka`, for short poetry collections, `english-novel`, for a western trade paperback, `manual`, for a manual or
 tech book set across the page, and `paper`, for an academic paper or report — followed by **every `.css` file in the vault, listed by its path**. Put
 a stylesheet anywhere in the vault and it is in the list; there is nothing to
 register. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and `vivlio:academic`

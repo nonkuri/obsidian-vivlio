@@ -813,6 +813,13 @@ css: 'p::before { content: "\2192"; }'
     );
   }
 
+  check("verse page count follows frontmatter precedence", resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { versePerPage: 3 }, frontmatter: { versePerPage: 1 } }).config.versePerPage === 1);
+  check("verse page count dropdown strings are coerced", resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { versePerPage: "3" } }).config.versePerPage === 3);
+  for (const value of [0, -1, 1.5, 4]) {
+    const result = resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { versePerPage: 3 }, frontmatter: { versePerPage: value } });
+    check(`invalid verse page count ${value} leaves previous layer intact`, result.config.versePerPage === 3 && result.issues.some(issue => issue.key === "versePerPage"));
+  }
+
   let failed = 0;
   for (const result of checks) {
     if (!result.ok) failed += 1;

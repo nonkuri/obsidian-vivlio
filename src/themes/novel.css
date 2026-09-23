@@ -577,11 +577,10 @@ ol > li::before {
 
 /* Front and back matter ----------------------------------------------------
  *
- * The block-size makes the page the containing block, and the column turns it
- * into a run of lines with the free space between them to give away: the title
- * keeps the head of the page, the imprint takes the foot. Spacing the author
- * off the title by a fixed margin instead left them wherever the length of the
- * title happened to put them.
+ * Keep the title toward the upper right and the credits lower and to its
+ * left. The group has space around it without pinning either part to an
+ * opposite page edge. Proportions use the full text block, including both
+ * bands of the two-column theme; front matter itself remains one column.
  */
 .titlepage,
 .halftitle {
@@ -601,6 +600,10 @@ ol > li::before {
   display: flex;
   flex-direction: column;
   block-size: var(--vs-novel--block-extent);
+  justify-content: center;
+  box-sizing: border-box;
+  inline-size: var(--vs-page--height);
+  padding-inline: calc(var(--vs-page--height) * 0.14) 0;
 }
 
 /* The series stands above the title, smaller and lighter, the way a series is
@@ -641,13 +644,12 @@ ol > li::before {
   margin-block: 1.5rem 0;
 }
 
-/* `margin-block-start: auto` eats the free space of the column, so the imprint
-   sits against the far edge of the page whatever comes above it; `text-align:
-   end` puts it at the foot of that edge - bottom left in vertical writing,
-   which is where a Japanese title page names its author. */
+/* Separate the credits enough to balance the title, without using up every
+   remaining line between them. Keep this shared by all vertical themes. */
 .titlepage .imprint {
-  margin-block-start: auto;
-  text-align: end;
+  margin-block-start: calc(var(--vs-novel--block-extent) * 0.16);
+  padding-inline-start: calc(var(--vs-page--height) * 0.28);
+  text-align: start;
 }
 
 /* The people who made the book are one group, the house that published it is
@@ -697,9 +699,8 @@ ol > li::before {
  * the left edge in vertical writing - with the book named at the head of the
  * block and everyone behind it listed below in labelled lines.
  *
- * The auto margin does the placing, the same way the title page's imprint is
- * placed, and for the same reason: it eats whatever free space there is, and
- * when there is none it is simply ignored, so a long colophon starts at the
+ * The auto margin eats whatever free space there is, and when there is none
+ * it is simply ignored, so a long colophon starts at the
  * top of the page rather than running off it.
  */
 [role='doc-colophon'] {

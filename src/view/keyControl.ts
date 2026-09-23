@@ -55,6 +55,8 @@ export function keyChoices(app: App, key: NoteKey, current = ""): Choice[] {
       }));
     case "writingMode":
       return labelled(["vertical-rl", "horizontal-tb"], "settings.writingMode");
+    case "versePerPage":
+      return [1, 2, 3].map(value => ({ value: String(value), label: String(value) }));
     case "lang":
       return [
         { value: "ja", label: "ja — 日本語" },

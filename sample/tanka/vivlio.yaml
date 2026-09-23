@@ -1,0 +1,19 @@
+title: 改札の向こう
+subtitle: 歌集の組見本
+author: Vivlio サンプル編集部
+lang: ja
+theme: tanka
+writingMode: vertical-rl
+size: 四六判
+charsPerLine: 34
+linesPerPage: 12
+columns: 1
+versePerPage: 2
+fontFamily: "'游明朝', 'Yu Mincho', 'YuMincho', 'Noto Serif JP', serif"
+headingFontFamily: "'游明朝', 'Yu Mincho', 'YuMincho', 'Noto Serif JP', serif"
+tocDepth: 1
+sections:
+  titlePage: auto
+  toc: auto
+  afterword: ./notes/afterword.md
+  colophon: auto

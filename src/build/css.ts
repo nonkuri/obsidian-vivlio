@@ -25,6 +25,7 @@ export function bookStylesheet(context: BuildContext, themeUrl: string): string 
 
   const root: string[] = [];
   root.push(`--vs-writing-mode: ${config.writingMode};`);
+  root.push(`--vivlio-verse--per-page: ${config.versePerPage};`);
 
   // The running head of a right-hand page names the book. A `string-set` can
   // only carry what some element in the flow says, and no body chapter says

@@ -36,6 +36,16 @@ export interface Preset {
  * column, which is the point of setting it in two.
  */
 export const PRESETS: Preset[] = [
+  ...["haiku", "tanka"].map(theme => ({
+    id: theme,
+    labelKey: `preset.${theme}`,
+    values: {
+      lang: "ja", theme, writingMode: "vertical-rl" as const,
+      size: "四六判", charsPerLine: 34, linesPerPage: 12, columns: 1,
+      versePerPage: 2, fontFamily: DEFAULT_SERIF_STACK,
+      headingFontFamily: DEFAULT_SERIF_STACK,
+    },
+  })),
   {
     id: "essay",
     labelKey: "preset.essay",

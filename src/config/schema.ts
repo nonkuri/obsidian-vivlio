@@ -106,6 +106,7 @@ export const BookConfigInputSchema = v.object({
   charsPerLine: v.optional(v.union([v.number(), v.null()])),
   linesPerPage: v.optional(v.union([v.number(), v.null()])),
   columns: v.optional(v.union([ColumnCountSchema, v.null()])),
+  versePerPage: v.optional(v.picklist([1, 2, 3])),
   startSide: v.optional(v.picklist(PAGE_SIDES)),
   baseFontSize: v.optional(v.string()),
   paragraphIndent: v.optional(v.union([v.string(), v.number()])),

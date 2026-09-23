@@ -101,8 +101,8 @@ export function halfTitleDocument(context: BuildContext, resetPage = false): str
  *
  * The head names the work - the series it belongs to, its title, its subtitle -
  * and the imprint names the people, which is the division a title page makes
- * and the reason the two are separate boxes: the stylesheet pushes the imprint
- * to the far corner of the page, where a Japanese title page puts it.
+ * and the reason the two are separate boxes. Their placement belongs to the
+ * built-in theme, so generated and manuscript-backed title pages can share it.
  */
 /** A name, with the role it is credited in when the book has to say which. */
 function named(cls: string, name: string, role: string): string {

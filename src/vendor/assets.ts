@@ -25,6 +25,8 @@ export type { EmbeddedAsset };
 export const BUNDLED_THEMES: Record<string, string> = {
   novel: "vivlio/novel.css",
   essay: "vivlio/essay.css",
+  haiku: "vivlio/haiku.css",
+  tanka: "vivlio/tanka.css",
   "novel-2col": "vivlio/novel-2col.css",
   "english-novel": "vivlio/english-novel.css",
   manual: "vivlio/manual.css",
@@ -50,6 +52,8 @@ export const SELECTABLE_THEMES: string[] = [
   "novel",
   "novel-2col",
   "essay",
+  "haiku",
+  "tanka",
   "english-novel",
   "manual",
   "paper",
@@ -85,6 +89,8 @@ export interface ThemeGrid {
 export const BUNDLED_THEME_GRIDS: Record<string, ThemeGrid> = {
   novel: { chars: 40, lines: 16, columns: 1 },
   essay: { chars: 40, lines: 16, columns: 1 },
+  haiku: { chars: 34, lines: 12, columns: 1 },
+  tanka: { chars: 34, lines: 12, columns: 1 },
   "novel-2col": { chars: 23, lines: 17, columns: 2 },
   bunko: { chars: 39, lines: 15, columns: 1 },
 };

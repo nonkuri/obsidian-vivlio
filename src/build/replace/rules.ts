@@ -100,6 +100,7 @@ export function notationRules(config: BookConfig): TextRule[] {
     rules.push({
       test: /(^|\n)[　 ]+/g,
       replace: (match) => (match[1] ? [text(match[1])] : []),
+      skipElement: node => hasClass(node, "vivlio-verse"),
     });
   }
 

@@ -325,6 +325,18 @@ svg.vivlio-bleed {
 p.vivlio-no-indent {
   text-indent: 0;
 }
+
+/* Poetry keeps semantic work boundaries, but has no paper-sized slots. */
+.vivlio-verse-page {
+  break-before: auto;
+  break-after: auto;
+}
+.vivlio-verse {
+  display: block;
+  min-block-size: 0;
+  padding: 0;
+  margin-block: 2em;
+}
 `.trim();
 
 /**

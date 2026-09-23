@@ -2,6 +2,8 @@ import type { IndentMode } from "../../config/types";
 import {
   addClass,
   isElement,
+  hasClass,
+  SKIP,
   textContent,
   visit,
   type UElement,
@@ -53,6 +55,7 @@ export function readManuscriptIndentPlugin() {
   return function attach() {
     return (tree: UNode): void => {
       visit(tree, (node) => {
+        if (isElement(node) && hasClass(node, "vivlio-verse")) return SKIP;
         if (!isElement(node, "p")) return;
         if (!textContent(node).startsWith(IDEOGRAPHIC_SPACE)) return;
         (node).properties[MANUSCRIPT_INDENT] = "";
@@ -75,6 +78,7 @@ export function applyIndentPlugin(mode: IndentMode) {
     return (tree: UNode): void => {
       const paragraphs: UElement[] = [];
       visit(tree, (node) => {
+        if (isElement(node) && hasClass(node, "vivlio-verse")) return SKIP;
         if (isElement(node, "p")) paragraphs.push(node);
       });
 

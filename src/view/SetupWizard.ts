@@ -256,6 +256,7 @@ export class SetupWizard extends Modal {
     this.numberRow(container, "charsPerLine");
     this.numberRow(container, "linesPerPage");
     this.numberRow(container, "columns");
+    this.selectRow(container, "versePerPage");
     this.selectRow(container, "startSide");
     this.textRow(container, "baseFontSize");
     this.textRow(container, "paragraphIndent");
@@ -531,7 +532,7 @@ export class SetupWizard extends Modal {
       }
       dropdown
         .setValue(current === undefined || current === "" ? USE_DEFAULT : String(current))
-        .onChange((value) => this.set(key, value === USE_DEFAULT ? undefined : value));
+        .onChange((value) => this.set(key, value === USE_DEFAULT ? undefined : key === "versePerPage" ? Number(value) : value));
     });
   }
 

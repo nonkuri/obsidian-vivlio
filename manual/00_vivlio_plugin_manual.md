@@ -1,6 +1,6 @@
 # このマニュアルについて
 
-このマニュアルは **Vivlio 0.16.0**（デスクトップ版 Obsidian 1.8.7 以降）を対象にしています。Vivlio は、Obsidian の Markdown ノートを Vivliostyle で組版し、PDF または EPUB 3 として書き出すプラグインです。ライブプレビューも可能となっているので、仕上がりを確認しながら修正できます。
+このマニュアルは **Vivlio 0.17.0**（デスクトップ版 Obsidian 1.8.7 以降）を対象にしています。Vivlio は、Obsidian の Markdown ノートを Vivliostyle で組版し、PDF または EPUB 3 として書き出すプラグインです。ライブプレビューも可能となっているので、仕上がりを確認しながら修正できます。
 
 
 ![Obsidian のノートと Vivlio プレビュー](images/obsidian.png)
@@ -23,6 +23,8 @@
 - [書き出し・点検・トラブルシューティング](07-export-and-troubleshooting.md)
 
 ## 完成サンプル
+
+- [句集・歌集（Vivlio 0.17.0）](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-verse-0.17.0.zip) — 原稿・設定、1・2・3作品／頁のPDFとEPUB。[原稿の書き方](../sample/verse-README.md)。
 
 入力原稿と PDF / EPUB をダウンロードできます。
 

@@ -23,6 +23,7 @@
 |---|---|
 | `vivlio:novel` | Vivlio 用に調整した日本語小説テーマ。縦組みの出発点 |
 | `vivlio:essay` | 日本語縦組みの一般書・エッセイ。章と節、引用、箇条書き、図版を整える |
+| `vivlio:haiku` / `vivlio:tanka` | 句集・歌集。作品記法と `versePerPage` を併用する |
 | `vivlio:novel-2col` | 上を二段組にしたもの。B6・A5・新書の出発点 |
 | `vivlio:english-novel` | 6×9 インチの欧米向け英語小説。横組みの出発点 |
 | `vivlio:manual` | Vivlio 用の横組みテーマ。マニュアル・技術書の出発点 |
@@ -32,7 +33,7 @@
 | `vivlio:techbook` | Vivliostyle theme-techbook |
 | `vivlio:academic` | Vivliostyle theme-academic |
 
-テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel`（縦組み）、`novel-2col`（縦組み二段組）、`essay`（縦組みの一般書・エッセイ）、`english-novel`（英語小説の横組み）、`manual`（横組み）、`paper`（論文・レポート）です。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
+テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel`（縦組み）、`novel-2col`（縦組み二段組）、`essay`（縦組みの一般書・エッセイ）、`haiku`（句集）、`tanka`（歌集）、`english-novel`（英語小説の横組み）、`manual`（横組み）、`paper`（論文・レポート）です。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
 
 ## マニュアル・操作ガイドを組む
 

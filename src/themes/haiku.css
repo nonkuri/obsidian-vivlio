@@ -1,0 +1,3 @@
+@import url(./verse.css);
+/* A shorter measure leaves the lower part of the page quiet. */
+:root { --vivlio-verse--inset: 4rem; }

@@ -86,6 +86,7 @@ const NUMBER_KEYS = new Set([
   "charsPerLine",
   "linesPerPage",
   "columns",
+  "versePerPage",
   "tocDepth",
   "startPage",
 ]);
@@ -126,6 +127,7 @@ function applyLayer(config: BookConfig, raw: Record<string, unknown>): void {
     if (value === undefined || value === null) continue;
     if (key === "startPage" && !Number.isSafeInteger(value)) continue;
     if (key === "columns" && (!Number.isSafeInteger(value) || Number(value) < 1)) continue;
+    if (key === "versePerPage" && ![1, 2, 3].includes(Number(value))) continue;
 
     if (key === "sections") {
       if (value && typeof value === "object") {

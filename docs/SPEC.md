@@ -569,6 +569,7 @@ size: 文庫                # 文庫（=A6）| 新書 | JIS-B6 | 四六判 | A5 
 charsPerLine: 40          # 1段の字詰め。省略するとテーマの既定グリッド → 5.10
 linesPerPage: 16          # 1段の行数
 columns: null             # 段数。空はテーマ任せ（novel-2col は 2）→ 5.10
+versePerPage: 2            # haiku/tanka の作品数／頁。1・2・3。段数とは独立、EPUBでは適用しない
 baseFontSize: ""          # 空なら用紙と字詰めから算出
 paragraphIndent: ""       # 字下げの幅。空ならテーマ任せ
 paragraphIndentMode: auto # auto | manuscript | brackets | all → 5.3 #16

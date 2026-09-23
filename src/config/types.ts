@@ -254,6 +254,8 @@ export interface BookConfig {
    * two, while the other bundled themes default to one).
    */
   columns: number | null;
+  /** Works per printed page in haiku/tanka themes; not text columns. */
+  versePerPage: number;
   baseFontSize: string;
   /**
    * `--vs--p-text-indent`. Empty leaves the theme's own value alone.

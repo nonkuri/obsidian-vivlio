@@ -213,6 +213,7 @@ colophonExtra:
 | `size` | `文庫`、`四六判`、`A5`、`6x9`、`128mm 188mm` | 判型。`文庫`・`新書`・`JIS-B6`・`四六判`（127×188mm）・`A5`・`JIS-B5`・`B5`・`A4`・`6x9`（152.4×228.6mm）・`letter`。`文庫` と `A6` は同じ `105mm 148mm` なので、選択欄には `文庫・A6（105×148mm）` として一つだけ出ます。任意の CSS `size` 値も可。 |
 | `charsPerLine` | 数値 / `null` | 1 行の字数（二段組なら 1 段の字詰め）。`linesPerPage` と組で指定します。 |
 | `linesPerPage` | 数値 / `null` | 1 段の行数（一段組なら 1 ページの行数）。 |
+| `versePerPage` | `1` / `2` / `3`（既定 `2`） | 句集・歌集の1ページあたり作品数。段数とは別。EPUBでは固定しません。 |
 | `columns` | 1 以上の整数 / `null` | 本文の段数。空はテーマ任せ（`novel-2col` は 2）。上の 2 つは 1 段あたりの数になります。 |
 | `startSide` | `any` / `left` / `right` | 章と各部を始めるページの側。初期値は `any`（なりゆき）。 |
 | `baseFontSize` | `3mm`、`10pt` | 基準文字サイズ。指定すると自動計算より優先。 |
@@ -409,7 +410,7 @@ syntax:
 ## 空の値と型
 
 - 空欄または `null` は「この層では決めない」として上位層の値を継承します。値を書かずにキーだけ置いても警告にはなりません（`sections:` だけ書いて中身を全部コメントにしてある状態が、まさにこれです）。
-- `charsPerLine`、`linesPerPage`、`columns`、`tocDepth`、`startPage` は数値として扱われます。
+- `charsPerLine`、`linesPerPage`、`columns`、`versePerPage`、`tocDepth`、`startPage` は数値として扱われます。
 - `startPage` には 0 や負数も指定できます。たとえば `startPage: -2` なら最初の3ページ（-2、-1、0）は番号を刷らず、その次のページから 1、2、3…と表示します。表紙と、その直後に面合わせで入る表紙裏の白紙は、この進行自体に含みません。
 - `autoTcy`、`coverInPdf`、`cropMarks`、`includeToc` は YAML の `true` / `false` を使います。
 - 不明なキーや不正な値は組版時の警告対象になります。綴りとインデントを確認してください。

@@ -78,8 +78,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
 
   theme: {
     group: "layout",
-    ja: "テーマ: novel（縦組みの小説）| essay（縦組みの一般書・エッセイ）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（横組みの論文・レポート）| Vault 内の .css ファイルのパス",
-    en: "Theme: novel (a vertical novel) | essay (vertical Japanese nonfiction and essays) | novel-2col (a vertical novel in two columns) | english-novel (an English trade paperback) | manual (a horizontal manual or tech book) | paper (an academic paper or report) | the path of a .css file in the vault",
+    ja: "テーマ: novel（縦組みの小説）| essay（縦組みの一般書・エッセイ）| haiku（句集）| tanka（歌集）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（横組みの論文・レポート）| Vault 内の .css ファイルのパス",
+    en: "Theme: novel (a vertical novel) | essay (vertical Japanese nonfiction and essays) | haiku (haiku collection) | tanka (tanka collection) | novel-2col (a vertical novel in two columns) | english-novel (an English trade paperback) | manual (a horizontal manual or tech book) | paper (an academic paper or report) | the path of a .css file in the vault",
   },
   writingMode: {
     group: "layout",
@@ -105,6 +105,11 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
     group: "layout",
     ja: "本文の段数（1以上の整数）。空はテーマ任せ。横組み・縦組みとも有効で、字詰めと行数は1段あたりの数になる",
     en: "Body columns (a positive integer); empty leaves them to the theme. Works in horizontal and vertical writing; the two figures above are per column",
+  },
+  versePerPage: {
+    group: "layout",
+    ja: "句集・歌集の1頁あたり作品数（1 / 2 / 3）。段組みとは別。EPUBでは適用しない",
+    en: "Works per page for haiku/tanka (1 / 2 / 3), independently of columns. Not applied to EPUB",
   },
   startSide: {
     group: "layout",
@@ -292,6 +297,7 @@ const KEY_LABELS: Record<NoteKey, StringKey> = {
   charsPerLine: "settings.charsPerLine",
   linesPerPage: "settings.linesPerPage",
   columns: "settings.columns",
+  versePerPage: "settings.versePerPage",
   startSide: "settings.startSide",
   baseFontSize: "settings.baseFontSize",
   paragraphIndent: "settings.paragraphIndent",

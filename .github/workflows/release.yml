@@ -1,6 +1,6 @@
 # A tag is the whole release procedure. Obsidian's installer fetches the three
 # files below as loose release assets, so they are uploaded individually and
-# never as a zip.
+# never as a zip. Samples belong in sample/downloads, not release assets.
 name: Release
 
 on:
@@ -39,10 +39,7 @@ jobs:
             echo "tag $tag but manifest.json says $manifest" >&2
             exit 1
           fi
-          if ! node -p "require('./versions.json')['$tag']" >/dev/null 2>&1; then
-            echo "versions.json has no entry for $tag" >&2
-            exit 1
-          fi
+          node -e 'const m=require("./manifest.json"); const p=require("./package.json"); const v=require("./versions.json"); if(p.version!==m.version || v[m.version]!==m.minAppVersion) throw Error("Version metadata does not agree");'
 
       - run: npm test
 
@@ -63,7 +60,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" \
-            --title "${GITHUB_REF_NAME}" \
-            --generate-notes \
-            main.js manifest.json styles.css
+          notes="docs/releases/${GITHUB_REF_NAME}.md"
+          if [ -f "$notes" ]; then
+            gh release create "${GITHUB_REF_NAME}" --verify-tag \
+              --title "${GITHUB_REF_NAME}" --notes-file "$notes" \
+              main.js manifest.json styles.css
+          else
+            gh release create "${GITHUB_REF_NAME}" --verify-tag \
+              --title "${GITHUB_REF_NAME}" --generate-notes \
+              main.js manifest.json styles.css
+          fi
+          gh release view "${GITHUB_REF_NAME}" --json assets \
+            | jq -e '.assets | map(.name) | sort == ["main.js", "manifest.json", "styles.css"]'

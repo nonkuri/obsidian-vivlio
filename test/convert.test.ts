@@ -1669,6 +1669,47 @@ async function main(): Promise<void> {
   checks.push(check("formatted captions keep markup without the size hint",
     /<figcaption[^>]*><strong>起床会議<\/strong><\/figcaption>/.test(formattedCaption), formattedCaption));
 
+  // One work is a semantic unit, independent of printed page grouping.
+  for (const mode of ["pdf", "epub"] as const) {
+    const ctx = makeContext();
+    ctx.mode = mode;
+    ctx.config.theme = "tanka";
+    ctx.config.versePerPage = 2;
+    const source = [
+      "# 連作", "", "> [!tanka] 故郷にて", "> 　水面《みなも》を見て<br>明日を思う",
+      ">", "> 作者：山田花子", "", "> [!haiku]", "> 二つ目の作品", "",
+      "［＃改ページ］", "", "> [!haiku]", "> 三つ目の作品", "",
+      "## 次の連作", "", "> [!haiku]", "> 四つ目の作品", "",
+      "　これは散文。", "", "```markdown", "> [!haiku]", "> コード内の作品記法", "```",
+    ].join("\n");
+    const result = await convertChapter(ctx, ctx.chapters[0], chapterOne, source);
+    checks.push(check(`${mode}: works retain leading space, ruby, authored line and attribution`,
+      result.includes('class="vivlio-verse-preface">故郷にて') &&
+      result.includes('class="vivlio-verse-author">山田花子') &&
+      result.includes("　<ruby>") && result.includes("<br>") && !result.includes("作者："), result));
+    checks.push(check(`${mode}: only actual callouts become four works`,
+      (result.match(/data-verse=/g) ?? []).length === 4 && !result.includes('class="callout-title">Haiku'), result));
+    checks.push(check(`${mode}: page break and heading end a work group`,
+      (result.match(/class="vivlio-verse-page(?: vivlio-verse-sequence)?"/g) ?? []).length === (mode === "pdf" ? 3 : 0), result));
+    checks.push(check(`${mode}: ordinary prose indentation still follows its own manuscript`,
+      !/<p[^>]*vivlio-no-indent[^>]*>これは散文/.test(result) && result.includes("これは散文"), result));
+  }
+  const disabledVerse = makeContext();
+  disabledVerse.config.syntax.callout = false;
+  const disabledHtml = await convertChapter(disabledVerse, disabledVerse.chapters[0], chapterOne, "> [!haiku]\n> 未変換");
+  checks.push(check("callout toggle also disables work syntax", !disabledHtml.includes("data-verse="), disabledHtml));
+  const emptyVerse = makeContext();
+  await convertChapter(emptyVerse, emptyVerse.chapters[0], chapterOne, "> [!haiku]\n>\n> 作者：山田花子");
+  checks.push(check("an empty work raises a diagnostic", emptyVerse.warnings.some(w => w.kind === "config")));
+  const longVerse = makeContext();
+  longVerse.config.theme = "tanka";
+  longVerse.config.versePerPage = 3;
+  const longHtml = await convertChapter(longVerse, longVerse.chapters[0], chapterOne,
+    "> [!tanka]\n> " + "長い作品の本文。".repeat(60) + "最後の言葉\n\n> [!tanka]\n> 次の作品");
+  checks.push(check("long work is retained, warned about and isolated from the next work",
+    longVerse.warnings.some(w => w.kind === "unsupported") && longHtml.includes("最後の言葉") &&
+    longHtml.includes("vivlio-verse-long") && (longHtml.match(/class="vivlio-verse-page"/g) ?? []).length === 2, longHtml));
+
   let failed = 0;
   for (const result of checks) {
     if (!result.ok) failed += 1;

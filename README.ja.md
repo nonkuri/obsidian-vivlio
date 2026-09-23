@@ -1,5 +1,7 @@
 # Vivlio
 
+0.17.0追加：句集・歌集の `haiku` / `tanka` テーマと、[原稿・設定・組見本の検証方法](sample/verse-README.md)。作品のまとまりを明示し、同じ原稿を1・2・3作品／頁で組めます。
+
 [English](README.md) | **日本語**
 
 Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版します。CSS 組版（paged media）による縦書き、ルビ、傍点に対応し、プレビューを見ながら PDF と EPUB に書き出せます。
@@ -27,11 +29,13 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 
 ## サンプル
 
-- [一般書・エッセイ](sample/essay/index.md) — `essay` テーマ用の随筆集。章・節・引用・箇条書き・図版の組版を確認できます。[利用・検証方法](sample/essay-README.md)。[原稿・PDF・EPUBの配布ZIP](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.16.0/vivlio-sample-essay-0.16.0.zip)（0.16.0以降）。
+- [句集・歌集の配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-verse-0.17.0.zip) — 原稿・設定、1・2・3作品／頁のPDFとEPUB。[使い方](sample/verse-README.md)。テーマはプラグイン内蔵で、追加CSSは不要です。
+
+- [一般書・エッセイ](sample/essay/index.md) — `essay` テーマ用の随筆集。章・節・引用・箇条書き・図版の組版を確認できます。[利用・検証方法](sample/essay-README.md)。[原稿・PDF・EPUBの配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-essay-0.16.0.zip)（0.16.0以降）。
 
 - [マニュアル・操作ガイド](sample/manual/index.md) — Vivlio 0.15.0以降の `manual` テーマ用。4原稿、模式図2点、設定表、36行のチェックリストで、手順・注意書き・コード・図表参照・改ページを確認できます。[利用・検証方法](sample/manual-README.md)。
 
-入力原稿と出力結果をリリースからダウンロードできます。入力原稿を Vault に展開して、設定や CSS を変更しながら試せます。
+入力原稿と出力結果をダウンロードできます。0.17.0以降のサンプルはリポジトリから配布し、プラグインのリリース資産には添付しません。入力原稿を Vault に展開して、設定や CSS を変更しながら試せます。
 
 | サンプル | 内容 | ダウンロード |
 |---|---|---|
@@ -115,7 +119,7 @@ Code Space を入れたのにファイルが Vivlio の簡易エディタで開�
 title: 吾輩は猫である
 author: 夏目漱石
 
-theme: novel              # novel、novel-2col、essay、english-novel、manual、paper、または Vault 内の CSS のパス
+theme: novel              # novel、novel-2col、essay、haiku、tanka、english-novel、manual、paper、または Vault 内の CSS のパス
 writingMode: vertical-rl
 size: 文庫
 charsPerLine: 39
@@ -283,7 +287,7 @@ linesPerPage: 17   # 1 段の行数
 theme: 装丁/私の本.css
 ```
 
-テーマの選択欄には、このプラグインのために作られた 6 つのテーマ —— `novel`（小説を縦組みで）、`essay`（一般書・エッセイを縦組みで）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）、`paper`（論文・レポートを横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
+テーマの選択欄には、このプラグインのために作られた 8 つのテーマ —— `novel`（小説を縦組みで）、`essay`（一般書・エッセイを縦組みで）、`haiku`（句集）、`tanka`（歌集）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）、`paper`（論文・レポートを横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
 
 ### 論文・レポート
 

@@ -163,7 +163,7 @@ export const en = {
   "settings.defaultPreset.desc": "Starting point for new book configurations.",
   "settings.theme": "Default theme",
   "settings.theme.desc":
-    "Six themes ship with the plugin: novel and novel-2col for Japanese fiction, essay for Japanese nonfiction and essays, english-novel for a western trade paperback, manual for a manual or tech book, and paper for an academic paper or report. Put a .css file anywhere in the vault and it joins this list under its own path \u2014 use a vivlio: import to build on a bundled theme rather than from nothing.",
+    "Eight themes ship with the plugin: novel and novel-2col for Japanese fiction, essay for Japanese nonfiction and essays, haiku and tanka for short poetry collections, english-novel for a western trade paperback, manual for a manual or tech book, and paper for an academic paper or report. Put a .css file anywhere in the vault and it joins this list under its own path \u2014 use a vivlio: import to build on a bundled theme rather than from nothing.",
   "settings.size": "Default paper size",
   "settings.writingMode": "Default writing mode",
   "settings.writingMode.vertical-rl": "Vertical, read right to left (vertical-rl)",
@@ -374,6 +374,13 @@ export const en = {
   "preset.paper": "Paper / report (A4, horizontal)",
   "theme.manual": "manual — a manual or tech book, set across the page",
   "theme.essay": "essay — Japanese nonfiction and essays, set vertically",
+  "theme.haiku": "haiku — Japanese haiku collection, set vertically",
+  "theme.tanka": "tanka — Japanese tanka collection, set vertically",
+  "preset.haiku": "Haiku (Shiroku, two works per page)",
+  "preset.tanka": "Tanka (Shiroku, two works per page)",
+  "settings.versePerPage": "Works per page",
+  "warning.verseEmpty": "Empty haiku/tanka work: add the poem before the author paragraph.",
+  "warning.verseLong": "A long work has its own page group based on estimated line count. Check wrapping and page splits in preview: {text}",
 
   "book.theme": "Theme",
   "book.size": "Paper size",

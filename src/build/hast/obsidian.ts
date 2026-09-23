@@ -1,4 +1,5 @@
 import type { BuildContext } from "../context";
+import { verseElement } from "./verse";
 import {
   addClass,
   element,
@@ -58,7 +59,7 @@ function convertCallouts(tree: UNode): void {
     if (!match) return;
 
     const type = match[1].toLowerCase();
-    const title = match[3].trim() || defaultTitle(type);
+    const title = match[3].trim();
 
     // Drop the marker line, keeping whatever followed it in the paragraph.
     const rest = newline === -1 ? "" : marker.slice(newline + 1);
@@ -69,11 +70,16 @@ function convertCallouts(tree: UNode): void {
       (child) => child !== paragraph || paragraph.children.length > 0,
     );
 
+    if (type === "haiku" || type === "tanka") {
+      parent.children[index] = verseElement(type, title, body);
+      return;
+    }
+
     const aside = element(
       "aside",
       { className: ["callout", `callout-${type}`], "data-callout": type },
       [
-        element("p", { className: ["callout-title"] }, [text(title)]),
+        element("p", { className: ["callout-title"] }, [text(title || defaultTitle(type))]),
         ...body,
       ],
     );
