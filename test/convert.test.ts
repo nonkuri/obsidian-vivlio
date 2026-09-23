@@ -1677,7 +1677,7 @@ async function main(): Promise<void> {
     ctx.config.versePerPage = 2;
     const source = [
       "# 連作", "", "> [!tanka] 故郷にて", "> 　水面《みなも》を見て<br>明日を思う",
-      ">", "> 作者：山田花子", "", "> [!haiku]", "> 二つ目の作品", "",
+      ">", "> 作者：架空花子", "", "> [!haiku]", "> 二つ目の作品", "",
       "［＃改ページ］", "", "> [!haiku]", "> 三つ目の作品", "",
       "## 次の連作", "", "> [!haiku]", "> 四つ目の作品", "",
       "　これは散文。", "", "```markdown", "> [!haiku]", "> コード内の作品記法", "```",
@@ -1685,7 +1685,7 @@ async function main(): Promise<void> {
     const result = await convertChapter(ctx, ctx.chapters[0], chapterOne, source);
     checks.push(check(`${mode}: works retain leading space, ruby, authored line and attribution`,
       result.includes('class="vivlio-verse-preface">故郷にて') &&
-      result.includes('class="vivlio-verse-author">山田花子') &&
+      result.includes('class="vivlio-verse-author">架空花子') &&
       result.includes("　<ruby>") && result.includes("<br>") && !result.includes("作者："), result));
     checks.push(check(`${mode}: only actual callouts become four works`,
       (result.match(/data-verse=/g) ?? []).length === 4 && !result.includes('class="callout-title">Haiku'), result));
@@ -1699,7 +1699,7 @@ async function main(): Promise<void> {
   const disabledHtml = await convertChapter(disabledVerse, disabledVerse.chapters[0], chapterOne, "> [!haiku]\n> 未変換");
   checks.push(check("callout toggle also disables work syntax", !disabledHtml.includes("data-verse="), disabledHtml));
   const emptyVerse = makeContext();
-  await convertChapter(emptyVerse, emptyVerse.chapters[0], chapterOne, "> [!haiku]\n>\n> 作者：山田花子");
+  await convertChapter(emptyVerse, emptyVerse.chapters[0], chapterOne, "> [!haiku]\n>\n> 作者：架空花子");
   checks.push(check("an empty work raises a diagnostic", emptyVerse.warnings.some(w => w.kind === "config")));
   const longVerse = makeContext();
   longVerse.config.theme = "tanka";

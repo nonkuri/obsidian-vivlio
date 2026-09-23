@@ -29,7 +29,7 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 
 ## サンプル
 
-- [句集・歌集の配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-verse-0.17.0.zip) — 原稿・設定、1・2・3作品／頁のPDFとEPUB。[使い方](sample/verse-README.md)。テーマはプラグイン内蔵で、追加CSSは不要です。
+- [句集・歌集の配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.2/sample/downloads/vivlio-sample-verse-0.17.2.zip) — 原稿・設定、1・2・3作品／頁のPDFとEPUB。[使い方](sample/verse-README.md)。テーマはプラグイン内蔵で、追加CSSは不要です。
 
 - [一般書・エッセイ](sample/essay/index.md) — `essay` テーマ用の随筆集。章・節・引用・箇条書き・図版の組版を確認できます。[利用・検証方法](sample/essay-README.md)。[原稿・PDF・EPUBの配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-essay-0.16.0.zip)（0.16.0以降）。
 

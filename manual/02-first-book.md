@@ -125,7 +125,7 @@ Markdown ノートから始めた場合、完了すると `本/遠雷/vivlio.yam
 
 ```yaml
 title: 遠雷
-author: 山田花子
+author: 架空花子
 theme: novel
 writingMode: vertical-rl
 size: 文庫

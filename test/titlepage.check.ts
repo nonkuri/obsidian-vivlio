@@ -36,9 +36,9 @@ async function main() {
     metadataCache: { getFirstLinkpathDest: () => null, getFileCache: () => ({ headings: [{ level: 1, heading: "本文" }] }) },
   } as unknown as App;
   const variants = {
-    short: { title: "遠い灯", subtitle: "", author: "山田花子", series: "", translator: "", publisher: "" },
+    short: { title: "遠い灯", subtitle: "", author: "架空花子", series: "", translator: "", publisher: "" },
     normal: { title: "改札の向こう", subtitle: "日々の記憶をたどる", author: "Vivlio サンプル編集部", series: "", translator: "", publisher: "" },
-    full: { title: "遠い町の図書館で出会った人々の物語", subtitle: "失われた時間と小さな記憶をたどって", author: "山田花子", series: "小さな文芸叢書", translator: "佐藤太郎", publisher: "青空文庫編集室" },
+    full: { title: "遠い町の図書館で出会った人々の物語", subtitle: "失われた時間と小さな記憶をたどって", author: "架空花子", series: "小さな文芸叢書", translator: "佐藤太郎", publisher: "青空文庫編集室" },
   };
   try {
     const page = await browser.newPage({ viewport: { width: 1100, height: 1500 } });

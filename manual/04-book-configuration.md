@@ -108,7 +108,7 @@ vivlio:
 title: 遠雷
 subtitle: 手紙をめぐる四つの夜
 series: 北国綺譚
-author: 山田花子
+author: 架空花子
 publisher: 架空書房
 date: 2026-09-04
 lang: ja
@@ -190,7 +190,7 @@ labels:
 
 ```yaml
 colophonExtra:
-  装丁: 山田花子
+  装丁: 架空花子
   校正: 鈴木一郎
 ```
 
@@ -199,7 +199,7 @@ colophonExtra:
 ```yaml
 colophonExtra:
   - label: 装丁
-    value: 山田花子
+    value: 架空花子
   - label: 協力
     value: 第一読書会
 ```

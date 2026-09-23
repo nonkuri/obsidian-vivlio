@@ -100,7 +100,7 @@ async function main() {
         assert.deepEqual(workPages.map((p: { works: unknown[] }) => p.works.length), count === 1 ? [1,1,1,1,1,1,1,1] : count === 2 ? [2,2,1,2,1] : [3,2,2,1], `${kind}/${count}: counts and explicit break`);
         assert.ok(pages.some((p: { title: boolean }) => p.title) && pages.some((p: { toc: boolean }) => p.toc) && pages.some((p: { colophon: boolean }) => p.colophon));
         const works = workPages.flatMap((p: { works: { preface?: string; author?: string }[] }) => p.works);
-        assert.ok(works.some((w: { preface?: string; author?: string }) => w.preface && w.author === "山田花子"), "preface and author stay with the work");
+        assert.ok(works.some((w: { preface?: string; author?: string }) => w.preface && w.author === "架空花子"), "preface and author stay with the work");
         console.log(`ok ${kind}/${count}: ${pages.length} pages, all 8 works, page counts and bounds`);
       }
       const build = await buildBook({ ...args, mode: "epub" });
@@ -110,7 +110,7 @@ async function main() {
       const joined = docs.join("\n");
       assert.equal((joined.match(/data-verse=/g) ?? []).length, 8);
       assert.ok(!joined.includes('class="vivlio-verse-page"'));
-      assert.ok(joined.includes("<ruby>") && joined.includes("山田花子") && /<br\s*\/?\s*>/.test(joined));
+      assert.ok(joined.includes("<ruby>") && joined.includes("架空花子") && /<br\s*\/?\s*>/.test(joined));
       if (kind === "haiku") assert.ok(joined.includes("　雨の駅"), "intentional leading space survives");
       const cssPath = Object.keys(archive.files).find(p => p.endsWith("vivlio.css"))!;
       const css = await archive.file(cssPath)!.async("string");

@@ -23,7 +23,7 @@ The package-specific README source files in this directory are added to the corr
 
 ## 句集・歌集（0.17.0以降）
 
-[haiku/](haiku/index.md) と [tanka/](tanka/index.md) は各8作品のサンプルです。作品記法と `versePerPage` による1・2・3作品／頁の比較、詞書・作者・改行を含みます。[利用・検証方法](verse-README.md)を参照してください。Vivlio 0.17.0以降が必要です。[配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-verse-0.17.0.zip)。
+[haiku/](haiku/index.md) と [tanka/](tanka/index.md) は各8作品のサンプルです。作品記法と `versePerPage` による1・2・3作品／頁の比較、詞書・作者・改行を含みます。[利用・検証方法](verse-README.md)を参照してください。Vivlio 0.17.0以降が必要です。[配布ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.2/sample/downloads/vivlio-sample-verse-0.17.2.zip)。
 
 ## 一般書・エッセイ
 

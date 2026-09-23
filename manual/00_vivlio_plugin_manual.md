@@ -24,7 +24,7 @@
 
 ## 完成サンプル
 
-- [句集・歌集（Vivlio 0.17.0）](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-verse-0.17.0.zip) — 原稿・設定、1・2・3作品／頁のPDFとEPUB。[原稿の書き方](../sample/verse-README.md)。
+- [句集・歌集（Vivlio 0.17.0以降）](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.2/sample/downloads/vivlio-sample-verse-0.17.2.zip) — 原稿・設定、1・2・3作品／頁のPDFとEPUB。[原稿の書き方](../sample/verse-README.md)。
 
 入力原稿と PDF / EPUB をダウンロードできます。
 

@@ -44,7 +44,7 @@ The [manual sample](sample/manual/index.md) exercises the updated `manual` theme
 
 ## Samples
 
-- [Haiku and tanka sample package](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-verse-0.17.0.zip) — manuscripts, settings, six PDF layouts and two EPUBs. Requires 0.17.0 or later. Samples are distributed from the repository, separately from plugin release assets.
+- [Haiku and tanka sample package](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.2/sample/downloads/vivlio-sample-verse-0.17.2.zip) — manuscripts, settings, six PDF layouts and two EPUBs. Requires 0.17.0 or later. Samples are distributed from the repository, separately from plugin release assets.
 
 - [Japanese nonfiction and essays](sample/essay/index.md) — a two-chapter sample for the new `essay` theme, with quotations, lists and a captioned figure. [Usage and verification (Japanese)](sample/essay-README.md). [Download manuscript, PDF and EPUB](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-essay-0.16.0.zip) (requires 0.16.0 or later).
 

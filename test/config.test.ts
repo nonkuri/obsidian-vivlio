@@ -713,13 +713,13 @@ css: 'p::before { content: "\2192"; }'
   }
 
   // A value is written as YAML when YAML can read it back, and quoted when it
-  // cannot: `装丁: 山田花子` would otherwise turn the property into a mapping.
+  // cannot: `装丁: 架空花子` would otherwise turn the property into a mapping.
   check("a plain value is written as typed", writeScalar("novel") === "novel");
   check("a number stays a number", writeScalar("39") === "39");
   check(
     "a value YAML would read as something else is quoted",
-    writeScalar("装丁: 山田花子") === '"装丁: 山田花子"',
-    writeScalar("装丁: 山田花子"),
+    writeScalar("装丁: 架空花子") === '"装丁: 架空花子"',
+    writeScalar("装丁: 架空花子"),
   );
 
   // --- chapter order (SPEC 5.2) -----------------------------------------

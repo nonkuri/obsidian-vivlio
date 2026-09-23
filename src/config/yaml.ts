@@ -72,7 +72,7 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   colophonExtra: {
     group: "book",
     yamlOnly: true,
-    ja: "奥付に足す任意の項目: [{ label: 装丁, value: 山田花子 }] または { 装丁: 山田花子 }",
+    ja: "奥付に足す任意の項目: [{ label: 装丁, value: 架空花子 }] または { 装丁: 架空花子 }",
     en: "Extra colophon lines: [{ label: Design, value: … }] or { Design: … }",
   },
 
@@ -793,7 +793,7 @@ function readScalar(raw: string): string {
  * A typed value as YAML has to carry it.
  *
  * What the writer types is YAML already when YAML can read it back as one
- * value; a colophon line like `装丁: 山田花子` cannot be, and is quoted so the
+ * value; a colophon line like `装丁: 架空花子` cannot be, and is quoted so the
  * property keeps the text rather than becoming a mapping.
  */
 export function writeScalar(raw: string): string {

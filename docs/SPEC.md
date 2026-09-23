@@ -560,7 +560,7 @@ labels:                  # 自動生成ページの文字。省略時は lang �
     publisher: 発行所
     issued: "{date}　発行"
 colophonExtra:            # 奥付に足す任意の項目 → 5.11
-  装丁: 山田花子
+  装丁: 架空花子
 
 # 組版
 theme: novel              # novel | novel-2col | manual | <vault内のcssパス>（bunko / techbook / academic / base も解決はする）
