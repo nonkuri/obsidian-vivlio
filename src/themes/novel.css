@@ -644,11 +644,13 @@ ol > li::before {
   margin-block: 1.5rem 0;
 }
 
-/* Separate the credits enough to balance the title, without using up every
-   remaining line between them. Keep this shared by all vertical themes. */
+/* Separate the credits enough to balance the title, and place them clearly in
+   the lower half of the page. In vertical writing this padding is measured
+   from the head of the inline axis, so it moves the entire imprint downward
+   without changing the title-to-imprint spacing across the page. */
 .titlepage .imprint {
   margin-block-start: calc(var(--vs-novel--block-extent) * 0.16);
-  padding-inline-start: calc(var(--vs-page--height) * 0.28);
+  padding-inline-start: calc(var(--vs-page--height) * 0.46);
   text-align: start;
 }
 

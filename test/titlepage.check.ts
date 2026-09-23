@@ -80,6 +80,8 @@ async function main() {
         if (variant === "normal") {
           assert.ok(title.x > result.width * 0.55 && title.x < result.width * 0.85, `${theme}: title is right of center, inside the page`);
           assert.ok(author.x > result.width * 0.15 && author.x < result.width * 0.45, `${theme}: credits are left of center, inside the page`);
+          assert.ok(title.y < result.height * 0.3, `${theme}: title is in the upper part of the page`);
+          assert.ok(author.y > result.height * 0.55 && author.y + author.height < result.height * 0.9, `${theme}: credits are balanced within the lower part of the page`);
         }
         process.stdout.write(`ok ${theme}/${variant}: one title page, all labels within bounds\n`);
       }
