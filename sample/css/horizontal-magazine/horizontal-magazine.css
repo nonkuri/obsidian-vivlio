@@ -1,0 +1,74 @@
+/* Original Vivlio sample. SPDX-License-Identifier: AGPL-3.0-or-later
+ * A4 / 3 mm bleed. See README.md before changing the paper size.
+ * No imports, remote assets or embedded fonts.
+ */
+:root {
+  writing-mode: horizontal-tb;
+  font-family: var(--vs-font-family, "Yu Gothic", sans-serif);
+  font-size: var(--vs--html-font-size, 10pt);
+  line-height: 1.85;
+  color: #223c40;
+  line-break: strict;
+  overflow-wrap: break-word;
+  --mag-accent: #bb5136;
+}
+@page {
+  size: var(--vs-page--size, A4);
+  marks: var(--vs-page--marks, none);
+  bleed: var(--vs-page--bleed, 0mm);
+  margin: 18mm 18mm 19mm;
+}
+@page :left {
+  @bottom-left { content: counter(page) "   /   FIELD NOTES"; font: 8pt sans-serif; color: #53696b; }
+}
+@page :right {
+  @bottom-right { content: "FIELD NOTES   /   " counter(page); font: 8pt sans-serif; color: #53696b; }
+}
+/* The plugin owns the full-page artwork geometry. Explicitly silence the
+ * margin boxes of this independent theme on those pages. */
+@page vivlio-bleed {
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+@page vivlio-bleed:left { @bottom-left { content: none; } }
+@page vivlio-bleed:right { @bottom-right { content: none; } }
+body { margin: 0; column-gap: 8mm; column-fill: auto; }
+@page cover { @bottom-left { content: none; } @bottom-right { content: none; } }
+@page cover:left { @bottom-left { content: none; } }
+@page cover:right { @bottom-right { content: none; } }
+h1, h2, h3 { font-family: var(--vs--heading-font-family, "Yu Mincho", serif); break-after: avoid; break-inside: avoid; text-align: start; }
+h1 { column-span: all; margin: 0 0 3mm; font-size: 30pt; line-height: 1.3; letter-spacing: .035em; border-left: 2mm solid var(--mag-accent); padding-left: 4mm; }
+h1 + p { column-span: all; margin: 0 0 3mm; font-size: 8pt; letter-spacing: .12em; color: #53696b; text-indent: 0; }
+h1 + p + p { column-span: all; margin: 0 0 7mm; font-size: 12pt; line-height: 1.75; text-indent: 0; }
+/* Vivliostyle page floats provide the full-width opening above the two
+ * columns; column-span alone is not sufficient in the current engine. */
+h1, h1 + p, h1 + p + p { float-reference: page; float: top; width: 100%; box-sizing: border-box; }
+h2 { margin: 5mm 0 3mm; padding-top: 2mm; border-top: .5mm solid var(--mag-accent); font-size: 15pt; line-height: 1.5; }
+h3 { font-size: 12pt; margin: 4mm 0 2mm; }
+p { margin: 0 0 2mm; text-align: justify; text-indent: 1em; orphans: 2; widows: 2; }
+figure { margin: 4mm 0; break-inside: avoid; }
+figure img { display: block; width: 100% !important; height: auto !important; max-width: 100%; }
+figcaption { font-size: 8pt; line-height: 1.55; margin-top: 2mm; color: #53696b; text-align: start; }
+figcaption::before { content: none; }
+/* Article-opening artwork: span both columns, reach 3 mm beyond the top,
+ * left and right trim edges. Negative margins alone do not enlarge artwork:
+ * width AND height are set explicitly. Fixed geometry assumes A4 and marks.
+ * With marks off, the plugin enlarges the sheet to 216 x 303 mm; the offset
+ * becomes zero and this rule reaches the outer sheet edge instead.
+ */
+body > figure:first-child {
+  float-reference: page;
+  float: top;
+  width: calc(100% + 36mm + var(--vivlio-bleed-offset) + var(--vivlio-bleed-offset));
+  height: 70mm;
+  margin: calc(-18mm - var(--vivlio-bleed-offset)) calc(-18mm - var(--vivlio-bleed-offset)) 7mm;
+}
+body > figure:first-child img { width: 100% !important; height: 70mm !important; max-width: none; max-height: none; object-fit: cover; }
+body > figure:first-child figcaption { display: none; }
+.callout { margin: 4mm 0; padding: 4mm; background: #edf1e9; border-left: 1mm solid #728c78; font-size: 9pt; line-height: 1.8; box-decoration-break: clone; }
+.callout-title { font-weight: bold; break-after: avoid; margin-bottom: 2mm; }
+.callout p { text-indent: 0; }
+blockquote { margin: 4mm 0; padding-left: 4mm; border-left: .5mm solid #728c78; }
+ul, ol { padding-left: 1.5em; }
+a { color: inherit; text-decoration: underline; }
+/* Deliberately no screen-media override: Viewer preview and PDF agree. */

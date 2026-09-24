@@ -17,6 +17,8 @@ CSSだけをダウンロードする場合も、本の設定は必要です。�
 |---|---|---|---|
 | 小説の章扉 | 章タイトルを独立した左ページに配置する | `novel`を土台にした縦一段組。章見出しとYAMLの設定が必要 | [使い方・バージョンの注意](css/novel-title-page/README.md) / [CSS](css/novel-title-page/novel-title-page.css) |
 | 図版付きの縦書き段組み | 先頭の横長図版・段内画像・囲みコラム・見開きの柱とノンブル | A4縦四段。先頭図版が一段分を使用。独立CSS、Vivlio 0.17.3で確認 | [使い方・組見本](css/vertical-feature/README.md) / [CSS](css/vertical-feature/vertical-feature.css) / [Markdown原稿](css/vertical-feature/book/01-風の尾根.md) / [設定](css/vertical-feature/book/vivlio.yaml) |
+| 横書き印刷用マガジン | 段抜き見出し・二段組・裁ち落とし図版・囲みコラム。オリジナル原稿とSVG、4ページPDF付き | A4・3mm塗り足し・トンボ。独立CSS、Vivlio 0.17.3で確認 | [使い方・組見本](css/horizontal-magazine/README.md) / [CSS](css/horizontal-magazine/horizontal-magazine.css) / [一式ZIP](downloads/vivlio-sample-horizontal-magazine-0.17.3.zip) |
+| 縦書き印刷用マガジン | 縦三段（冒頭は図版と本文二段）・縦見出し・裁ち落とし図版・囲みコラム。オリジナル原稿とSVG、4ページPDF付き | A4・右綴じ・3mm塗り足し・トンボ。独立CSS、Vivlio 0.17.3で確認 | [使い方・組見本](css/vertical-magazine/README.md) / [CSS](css/vertical-magazine/vertical-magazine.css) / [一式ZIP](downloads/vivlio-sample-vertical-magazine-0.17.3.zip) |
 
 CSSのリンク先で **Raw** を開き、内容を `.css` ファイルとしてVault内へ保存してください。必要な設定は各作例の説明にあります。
 
@@ -26,6 +28,8 @@ CSSのリンク先で **Raw** を開き、内容を `.css` ファイルとして
 
 | サンプル | 試せること | テーマ・追加CSS | バージョン | 使い方・ダウンロード |
 |---|---|---|---|---|
+| 縦書き印刷用マガジン「余白通信」 | 右綴じ・縦三段、冒頭図版、コラム、3mm塗り足し。原稿2本・SVG4点・4ページPDF | Vault内の独立CSSを同梱 | 0.17.3で検証 | [使い方](css/vertical-magazine/README.md) / [一式ZIP](downloads/vivlio-sample-vertical-magazine-0.17.3.zip) / [SHA-256](downloads/vivlio-sample-vertical-magazine-0.17.3.zip.sha256) |
+| 横書き印刷用マガジン「FIELD NOTES」 | 左綴じ・横二段、段抜き見出し、コラム、3mm塗り足し。原稿2本・SVG4点・4ページPDF | Vault内の独立CSSを同梱 | 0.17.3で検証 | [使い方](css/horizontal-magazine/README.md) / [一式ZIP](downloads/vivlio-sample-horizontal-magazine-0.17.3.zip) / [SHA-256](downloads/vivlio-sample-horizontal-magazine-0.17.3.zip.sha256) |
 | 句集・歌集 | 各8作品、詞書・作者・改行、1・2・3作品／頁の比較 | 内蔵 `haiku` / `tanka`。追加CSS不要 | 0.17.0以降 | [使い方](verse-README.md) / [原稿：句集](haiku/index.md)・[歌集](tanka/index.md) / [一式ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.2/sample/downloads/vivlio-sample-verse-0.17.2.zip) |
 | 一般書・エッセイ | 2編の随筆、章・節・引用・箇条書き・図版。PDF・EPUB付き | 内蔵 `essay`。追加CSS不要 | 0.16.0以降 | [使い方](essay-README.md) / [原稿](essay/index.md) / [一式ZIP](https://raw.githubusercontent.com/nonkuri/obsidian-vivlio/0.17.0/sample/downloads/vivlio-sample-essay-0.16.0.zip) |
 | マニュアル・操作ガイド | 4原稿、模式図2点、図表参照、注意書き・長表。16ページのPDF・EPUB付き | 内蔵 `manual`。追加CSS不要 | 0.15.0以降 | [使い方](manual-README.md) / [原稿](manual/index.md) / [一式ZIP](https://github.com/nonkuri/obsidian-vivlio/releases/download/0.15.0/vivlio-sample-manual-0.15.0.zip) |
@@ -36,6 +40,8 @@ CSSのリンク先で **Raw** を開き、内容を `.css` ファイルとして
 古いサンプルを新しいVivlioや異なるフォント環境で出力すると、改ページや文字の収まりが変わる場合があります。原稿・画像・フォントの利用条件は各READMEを参照してください。論文サンプルの数値は合成データで、[再現・検証記録](paper/reproduce/verification.md)も公開しています。
 
 ## 配布・保守について
+
+印刷用マガジン2種は既存の0.17.3タグより後に追加したため、現在のブランチ内の相対リンクで案内しています。ファイル名の0.17.3は検証したプラグインのバージョンです。サンプルを含む次のリリースタグが公開されたら、そのタグに固定したダウンロードリンクへ切り替えます。既存タグは付け替えません。
 
 新しい配布ZIPは `downloads/` に置き、バージョンタグを固定したリンクで案内します。サンプルはプラグインのRelease資産には追加しません。過去のReleaseへのリンクは移設が完了するまで維持します。[リリース手順](../docs/RELEASING.md)を参照してください。
 

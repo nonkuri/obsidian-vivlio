@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="816" height="1144.6667" viewBox="0 0 216 303">
+  <title>FIELD NOTES — 水辺の余白</title>
+  <desc>架空の川と遊歩道を描いた表紙。216×303mm相当、四辺に3mmの塗り足しを含む。</desc>
+  <rect width="216" height="303" fill="#e9e7d9"/>
+  <path d="M137 -20 C60 55 211 118 121 192 S83 283 149 330" fill="none" stroke="#799f9e" stroke-width="83"/>
+  <path d="M132 -20 C58 55 202 118 116 192 S79 283 145 330" fill="none" stroke="#c5d8ce" stroke-width="1"/>
+  <path d="M52 -20 C-6 66 113 127 39 205 S7 293 58 330" fill="none" stroke="#fcf9ed" stroke-width="12"/>
+  <g fill="#2d5654"><circle cx="24" cy="158" r="10"/><circle cx="192" cy="205" r="13"/><circle cx="181" cy="235" r="9"/><circle cx="23" cy="284" r="15"/></g>
+  <g fill="#bb5136" transform="rotate(-19 65 176)"><rect x="51" y="172" width="25" height="4"/><rect x="51" y="178" width="25" height="2"/></g>
+  <rect x="17" y="20" width="182" height="85" fill="#e9e7d9"/>
+  <text x="21" y="31" fill="#bb5136" font-family="Arial,sans-serif" font-size="4" letter-spacing="1.1">A JOURNAL OF EVERYDAY PLACES</text>
+  <g fill="#223c40" font-family="Arial,sans-serif" font-weight="bold" font-size="25" letter-spacing="-1"><text x="19" y="58">FIELD</text><text x="19" y="82">NOTES</text></g>
+  <text x="21" y="98" fill="#223c40" font-family="Yu Gothic,sans-serif" font-size="6">水辺の余白</text>
+  <rect x="17" y="244" width="125" height="39" fill="#e9e7d9"/>
+  <text x="22" y="255" fill="#bb5136" font-family="Arial,sans-serif" font-size="4" letter-spacing=".6">01 / ORIGINAL SAMPLE EDITION</text>
+  <text x="22" y="265" fill="#223c40" font-family="Yu Gothic,sans-serif" font-size="4">水辺に、余白をつくる</text>
+  <text x="22" y="274" fill="#223c40" font-family="Yu Gothic,sans-serif" font-size="4">一脚から始まる、町の仕事</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216mm" height="90mm" viewBox="0 0 2160 900">
+ <title>作業机の上の紙と糸巻き</title><desc>実在の商品を模していないオリジナル図版。</desc>
+ <rect width="2160" height="900" fill="#d8dfce"/>
+ <path d="M0 660 L2160 240 V900 H0Z" fill="#9aaa91"/>
+ <g transform="translate(330 170) rotate(-10 330 250)"><rect width="670" height="530" fill="#536b60"/><rect x="-20" y="-20" width="670" height="530" fill="#faf3de"/><path d="M70 90 H550 M70 160 H480 M70 230 H540 M70 300 H430" stroke="#c3c3a5" stroke-width="9"/><path d="M35 0 V510" stroke="#ba6746" stroke-width="6"/></g>
+ <g transform="translate(1230 180)"><rect x="-120" y="55" width="240" height="335" fill="#b76646"/><ellipse rx="155" ry="60" cy="55" fill="#edc395"/><ellipse rx="155" ry="60" cy="390" fill="#c88f62"/><ellipse rx="38" ry="19" cy="55" fill="#506c60"/><path d="M-120 135 H120 M-120 195 H120 M-120 255 H120 M-120 315 H120" stroke="#efc19a" stroke-width="9"/></g>
+ <path d="M1250 575 Q1450 850 1730 600 T2210 650" stroke="#f4d4ac" stroke-width="14" fill="none"/>
+ <g transform="translate(1600 110) rotate(16)"><rect width="90" height="550" rx="8" fill="#e9c796"/><path d="M10 50 H50 M10 100 H35 M10 150 H50 M10 200 H35 M10 250 H50 M10 300 H35 M10 350 H50 M10 400 H35 M10 450 H50" stroke="#746f57" stroke-width="5"/></g>
+</svg>

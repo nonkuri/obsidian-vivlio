@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="360" viewBox="0 0 660 360">
+  <title>水面・歩く道・休む場所の関係</title>
+  <rect width="660" height="360" fill="#edf1e9"/>
+  <path d="M0 68 Q165 168 330 90 T660 75 V0 H0Z" fill="#799f9e"/>
+  <path d="M-20 173 Q165 260 350 176 T680 175" fill="none" stroke="#fffaf0" stroke-width="48"/>
+  <g fill="#bb5136"><rect x="205" y="267" width="76" height="13"/><rect x="446" y="223" width="76" height="13"/></g>
+  <g fill="#2d5654"><circle cx="82" cy="272" r="26"/><circle cx="563" cy="282" r="32"/></g>
+  <g fill="#223c40" font-family="Yu Gothic,sans-serif" font-size="20"><text x="36" y="45">水面</text><text x="300" y="213">歩く道</text><text x="196" y="315">休む場所</text></g>
+</svg>

@@ -1,0 +1,27 @@
+# Copy horizontal-magazine/ to the Vault root, then preview this book folder.
+title: FIELD NOTES — 水辺の余白
+author: サンプル編集室
+lang: ja
+cover: ./images/cover.svg
+coverInPdf: true
+coverFit: cover
+theme: horizontal-magazine/horizontal-magazine.css
+writingMode: horizontal-tb
+size: A4
+columns: 2
+charsPerLine: null
+linesPerPage: null
+baseFontSize: 10pt
+fontFamily: "'Yu Gothic', 'Hiragino Sans', sans-serif"
+headingFontFamily: "'Yu Mincho', 'Hiragino Mincho ProN', serif"
+startSide: any
+pageNumbering: continuous
+cropMarks: true
+bleed: 3mm
+syntax:
+  callout: true
+sections:
+  halfTitle: off
+  titlePage: off
+  toc: off
+  colophon: off

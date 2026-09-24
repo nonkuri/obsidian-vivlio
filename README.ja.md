@@ -29,6 +29,8 @@ Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版しま
 
 ## サンプル・カスタマイズ
 
+印刷用マガジンの完成サンプル：[縦書き「余白通信」](sample/css/vertical-magazine/README.md) ／ [横書き「FIELD NOTES」](sample/css/horizontal-magazine/README.md)。縦書きは右綴じ・三段（冒頭は図版と本文二段）、横書きは左綴じ・二段と段抜き見出しです。どちらもA4・3mm塗り足し・トンボに対応し、独立CSS、オリジナル原稿2本、SVG4点、4ページの組見本PDF、素材の来歴とライセンスを一式ZIPで配布しています。Vivlio 0.17.3で検証済みのVault内テーマです。
+
 - **自分の原稿の見た目を変えたい** → [CSSカスタマイズ集](sample/README.md#cssカスタマイズ)。章扉や、図版・囲みコラムを含む縦書き段組みのCSSと使い方を掲載しています。
 - **原稿と設定をまとめて試したい** → [完成サンプル集](sample/README.md#完成サンプル)。小説・エッセイ・句集／歌集・マニュアル・論文の原稿、設定、組見本を一式で入手できます。
 

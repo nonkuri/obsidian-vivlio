@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216mm" height="303mm" viewBox="0 0 2160 3030">
+ <title>余白通信 雨と手仕事</title><desc>表紙。背景は四辺の塗り足しまで続き、文字は仕上がり線の内側に配置。</desc>
+ <rect width="2160" height="3030" fill="#e7e9db"/>
+ <path d="M1440 0 H2160 V3030 H1440Z" fill="#405b57"/>
+ <circle cx="640" cy="1200" r="400" fill="#d6ad72"/>
+ <path d="M-100 2270 Q700 1660 1450 2170 T2320 2070 V3100 H-100Z" fill="#8ca69d"/>
+ <path d="M-100 2390 Q700 1780 1450 2290 T2320 2190" stroke="#e8f0e7" stroke-width="18" fill="none"/>
+ <path d="M-100 2540 Q700 1930 1450 2440 T2320 2340" stroke="#d0ddd2" stroke-width="10" fill="none"/>
+ <path d="M220 1780 L650 1410 1110 1780Z" fill="#405b57"/>
+ <path d="M310 1780 H1020 V2210 H310Z" fill="#f5f0df"/><path d="M430 1870 H590 V2210 H430Z" fill="#b96848"/>
+ <path d="M720 1870 H880 V2040 H720Z" fill="#8aa397"/>
+ <g fill="#f4f1df" font-family="Yu Mincho, Hiragino Mincho ProN, serif" font-size="170" text-anchor="middle">
+  <text x="1790" y="500">余</text><text x="1790" y="710">白</text><text x="1790" y="920">通</text><text x="1790" y="1130">信</text>
+ </g>
+ <g fill="#405b57" font-family="Yu Mincho, Hiragino Mincho ProN, serif"><text x="200" y="400" font-size="85">雨と手仕事</text><text x="205" y="520" font-size="34" letter-spacing="6">暮らしの景色を読みなおす</text></g>
+ <g fill="#405b57" font-family="Yu Gothic, sans-serif" font-size="33"><text x="205" y="2700">第一号　｜　縦書き印刷のためのサンプル</text><text x="205" y="2780">文・図版　サンプル編集室</text><text x="205" y="2860" font-size="25">架空の記事とオリジナル図版による組見本</text></g>
+</svg>

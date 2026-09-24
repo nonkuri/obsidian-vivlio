@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216mm" height="90mm" viewBox="0 0 2160 900">
+ <title>雨上がりの屋根と水路</title><desc>架空の町を幾何学図形で描いたオリジナルイラスト。</desc>
+ <rect width="2160" height="900" fill="#e7e9db"/>
+ <circle cx="1640" cy="140" r="210" fill="#d6ad72"/>
+ <path d="M-30 730 Q600 440 1170 620 T2210 440 V940 H-30Z" fill="#99b2aa"/>
+ <path d="M-40 810 Q600 520 1170 700 T2210 520" fill="none" stroke="#e8f0e7" stroke-width="14"/>
+ <path d="M-40 860 Q600 570 1170 750 T2210 570" fill="none" stroke="#cbdad0" stroke-width="8"/>
+ <g fill="#f5f0df"><path d="M180 260 H770 V610 H180Z"/><path d="M890 200 H1350 V580 H890Z"/></g>
+ <g fill="#405b57"><path d="M80 285 L450 40 860 285Z"/><path d="M810 230 L1110 25 1440 230Z"/></g>
+ <g fill="#b96848"><path d="M290 385 H435 V610 H290Z"/><path d="M1020 310 H1140 V580 H1020Z"/></g>
+ <g fill="#8aa397"><path d="M510 360 H665 V485 H510Z"/><path d="M1190 310 H1280 V440 H1190Z"/></g>
+ <g fill="none" stroke="#304d49" stroke-width="11"><path d="M1600 730 V360 M1770 670 V250 M1980 580 V330"/></g>
+ <g fill="#657f67"><ellipse cx="1595" cy="330" rx="90" ry="155"/><ellipse cx="1770" cy="220" rx="105" ry="170"/><ellipse cx="1980" cy="300" rx="100" ry="135"/></g>
+ <g stroke="#f7f3e7" stroke-width="7" opacity=".7"><path d="M90 85 l-20 65 M650 35 l-20 65 M1510 80 l-20 65 M2060 35 l-20 65 M80 460 l-20 65 M1490 380 l-20 65"/></g>
+</svg>

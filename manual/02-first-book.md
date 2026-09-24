@@ -20,6 +20,19 @@
 
 自分の原稿に見た目の変更だけを加えたい場合は、[配布CSSを使う](06-custom-theme.md#配布cssを使う)へ進んでください。
 
+### 印刷用マガジンを試す
+
+[縦書き「余白通信」](../sample/css/vertical-magazine/README.md)と[横書き「FIELD NOTES」](../sample/css/horizontal-magazine/README.md)は、A4・3mm塗り足し・トンボ付きの完成サンプルです。いずれも独立CSS、Markdown原稿2本、オリジナルSVG4点、4ページの組見本PDF、ライセンスを同梱しています。Vivlio 0.17.3で検証しています。
+
+| サンプル | Vault直下へ置くフォルダ | プレビューの対象 | 紙面 |
+|---|---|---|---|
+| 縦書き | `vertical-magazine` | `vertical-magazine/book` | 右綴じ・縦三段。冒頭は図版と本文二段 |
+| 横書き | `horizontal-magazine` | `horizontal-magazine/book` | 左綴じ・横二段。見出しとリードは段抜き |
+
+説明用READMEや組見本PDFを含む外側のフォルダを、組版対象にしないでください。配置を変えた場合は、`book/vivlio.yaml` の `theme` をVaultルートからのパスへ修正します。画像パスは原稿・YAMLからの相対指定です。まず付属設定のまま組み、写真や文章を差し替えた後に全ページを見直してください。
+
+トンボと塗り足しを含むPDFはA4より大きくなります。画像の裁ち落とし寸法・安全域・トンボなしの設定は各READMEを参照してください。組見本はPDF/XやCMYKへの変換を行っていません。EPUBで同じ配置を再現するためのサンプルではありません。
+
 ## 1. Vivlio を有効にする
 
 ### Obsidian からインストールする場合

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1296" height="420" viewBox="0 0 1296 420">
+  <title>直すための机・架空の工房</title>
+  <rect width="1296" height="420" fill="#253f42"/>
+  <path d="M0 345 L480 0 H780 L245 420 H0Z" fill="#35565a"/>
+  <rect x="340" y="65" width="825" height="320" rx="4" fill="#d0b48e"/>
+  <g stroke="#b89b78" stroke-width="2"><path d="M340 125H1165 M340 192H1165 M340 262H1165 M340 331H1165"/></g>
+  <g transform="translate(710 90) rotate(17)"><rect width="52" height="208" rx="5" fill="#bb5136"/><rect x="-36" y="-7" width="124" height="39" rx="4" fill="#e9e7d9"/></g>
+  <g transform="translate(880 210) rotate(-24)"><rect width="181" height="52" rx="8" fill="#223c40"/><rect x="42" y="8" width="139" height="36" fill="#eef0df"/></g>
+  <rect x="396" y="137" width="141" height="160" fill="#fcf9ed" transform="rotate(-7 466 217)"/>
+  <g stroke="#799f9e" stroke-width="4" fill="none"><path d="M422 192L495 184 505 252 432 260Z M435 208L490 202 M440 226L492 220"/></g>
+  <circle cx="1085" cy="121" r="26" fill="#fcf9ed"/><circle cx="1085" cy="121" r="18" fill="#bb5136"/>
+</svg>

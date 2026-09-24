@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="42mm" height="48mm" viewBox="0 0 420 480">
+ <title>雨を受ける</title><desc>屋根から落ちたしずくを受け皿が受ける模式図。</desc>
+ <rect width="420" height="480" fill="#f0f2e9"/>
+ <path d="M40 165 L180 55 340 165" fill="none" stroke="#405b57" stroke-width="20"/>
+ <path d="M80 160 V320 H280 V160" fill="none" stroke="#9aaa91" stroke-width="12"/>
+ <path d="M340 195 Q300 255 340 265 Q380 255 340 195Z" fill="#7ba3a1"/>
+ <path d="M280 330 H390 L375 375 H295Z" fill="#b76646"/>
+ <path d="M40 410 H380" stroke="#a7b09c" stroke-width="6"/>
+</svg>

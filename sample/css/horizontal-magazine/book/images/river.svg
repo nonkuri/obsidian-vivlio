@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1296" height="420" viewBox="0 0 1296 420">
+  <title>凪野の川辺・架空の景観</title>
+  <rect width="1296" height="420" fill="#e9e7d9"/>
+  <path d="M-100 325 C190 490 313 -100 600 123 S996 420 1420 128" fill="none" stroke="#799f9e" stroke-width="204"/>
+  <path d="M-100 325 C190 490 313 -100 600 123 S996 420 1420 128" fill="none" stroke="#c5d8ce" stroke-width="3"/>
+  <path d="M-70 90 C180 254 270 -232 660 -30 S1020 198 1400 -65" fill="none" stroke="#fcf9ed" stroke-width="29"/>
+  <g fill="#2d5654"><circle cx="110" cy="105" r="43"/><circle cx="179" cy="121" r="30"/><circle cx="751" cy="369" r="51"/><circle cx="665" cy="342" r="31"/><circle cx="1149" cy="84" r="41"/></g>
+  <g fill="#bb5136" transform="rotate(25 853 83)"><rect x="800" y="64" width="110" height="12"/><rect x="800" y="85" width="110" height="7"/><rect x="815" y="57" width="6" height="43"/><rect x="889" y="57" width="6" height="43"/></g>
+  <g stroke="#fcf9ed" stroke-width="24"><path d="M355 247 L476 406"/></g>
+  <g stroke="#223c40" stroke-width="3"><path d="M340 258 L460 415 M370 235 L491 395"/></g>
+</svg>

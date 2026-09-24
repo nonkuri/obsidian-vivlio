@@ -1,0 +1,79 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later
+ * Original Vivlio sample: A4, vertical Japanese, 3 mm bleed.
+ * Fixed paper geometry: update YAML and the dimensions below together.
+ */
+:root {
+  writing-mode: vertical-rl;
+  font-family: var(--vs-font-family, "Yu Mincho", serif);
+  font-size: var(--vs--html-font-size, 10pt);
+  line-height: 1.8;
+  line-break: strict;
+  overflow-wrap: break-word;
+  color: #253b3b;
+  --mag-accent: #ac5237;
+  --mag-gap: 8mm;
+}
+@page {
+  size: var(--vs-page--size, A4);
+  marks: var(--vs-page--marks, none);
+  bleed: var(--vs-page--bleed, 0mm);
+  margin: 18mm 18mm 19mm;
+}
+@page :left {
+  @bottom-left { content: counter(page) "　／　余白通信"; writing-mode: horizontal-tb; font: 8pt sans-serif; color: #586a64; }
+}
+@page :right {
+  @bottom-right { content: "余白通信　／　" counter(page); writing-mode: horizontal-tb; font: 8pt sans-serif; color: #586a64; }
+}
+@page cover { @bottom-left { content: none; } @bottom-right { content: none; } }
+@page cover:left { @bottom-left { content: none; } }
+@page cover:right { @bottom-right { content: none; } }
+@page vivlio-bleed { @bottom-left { content: none; } @bottom-right { content: none; } }
+@page vivlio-bleed:left { @bottom-left { content: none; } }
+@page vivlio-bleed:right { @bottom-right { content: none; } }
+body { margin: 0; column-count: 3; column-gap: var(--mag-gap); column-fill: auto; }
+h1, h2, h3 {
+  font-family: var(--vs--heading-font-family, "Yu Gothic", sans-serif);
+  text-align: start;
+  text-indent: 0;
+  break-before: auto;
+  break-after: avoid;
+  break-inside: avoid;
+}
+h1 { font-size: 25pt; line-height: 1.4; letter-spacing: .06em; margin: 0 0 0 5mm; padding-top: 3mm; border-top: 1.3mm solid var(--mag-accent); }
+h1 + p { font: 8pt/1.7 sans-serif; color: #586a64; text-align: end; text-indent: 0; margin-left: 5mm; }
+h1 + p + p { font-size: 11pt; line-height: 1.85; text-indent: 0; margin-left: 5mm; }
+h2 { font-size: 12pt; line-height: 1.6; margin: 0 5mm 0 3mm; padding-top: 2mm; border-top: 1mm solid var(--mag-accent); }
+h3 { font-size: 11pt; margin: 0 3mm; }
+p { margin: 0; text-indent: 1em; text-align: justify; orphans: 2; widows: 2; }
+/* A vertical column's inline extent is its physical height. The opening
+ * page float takes one of the three horizontal bands; later pages use all 3.
+ * The image itself, not only its margin, extends past the trim edges.
+ * Marks off: Vivlio expands the sheet, and sets the bleed offset to zero.
+ */
+body > figure:first-child {
+  float-reference: page;
+  float: top;
+  writing-mode: horizontal-tb;
+  box-sizing: border-box;
+  width: calc(100% + 36mm + var(--vivlio-bleed-offset) + var(--vivlio-bleed-offset));
+  height: 90mm;
+  margin: calc(-18mm - var(--vivlio-bleed-offset)) calc(-18mm - var(--vivlio-bleed-offset)) 12mm;
+  padding: 0;
+}
+body > figure:first-child img { width: 100% !important; height: 90mm !important; max-width: none; max-height: none; object-fit: cover; }
+body > figure:first-child figcaption { display: none; }
+/* Inset illustrations retain their whole image, caption, and aspect ratio.
+ * No bleed is required because these frames never touch the trim edge. */
+figure { writing-mode: horizontal-tb; width: 42mm; height: auto; margin: 0 4mm; break-inside: avoid; }
+figure img { display: block; width: 100% !important; height: auto !important; max-width: 100%; object-fit: contain; }
+figcaption { font: 7.5pt/1.6 sans-serif; color: #586a64; margin-top: 2mm; text-align: start; }
+figcaption::before { content: none; }
+.callout { margin: 0 4mm; padding: 3mm; background: #f0f2e9; border-top: .8mm solid #748575; font-size: 9pt; line-height: 1.8; box-decoration-break: clone; }
+.callout-title { font-family: sans-serif; font-weight: bold; margin-left: 2mm; break-after: avoid; text-indent: 0; }
+.callout p { text-indent: 0; }
+blockquote { margin: 0 4mm; padding: 2mm; border-top: .5mm solid #748575; }
+.tcy { text-combine-upright: all; }
+rt { font-size: .5em; }
+a { color: inherit; text-decoration: underline; }
+/* No screen override: the Viewer preview uses the same paper composition. */

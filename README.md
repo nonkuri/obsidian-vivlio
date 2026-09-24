@@ -44,6 +44,8 @@ The [manual sample](sample/manual/index.md) exercises the updated `manual` theme
 
 ## Samples and CSS customizations
 
+Print magazine packages: [vertical Japanese “余白通信”](sample/css/vertical-magazine/README.md) / [horizontal Japanese “FIELD NOTES”](sample/css/horizontal-magazine/README.md). The vertical edition uses right binding and three text bands (an illustration and two text bands on article-opening pages); the horizontal edition uses left binding, two columns and full-width headings. Both use A4, 3 mm bleed and crop marks. Each ZIP contains standalone CSS, two original articles, four SVG illustrations, a four-page sample PDF, source credits and a license. These are vault CSS samples tested with Vivlio 0.17.3, not built-in themes. Setup guides are in Japanese.
+
 - **Restyle your own manuscript** → [CSS customizations](sample/README.md#cssカスタマイズ): chapter title pages and vertical multicolumn layouts with illustrations and callout boxes.
 - **Try a complete book** → [Complete samples](sample/README.md#完成サンプル): manuscripts, YAML settings, required assets and example outputs for fiction, essays, haiku/tanka, manuals and papers.
 

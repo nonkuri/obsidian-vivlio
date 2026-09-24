@@ -1,0 +1,27 @@
+# Copy vertical-magazine/ to the Vault root; preview vertical-magazine/book.
+title: 余白通信 — 雨と手仕事
+author: サンプル編集室
+lang: ja
+theme: vertical-magazine/vertical-magazine.css
+cover: ./images/cover.svg
+coverInPdf: true
+coverFit: cover
+writingMode: vertical-rl
+size: A4
+columns: 3
+charsPerLine: null
+linesPerPage: null
+baseFontSize: 10pt
+fontFamily: "'Yu Mincho', 'Hiragino Mincho ProN', serif"
+headingFontFamily: "'Yu Gothic', 'Hiragino Sans', sans-serif"
+startSide: any
+pageNumbering: continuous
+cropMarks: true
+bleed: 3mm
+syntax:
+  callout: true
+sections:
+  halfTitle: off
+  titlePage: off
+  toc: off
+  colophon: off
