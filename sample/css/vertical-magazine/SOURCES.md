@@ -4,9 +4,9 @@
 
 ## 参照先
 
-[Vivliostyle Web Magazine Sample](https://github.com/vivliostyle/vivliostyle_doc/tree/gh-pages/samples/webmag) と縦書き用の `viv-print-v.css` / `viv-style-v.css` を構成・技術の参考として確認しました。参照先READMEは、日本ビジネスプレスの承諾を受けて記事を利用していると説明しています。その許諾が今回の配布物にも及ぶとは扱っていません。
+[Vivliostyle Web Magazine Sample](https://github.com/vivliostyle/vivliostyle_doc/tree/gh-pages/samples/webmag) と縦書き用の `viv-print-v.css` / `viv-style-v.css` を構成・技術の参考として確認しました。
 
-参照先のCSS・HTML・文章・写真・ロゴ・スクリーンショットは同梱していません。原稿は架空の町と作業室を題材に新規に書いたフィクションであり、実在の取材・人物の発言・報道ではありません。SVGは幾何学図形をコードで組み立てた新規のイラストで、第三者の写真やイラストのトレースではありません。
+なお、参考にしたのは、組版の考え方です。記事、画像は独自に作成したものであり、参照先のCSS・HTML・文章・写真・ロゴ・スクリーンショットは同梱していません。また、参照先と同じページマスターや、図版への本文回り込みを再現するものではありません。原稿は架空の町と作業室を題材に新規に書いたフィクションであり、実在の取材・人物の発言・報道ではありません。SVGは幾何学図形をコードで組み立てた新規のイラストで、第三者の写真やイラストのトレースではありません。
 
 ## ファイル別の来歴
 
