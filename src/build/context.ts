@@ -87,6 +87,8 @@ export interface BuildContext {
   /** Base URL for bundled themes. */
   themeBase: string;
   signal?: AbortSignal;
+  /** Exact text represented by the current preview, including embedded notes. */
+  sourceTexts?: Map<string, string>;
 }
 
 export function warn(context: BuildContext, warning: BuildWarning): void {

@@ -24,6 +24,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
 
   "view.title": "Vivlio プレビュー",
   "view.rebuild": "再ビルド",
+  "view.syncOn": "カーソル連動：オン",
+  "view.syncOff": "カーソル連動：オフ",
+  "view.syncDescription": "エディタの段落に追従し、プレビューの文章をクリックすると原稿へ移動します。押すと両方向の連動を切り替えます。",
   "view.theme": "テーマ",
   "view.exportPdf": "PDF",
   "view.exportEpub": "EPUB",

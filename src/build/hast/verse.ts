@@ -3,6 +3,7 @@ import { warn, type BuildContext } from "../context";
 import { PAGE_BREAK_CLASS } from "../replace/rules";
 import { BUNDLED_THEME_GRIDS } from "../../vendor/assets";
 import { t } from "../../i18n";
+import { copySourceProperties } from "../sourceMap";
 
 /** One callout is one work, independently of the selected layout. */
 export function verseElement(kind: string, preface: string, children: UNode[]): UElement {
@@ -14,6 +15,7 @@ export function verseElement(kind: string, preface: string, children: UNode[]): 
     if (isText(first) && /^作者[：:][ \t]*/.test(first.value)) {
       first.value = first.value.replace(/^作者[：:][ \t]*/, "");
       author = element("p", { className: ["vivlio-verse-author"] }, last.children);
+      copySourceProperties(last.properties, author.properties);
       body.pop();
     }
   }

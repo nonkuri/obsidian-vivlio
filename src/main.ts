@@ -1,5 +1,6 @@
 import {
   Notice,
+  MarkdownView,
   Plugin,
   TFile,
   TFolder,
@@ -7,7 +8,9 @@ import {
   type Editor,
   type Menu,
   type WorkspaceLeaf,
+  editorInfoField,
 } from "obsidian";
+import { EditorView } from "@codemirror/view";
 import { load as loadYaml } from "js-yaml";
 import { DEFAULT_SETTINGS } from "./config/defaults";
 import { normalizeViewerPreferences } from "./config/viewer";
@@ -62,6 +65,15 @@ export default class VivlioPlugin extends Plugin {
       VIEW_TYPE_PREVIEW,
       (leaf: WorkspaceLeaf) => new VivlioPreviewView(leaf, this),
     );
+    this.registerEditorExtension(EditorView.updateListener.of(update => {
+      if (!update.selectionSet && !update.docChanged && !update.focusChanged) return;
+      if (!update.view.hasFocus) return;
+      const info = update.state.field(editorInfoField, false);
+      if (!info?.file || !info.editor) return;
+      for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_PREVIEW)) {
+        if (leaf.view instanceof VivlioPreviewView) leaf.view.followEditor(info.file, info.editor);
+      }
+    }));
 
     // The views are always registered; only the extension claim is optional.
     // A leaf saved in the workspace layout has to find its view type again
@@ -353,6 +365,8 @@ export default class VivlioPlugin extends Plugin {
   }
 
   async openPreview(target?: BuildTarget): Promise<void> {
+    const source = this.app.workspace.getActiveViewOfType(MarkdownView);
+    const resolved = target ?? this.activeTarget();
     const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_PREVIEW);
     const leaf = leaves[0] ?? this.app.workspace.getRightLeaf(false);
     if (!leaf) return;
@@ -361,7 +375,7 @@ export default class VivlioPlugin extends Plugin {
     await this.app.workspace.revealLeaf(leaf);
 
     const view = leaf.view as VivlioPreviewView;
-    const resolved = target ?? this.activeTarget();
+    if (source?.file) view.followEditor(source.file, source.editor);
     if (resolved) await view.show(resolved);
   }
 

@@ -253,12 +253,12 @@ async function main(): Promise<void> {
     check("a body chapter is marked as body", /<html[^>]*class="[^"]*vivlio-body/.test(html)),
     check(
       "a paragraph opening with a bracket takes no indent",
-      html.includes('<p class="vivlio-no-indent">「この行は字下げされない」'),
+      /<p\b[^>]*class="vivlio-no-indent"[^>]*>「この行は字下げされない」/.test(html),
       html.slice(html.indexOf("この行は") - 60, html.indexOf("この行は") + 40),
     ),
     check(
       "an ordinary paragraph keeps the indent",
-      !/<p class="vivlio-no-indent">[^「]/.test(html),
+      !/<p\b[^>]*class="vivlio-no-indent"[^>]*>[^「]/.test(html),
     ),
     // The mark goes away and the block after it carries the break, because a
     // box with no height in the flow never finishes composing (liftPageBreaks).
@@ -498,7 +498,7 @@ async function main(): Promise<void> {
   checks.push(
     check(
       "three blank lines open one",
-      /<p class="vivlio-blank-lines" style="--vivlio-blank-lines: 1">みっつめ。/.test(spaced),
+      /<p\b[^>]*class="vivlio-blank-lines" style="--vivlio-blank-lines: 1"[^>]*>みっつめ。/.test(spaced),
       spaced.slice(spaced.indexOf("<p>"), spaced.indexOf("</section>")),
     ),
     check(
@@ -599,17 +599,17 @@ async function main(): Promise<void> {
   checks.push(
     check(
       "the manuscript's own indent is kept",
-      selfIndented.includes("<p>地の文です。</p>"),
+      /<p\b(?![^>]*class=)[^>]*>地の文です。<\/p>/.test(selfIndented),
       selfIndented,
     ),
     check(
       "and a paragraph it left flush stays flush",
-      selfIndented.includes('<p class="vivlio-no-indent">「会話です」</p>'),
+      /<p\b[^>]*class="vivlio-no-indent"[^>]*>「会話です」<\/p>/.test(selfIndented),
       selfIndented,
     ),
     check(
       "even where it opens with a bracket",
-      selfIndented.includes("<p>「引用から始まる地の文です」と彼は言った。</p>"),
+      /<p\b(?![^>]*class=)[^>]*>「引用から始まる地の文です」と彼は言った。<\/p>/.test(selfIndented),
       selfIndented,
     ),
   );
@@ -1738,6 +1738,21 @@ async function main(): Promise<void> {
   checks.push(check("long work is retained, warned about and isolated from the next work",
     longVerse.warnings.some(w => w.kind === "unsupported") && longHtml.includes("最後の言葉") &&
     longHtml.includes("vivlio-verse-long") && (longHtml.match(/class="vivlio-verse-page"/g) ?? []).length === 2, longHtml));
+
+  const syncContext = makeContext();
+  const embeddedSource = "---\ntitle: Embedded\n---\n# Part\n\nEmbedded paragraph.";
+  syncContext.app.vault.cachedRead = async () => embeddedSource;
+  const syncHtml = await convertChapter(syncContext, syncContext.chapters[0], chapterOne,
+    "---\ntitle: Source\n---\n# Heading\n\nParagraph.\n\n- Item\n\n```js\nconst a = 1;\n```\n\n![[02#Part]]");
+  checks.push(
+    check("preview maps original paragraph lines including frontmatter", /<p[^>]*data-vivlio-start="5"/.test(syncHtml)),
+    check("preview maps list items", /<li[^>]*data-vivlio-start="7"/.test(syncHtml)),
+    check("preview maps code after VFM replaces its attributes", /<code[^>]*data-vivlio-start="9"/.test(syncHtml)),
+    check("preview maps section embeds to the original note", /<p[^>]*data-vivlio-source="book\/02.md"[^>]*data-vivlio-start="5"/.test(syncHtml), syncHtml),
+    check("preview remembers exact embedded source text", syncContext.sourceTexts?.get(chapterTwo.path) === embeddedSource),
+  );
+  const syncExport = await convertChapter({ ...syncContext, mode: "epub" }, syncContext.chapters[0], chapterOne, "# Heading\n\nParagraph.");
+  checks.push(check("exports omit source synchronization metadata", !syncExport.includes("data-vivlio-source")));
 
   let failed = 0;
   for (const result of checks) {

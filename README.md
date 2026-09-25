@@ -1,6 +1,6 @@
 # Vivlio
 
-New in 0.17.0: `haiku` / `tanka` themes with [manuscripts, settings and verification instructions](sample/verse-README.md). Explicit work boundaries let the same manuscript use one, two or three works per page. These themes are built into the plugin; no extra theme CSS is needed.
+New in 0.18.0: paragraph-level synchronization between the editor and preview in both directions. Click preview text to jump to its source; notes that are not already open use a new tab without splitting the editor.
 
 **English** | [日本語](README.ja.md)
 
@@ -67,6 +67,10 @@ Desktop Obsidian 1.8.7 or later. The plugin prints through the Chromium that
 Obsidian is already running, which is why there is no mobile build.
 
 ## Opening the preview
+
+**Sync cursor: on/off** in the preview toolbar displays the current state; clicking it toggles both directions for that pane. It starts on when a preview opens. Moving the editor cursor follows the start of its paragraph in the preview; clicking preview text opens the source note at that paragraph's first line. An already open note uses its existing tab; other notes open in a new tab without splitting the editor. Headings and list items also work. Links keep their normal behavior, and selecting text does not move the editor.
+
+Synchronization waits until the displayed preview matches the edited source. With automatic refresh disabled, use **Rebuild** after editing. A paragraph spanning several pages follows its first page; generated content without a source paragraph has no cursor target.
 
 Three ways in, whichever is nearest to hand:
 
@@ -426,15 +430,18 @@ local server outside Obsidian, against a small stub of the app's API.
 
 ## Releasing
 
-`npm version patch` (or `minor` / `major`) writes the new number into
-`package.json`, `manifest.json` and `versions.json` in one go. Pushing the tag
-it creates is the whole release: the workflow builds the bundle, checks that
-the tag and the manifest agree, and uploads the three files as loose assets —
-which is the shape Obsidian's installer expects.
+Follow [the release procedure](docs/RELEASING.md). Update the documentation and
+release notes, bump the version metadata without creating a tag, then run the
+tests and production build. Commit and push to `main`, wait for CI to pass,
+and tag that same commit with the manifest version (without a `v` prefix).
+The Release workflow builds, attests and uploads only `main.js`, `manifest.json`
+and `styles.css`. Verify the published version and all three assets afterward.
 
 ```bash
-npm version patch
-git push --follow-tags
+npm version <version> --no-git-tag-version --ignore-scripts
+node version-bump.mjs
+npm test
+npm run build
 ```
 
 ## How it works

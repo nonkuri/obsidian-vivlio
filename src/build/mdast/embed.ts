@@ -1,6 +1,7 @@
 import type { TFile } from "obsidian";
 import { warn, type BuildContext } from "../context";
 import { visit, type UNode } from "../../util/tree";
+import { markSource } from "../sourceMap";
 
 const MAX_DEPTH = 3;
 
@@ -91,6 +92,14 @@ async function expand(
 /** The embed target when a paragraph holds nothing but one embed. */
 function onlyEmbed(paragraph: UNode): EmbedTarget | null {
   const children = paragraph.children ?? [];
+  // remark-parse splits ![[Note]] into text, a shortcut link reference, and
+  // closing text. Recognize that spelling before requiring one text node.
+  if (children.length === 3 && children[0].type === "text" && children[0].value === "![" &&
+      children[1].type === "linkReference" && children[1].referenceType === "shortcut" &&
+      typeof children[1].label === "string" && children[2].type === "text" && children[2].value === "]") {
+    const match = `![[${children[1].label}]]`.match(EMBED);
+    return match ? parseEmbed(match) : null;
+  }
   if (children.length !== 1 || children[0].type !== "text") return null;
   const value = String((children[0] as { value?: unknown }).value ?? "").trim();
   const match = value.match(EMBED);
@@ -146,7 +155,12 @@ async function loadEmbed(
     return null;
   }
 
-  const root = parse(stripFrontmatter(source));
+  const body = stripFrontmatter(source);
+  const root = parse(body);
+  if (context.mode === "preview") {
+    (context.sourceTexts ??= new Map()).set(file.path, source);
+    markSource(root, file.path, source.slice(0, source.length - body.length).split("\n").length - 1);
+  }
   let children = (root.children ?? []).filter(
     (node) => node.type !== "yaml" && node.type !== "toml",
   );

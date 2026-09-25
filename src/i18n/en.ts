@@ -24,6 +24,9 @@ export const en = {
 
   "view.title": "Vivlio preview",
   "view.rebuild": "Rebuild",
+  "view.syncOn": "Sync cursor: on",
+  "view.syncOff": "Sync cursor: off",
+  "view.syncDescription": "Follow the editor paragraph; click preview text to open its source. Toggle to disable both directions.",
   "view.theme": "Theme",
   "view.exportPdf": "PDF",
   "view.exportEpub": "EPUB",

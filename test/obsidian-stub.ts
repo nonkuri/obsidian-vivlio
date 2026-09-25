@@ -47,6 +47,7 @@ export class Modal {}
 export class Setting {}
 export class PluginSettingTab {}
 export class ItemView {}
+export class MarkdownView {}
 export class Plugin {}
 
 /** The app's language. Outside Obsidian there is none, so English. */

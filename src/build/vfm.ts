@@ -33,6 +33,7 @@ import {
 import { DOCUMENT_ANCHOR, isBookTitleHeading } from "./toc";
 import { t } from "../i18n";
 import { log } from "../util/log";
+import { sourcePlugin, sourcePropertiesPlugin } from "./sourceMap";
 
 /** Stylesheet every generated document links to. */
 export const BOOK_STYLESHEET = "vivlio.css";
@@ -55,6 +56,7 @@ export async function convertChapter(
   file: TFile,
   markdown: string,
 ): Promise<string> {
+  if (context.mode === "preview") (context.sourceTexts ??= new Map()).set(file.path, markdown);
   const metadata = buildMetadata(context, chapter, markdown);
   const rules = notationRules(context.config);
 
@@ -96,6 +98,7 @@ export async function convertChapter(
       editPlugins: (plugins) =>
         ({
         mdastPlugins: [
+          ...(context.mode === "preview" ? [sourcePlugin(file.path)] : []),
           // Head: stages that need to read other files (SPEC 5.3 #1, #2).
           ...(context.config.syntax.embed ? [embedPlugin(context, file.path)] : []),
           ...(context.config.syntax.dynamic
@@ -103,6 +106,7 @@ export async function convertChapter(
             : []),
           imageSizePlugin,
           ...plugins.mdastPlugins,
+          ...(context.mode === "preview" ? [sourcePropertiesPlugin] : []),
         ],
         mdastToHastHandlers: plugins.mdastToHastHandlers,
         hastPlugins: [

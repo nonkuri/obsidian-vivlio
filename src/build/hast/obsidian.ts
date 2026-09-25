@@ -1,5 +1,6 @@
 import type { BuildContext } from "../context";
 import { verseElement } from "./verse";
+import { copySourceProperties } from "../sourceMap";
 import {
   addClass,
   element,
@@ -71,7 +72,9 @@ function convertCallouts(tree: UNode): void {
     );
 
     if (type === "haiku" || type === "tanka") {
-      parent.children[index] = verseElement(type, title, body);
+      const verse = verseElement(type, title, body);
+      copySourceProperties(node.properties, verse.properties);
+      parent.children[index] = verse;
       return;
     }
 
@@ -83,6 +86,7 @@ function convertCallouts(tree: UNode): void {
         ...body,
       ],
     );
+    copySourceProperties(node.properties, aside.properties);
     parent.children[index] = aside;
   });
 }
