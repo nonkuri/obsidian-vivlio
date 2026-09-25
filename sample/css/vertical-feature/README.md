@@ -15,7 +15,7 @@ Vivlio **0.17.3**、A4・縦書きで確認しています。ベーステーマ�
 
 ## 試す手順
 
-1. この `vertical-feature` フォルダ全体を、ObsidianのVault直下にコピーします。
+1. この `vertical-feature` フォルダ全体を、ObsidianのVault内の任意の場所にコピーします。
 2. Obsidianで **`vertical-feature/book` フォルダを対象に** Vivlioのプレビューを開きます。
 3. 再ビルドし、図版の下の本文三段と、続きのページを確認します。
 
@@ -45,7 +45,7 @@ Vault/
 
 説明用READMEは `book` の外にあるため、本文に含まれません。`vertical-feature` 自体を組版対象にはしないでください。原稿はフォルダ単位で組む前提で、`#` が記事の題名、`##` が節見出しです。
 
-`theme: vertical-feature/vertical-feature.css` は **Vaultルートからのパス**です。別の場所へコピーした場合は、`book/vivlio.yaml` の `theme` を実際の配置に合わせて変更します。リポジトリ全体をVaultにしている場合は `sample/css/vertical-feature/vertical-feature.css` と指定します。
+`theme: ../vertical-feature.css` は `book/vivlio.yaml` からの相対指定です。フォルダ内の構成を保てば、Vault 内のどこへ移動しても、外側のフォルダ名を変えても修正不要です。この指定にはVivlio 0.17.4以降が必要です。未対応の 0.17.3 では、`theme` を CSS の Vault ルート基準のパス（例: `vertical-feature/vertical-feature.css`）へ変更してください。
 
 このCSSはVivlioの書籍用です。Obsidianの外観設定のCSSスニペットには登録しません。本文ページ用の作例なので、同梱設定では扉・目次・奥付を無効にしています。
 

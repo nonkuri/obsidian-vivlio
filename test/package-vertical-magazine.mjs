@@ -8,7 +8,7 @@ import { createHash } from 'node:crypto';
 import JSZip from 'jszip';
 
 const base = 'sample/css/vertical-magazine';
-const name = 'vivlio-sample-vertical-magazine-0.17.3.zip';
+const name = 'vivlio-sample-vertical-magazine-0.17.4.zip';
 const entries = [
   'README.md', 'SOURCES.md', 'LICENSE', 'vertical-magazine.css',
   'vertical-magazine.pdf', 'preview.png', 'book/vivlio.yaml',

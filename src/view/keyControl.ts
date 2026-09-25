@@ -41,10 +41,10 @@ const CUSTOM_KEYS: NoteKey[] = ["botenMark"];
  * dropdown that silently reads as its first entry would change the book the
  * moment it was opened.
  */
-export function keyChoices(app: App, key: NoteKey, current = ""): Choice[] {
+export function keyChoices(app: App, key: NoteKey, current = "", sourcePath?: string): Choice[] {
   switch (key) {
     case "theme":
-      return themeChoices(app, current).map((choice) => ({
+      return themeChoices(app, current, sourcePath).map((choice) => ({
         value: choice.value,
         label: choice.label,
       }));
@@ -93,9 +93,9 @@ export function keyChoices(app: App, key: NoteKey, current = ""): Choice[] {
 }
 
 /** What kind of control answers this key. */
-export function keyControl(app: App, key: NoteKey, current = ""): KeyControl {
+export function keyControl(app: App, key: NoteKey, current = "", sourcePath?: string): KeyControl {
   if (BOOLEAN_KEYS.includes(key)) return { kind: "bool" };
-  const choices = keyChoices(app, key, current);
+  const choices = keyChoices(app, key, current, sourcePath);
   if (choices.length === 0) return { kind: "text" };
   return { kind: "select", choices, custom: CUSTOM_KEYS.includes(key) };
 }

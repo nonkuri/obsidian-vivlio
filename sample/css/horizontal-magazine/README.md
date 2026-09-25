@@ -1,6 +1,6 @@
 # 横書き印刷用マガジン「FIELD NOTES」
 
-Vivlio **0.17.3** 用の独立CSSと、架空の町を題材にしたMarkdown原稿・SVG図版の配布サンプルです。A4縦・左綴じ・横書き二段組。大きな段抜き見出し、リード、裁ち落とし図版、囲みコラム、小口側のノンブルを試せます。
+Vivlio **0.17.4以降** 用の独立CSSと、架空の町を題材にしたMarkdown原稿・SVG図版の配布サンプルです。A4縦・左綴じ・横書き二段組。大きな段抜き見出し、リード、裁ち落とし図版、囲みコラム、小口側のノンブルを試せます。
 
 ![4ページの組見本](preview.png)
 
@@ -11,13 +11,13 @@ Vivlio **0.17.3** 用の独立CSSと、架空の町を題材にしたMarkdown原
 
 ## 使い方
 
-1. ZIPを展開し、`horizontal-magazine` フォルダをそのままVault直下へコピーします。
+1. ZIPを展開し、`horizontal-magazine` フォルダをそのままVault内の任意の場所へコピーします。
 2. **`horizontal-magazine/book` フォルダを対象に**Vivlioのプレビューを開き、再ビルドします。
 3. PDFを書き出します。トンボ・3mm塗り足しは同梱YAMLで指定済みです。
 
 CSSをObsidianの外観設定の「CSSスニペット」に登録する必要はありません。追加テーマやインターネット接続も不要です。フォントは端末の游ゴシック・游明朝などを使います。
 
-`theme` は **Vaultルートからのパス**です。違う場所へ置いた場合はYAMLを変更してください。このリポジトリ全体をVaultにする場合は `sample/css/horizontal-magazine/horizontal-magazine.css` です。`cover` は `book` からの相対パスです。
+`theme: ../horizontal-magazine.css` は `book/vivlio.yaml` からの相対指定です。フォルダ内の構成を保てば、Vault 内のどこへ移動しても、外側のフォルダ名を変えても修正不要です。この指定にはVivlio 0.17.4以降が必要です。未対応の 0.17.3 では、`theme` を CSS の Vault ルート基準のパス（例: `horizontal-magazine/horizontal-magazine.css`）へ変更してください。
 
 説明用README・PDF・ライセンスは `book` の外に置いています。`horizontal-magazine` 全体を組版対象にすると説明まで本文に入るため、必ず `book` を指定してください。表紙はYAMLの `cover` で読み込み、本文原稿には含めません。表紙はノンブルに数えず、本文は1から始まります。
 

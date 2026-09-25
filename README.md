@@ -343,11 +343,11 @@ does not show this warning.
 
 ## A theme of your own
 
-`theme:` also takes the vault-relative path of a stylesheet, and that stylesheet
+`theme:` also takes a stylesheet path. Since 0.17.4, paths beginning with `./` or `../` are relative to the YAML file (or the note for frontmatter), so a book and its CSS can move together. Other paths and global settings remain vault-root-relative. The stylesheet
 can start from a bundled one:
 
 ```css
-/* 装丁/私の本.css */
+/* 装丁/私の本.css, beside vivlio.yaml */
 @import url("vivlio:novel");
 
 :root {
@@ -360,7 +360,7 @@ can start from a bundled one:
 
 ```yaml
 # vivlio.yaml
-theme: 装丁/私の本.css
+theme: ./装丁/私の本.css
 ```
 
 Since 0.17.3, importing `novel`, `novel-2col`, `essay`, `haiku`, `tanka` or

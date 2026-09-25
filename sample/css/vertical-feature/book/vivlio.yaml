@@ -1,8 +1,8 @@
-# vertical-feature フォルダ全体を Vault の直下へコピーして使用する。
+# vertical-feature フォルダ全体を Vault 内の任意の場所へコピーして使用する。
 title: 風の尾根
 author: サンプル編集室
 lang: ja
-theme: vertical-feature/vertical-feature.css
+theme: ../vertical-feature.css
 writingMode: vertical-rl
 size: A4
 columns: 4

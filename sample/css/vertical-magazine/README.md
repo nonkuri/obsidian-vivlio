@@ -1,6 +1,6 @@
 # 縦書き印刷用マガジン「余白通信」
 
-A4・右綴じ・縦書き三段を基本にした、Vivlio **0.17.3** 用の独立CSSです。記事冒頭は裁ち落とし図版と本文二段、続きのページは本文三段。縦見出し・リード・囲みコラム・段内図版・小口側のノンブルを備えています。
+A4・右綴じ・縦書き三段を基本にした、Vivlio **0.17.4以降** 用の独立CSSです。記事冒頭は裁ち落とし図版と本文二段、続きのページは本文三段。縦見出し・リード・囲みコラム・段内図版・小口側のノンブルを備えています。
 
 ![組見本の全4ページ](preview.png)
 
@@ -10,11 +10,11 @@ A4・右綴じ・縦書き三段を基本にした、Vivlio **0.17.3** 用の独
 
 ## 使い方
 
-1. ZIPを展開し、`vertical-magazine` フォルダ全体をObsidianのVault直下へコピーします。
+1. ZIPを展開し、`vertical-magazine` フォルダ全体をObsidianのVault内の任意の場所へコピーします。
 2. **`vertical-magazine/book` フォルダを対象に** Vivlioプレビューを開き、再ビルドします。
 3. PDF書き出しで仕上がりを確認します。用紙サイズはA4、塗り足しは3mm、トンボは有効が既定です。
 
-`theme: vertical-magazine/vertical-magazine.css` はVaultルート相対です。別の場所に置いたら、この設定も変更してください。リポジトリ全体をVaultにする場合は `sample/css/vertical-magazine/vertical-magazine.css` にします。画像のパスは原稿・YAMLからの相対指定なので、フォルダ構成を保てば変更不要です。
+`theme: ../vertical-magazine.css` は `book/vivlio.yaml` からの相対指定です。フォルダ内の構成を保てば、Vault 内のどこへ移動しても、外側のフォルダ名を変えても修正不要です。この指定にはVivlio 0.17.4以降が必要です。未対応の 0.17.3 では、`theme` を CSS の Vault ルート基準のパス（例: `vertical-magazine/vertical-magazine.css`）へ変更してください。
 
 `vertical-magazine` 自体を組版すると説明用Markdownまで収録されるため、必ず `book` を対象にします。CSSはVivlioのテーマとして使い、Obsidianの外観用CSSスニペットには登録しません。内蔵テーマの追加読み込みも不要です。
 

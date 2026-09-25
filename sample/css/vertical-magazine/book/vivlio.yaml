@@ -1,8 +1,8 @@
-# Copy vertical-magazine/ to the Vault root; preview vertical-magazine/book.
+# Copy vertical-magazine/ anywhere inside the Vault; preview vertical-magazine/book.
 title: 余白通信 — 雨と手仕事
 author: サンプル編集室
 lang: ja
-theme: vertical-magazine/vertical-magazine.css
+theme: ../vertical-magazine.css
 cover: ./images/cover.svg
 coverInPdf: true
 coverFit: cover

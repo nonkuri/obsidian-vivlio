@@ -33,6 +33,12 @@ export function dirname(path: string): string {
   return i <= 0 ? "" : path.slice(0, i);
 }
 
+/** Explicit relative path from a configuration file to a vault asset. */
+export function relativeVaultPath(sourcePath: string, assetPath: string): string {
+  const relative = nodePath.posix.relative(dirname(sourcePath.replace(/\\/g, "/")), assetPath.replace(/\\/g, "/"));
+  return relative.startsWith("../") ? relative : `./${relative}`;
+}
+
 export function extname(path: string): string {
   const name = basename(path);
   const i = name.lastIndexOf(".");

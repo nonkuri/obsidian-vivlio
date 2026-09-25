@@ -1,11 +1,11 @@
-# Copy horizontal-magazine/ to the Vault root, then preview this book folder.
+# Copy horizontal-magazine/ anywhere inside the Vault, then preview this book folder.
 title: FIELD NOTES — 水辺の余白
 author: サンプル編集室
 lang: ja
 cover: ./images/cover.svg
 coverInPdf: true
 coverFit: cover
-theme: horizontal-magazine/horizontal-magazine.css
+theme: ../horizontal-magazine.css
 writingMode: horizontal-tb
 size: A4
 columns: 2

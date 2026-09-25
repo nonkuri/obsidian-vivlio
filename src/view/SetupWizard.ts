@@ -514,7 +514,7 @@ export class SetupWizard extends Modal {
   ): void {
     const current = this.get(key);
     const options =
-      choices ?? keyChoices(this.app, key, current === undefined ? "" : String(current));
+      choices ?? keyChoices(this.app, key, current === undefined ? "" : String(current), this.configPath);
     this.row(container, key, desc).addDropdown((dropdown) => {
       dropdown.addOption(
         USE_DEFAULT,

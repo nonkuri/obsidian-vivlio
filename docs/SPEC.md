@@ -563,7 +563,7 @@ colophonExtra:            # 奥付に足す任意の項目 → 5.11
   装丁: 架空花子
 
 # 組版
-theme: novel              # novel | novel-2col | manual | <vault内のcssパス>（bunko / techbook / academic / base も解決はする）
+theme: novel              # 同梱名 | ./style.css（YAML基準）| 装丁/shared.css（Vaultルート基準）（bunko / techbook / academic / base も解決はする）
 writingMode: vertical-rl  # vertical-rl | horizontal-tb
 size: 文庫                # 文庫（=A6）| 新書 | JIS-B6 | 四六判 | A5 | JIS-B5 | B5 | A4 | letter | "128mm 188mm"
 charsPerLine: 40          # 1段の字詰め。省略するとテーマの既定グリッド → 5.10
@@ -648,6 +648,7 @@ vivlio-start-page: 1
   選択したノートの frontmatter を本全体へ適用する。通常の章ノートの `vivlio-theme` や
   `vivlio-writing-mode` で章だけの組版設定は変えられない。章のスタイルにはクラスと CSS を使う。
   `vivlio-order` / `vivlio-toc` / `vivlio-paper-role` はノート固有の情報として扱う。
+- `theme` の `./`・`../` は指定元の YAML ファイル基準、frontmatter では指定元ノート基準で解決する。設定を合成する前に各レイヤーの基準を確定し、保存済みの値は書き換えない。それ以外のパスと全体設定は Vault ルート基準のまま維持する。同梱テーマ名は従来どおり。見つからない相対指定は他の場所へ探索せず警告し、既定テーマを使う。Vault 外への参照は認めない。ウィザードとノートのプロパティ編集は、新しく選んだ CSS を相対指定で保存し、既存値は保持する。
 - 未知のキーは触らず VFM にそのまま委譲する
 
 #### 設定テンプレートの自動生成【決定】

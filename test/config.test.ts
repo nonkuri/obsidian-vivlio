@@ -34,6 +34,7 @@ import { collectNotes } from "../src/build/collect";
 import { buildTocEntries } from "../src/build/toc";
 import type { BuildContext, Chapter } from "../src/build/context";
 import { Workspace } from "../src/build/workspace";
+import { themeChoices } from "../src/build/theme";
 import { baseBookConfig } from "../src/config/defaults";
 import { setLanguage, t, type StringKey } from "../src/i18n";
 import { resolveBookLabels } from "../src/config/labels";
@@ -193,6 +194,41 @@ css: 'p::before { content: "\2192"; }'
     check("EPUB includes the back image without padding", backHtml.includes('class="back-cover"') && !backHtml.includes('class="back-cover-inside"'));
     check("back cover does not claim EPUB cover metadata", !backHtml.includes('role="doc-cover"'));
 
+    // File-based themes must work through the real build for every output.
+    const originalYaml = sources[yamlFile.path];
+    for (const mode of ["preview", "pdf", "epub"] as const) {
+      sources[yamlFile.path] = "theme: ../themes/mine.css";
+      const relative = await buildBook({ ...request, mode });
+      check(`relative theme loads in ${mode}`, relative.workspace.getFile("theme.css")?.text === sources["themes/mine.css"]);
+    }
+    sources[yamlFile.path] = "theme: ./themes/mine.css";
+    const noFallback = await buildBook(request);
+    check("missing relative theme does not fall back to same vault-root path", !noFallback.workspace.getFile("theme.css") && noFallback.warnings.some(w => w.kind === "config"));
+    sources[yamlFile.path] = "theme: ../../themes/mine.css";
+    const escaped = await buildBook(request);
+    check("theme outside the vault is rejected", !escaped.workspace.getFile("theme.css") && escaped.warnings.some(w => w.kind === "config"));
+    const note = files.find(file => file.path === "book/01.md")!;
+    (note as TFile & { frontmatter: Record<string, unknown> }).frontmatter = { "vivlio-theme": "../themes/mine.css" };
+    const fromNote = await buildBook({ ...request, target: { kind: "note", file: note } });
+    check("single-note build resolves its frontmatter theme", fromNote.workspace.getFile("theme.css")?.text === sources["themes/mine.css"]);
+    (note as TFile & { frontmatter?: unknown }).frontmatter = undefined;
+    sources[yamlFile.path] = originalYaml;
+
+    app.vault.getFiles = () => files;
+    check("global picker retains root paths", themeChoices(app).some(c => c.value === "themes/mine.css"));
+    check("book picker offers relative paths", themeChoices(app, "", yamlFile.path).some(c => c.value === "../themes/mine.css"));
+    check("book picker preserves existing root selection", themeChoices(app, "themes/mine.css", yamlFile.path).some(c => c.value === "themes/mine.css"));
+
+    const movedSources = Object.fromEntries(Object.entries(sources).map(([path, source]) => [`library/renamed/${path}`, source]));
+    movedSources["library/renamed/book/print.yaml"] = "theme: ../themes/mine.css";
+    const movedFiles = Object.keys(movedSources).map(path => makeFile(path));
+    const movedApp = makeApp(movedFiles);
+    movedApp.vault.cachedRead = async file => movedSources[file.path];
+    const movedFolder = makeFolder("library/renamed/book", movedFiles.filter(file => file.path.startsWith("library/renamed/book/")));
+    const movedYaml = movedFiles.find(file => file.path.endsWith("/print.yaml"))!;
+    const relocated = await buildBook({ ...request, app: movedApp, settings: DEFAULT_SETTINGS, target: { kind: "config", file: movedYaml, folder: movedFolder } });
+    check("moving and renaming a package preserves the selected YAML theme", relocated.workspace.getFile("theme.css")?.text === sources["themes/mine.css"]);
+
     for (const src of [String.raw`C:\Fonts\MyFont.ttf`, String.raw`\\server\fonts\MyFont.ttf`]) {
       const context = tocContext([]);
       context.config.embedFonts = [{ family: "Outside", src }];
@@ -270,6 +306,30 @@ css: 'p::before { content: "\2192"; }'
   check("vivlio.yaml beats the settings tab", layered.config.tocDepth === 3);
   check("settings fill the gaps", layered.config.size === "A5", layered.config.size);
   check("yaml value survives", layered.config.author === "夏目漱石");
+
+  // Resolve paths before merging away the identity of their source layer.
+  for (const [theme, expected] of [
+    ["./style.css", "books/one/style.css"],
+    ["../style.css", "books/style.css"],
+    [String.raw`.\装丁\style.css`, "books/one/装丁/style.css"],
+    ["themes/shared.css", "themes/shared.css"],
+    ["novel", "novel"],
+  ]) {
+    const yaml = { theme };
+    const result = resolveConfig({ settings: DEFAULT_SETTINGS, yaml, yamlPath: "books/one/print.yaml" });
+    check(`theme resolves from its YAML: ${theme}`, result.config.theme === expected);
+    check("theme resolution does not rewrite the source", yaml.theme === theme);
+  }
+  const themeLayers = {
+    settings: { ...DEFAULT_SETTINGS, theme: "shared/default.css" },
+    yaml: { theme: "./book.css" }, yamlPath: "parent/vivlio.yaml",
+    frontmatterPath: "parent/chapters/index.md",
+  };
+  check("frontmatter theme uses the note directory", resolveConfig({ ...themeLayers, frontmatter: { theme: "./note.css" } }).config.theme === "parent/chapters/note.css");
+  check("absent frontmatter theme keeps the YAML base", resolveConfig({ ...themeLayers, frontmatter: { title: "Book" } }).config.theme === "parent/book.css");
+  check("null frontmatter theme keeps the YAML base", resolveConfig({ ...themeLayers, frontmatter: { theme: null } }).config.theme === "parent/book.css");
+  check("global theme stays vault-relative", resolveConfig({ ...themeLayers, yaml: {} }).config.theme === "shared/default.css");
+  check("root YAML supports explicit relative theme", resolveConfig({ settings: DEFAULT_SETTINGS, yaml: { theme: "./style.css" }, yamlPath: "vivlio.yaml" }).config.theme === "style.css");
 
   const customBoten = resolveConfig({
     settings: { ...DEFAULT_SETTINGS, botenMark: "●" },

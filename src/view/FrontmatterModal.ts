@@ -57,6 +57,7 @@ interface Edit {
 export class FrontmatterModal extends Modal {
   private plugin: VivlioPlugin;
   private editor: Editor;
+  private sourcePath?: string;
   /** Properties the note carries now: property name -> value as written. */
   private present: Map<string, NoteProperty>;
   /** Keys the note should carry when this is done. */
@@ -70,9 +71,10 @@ export class FrontmatterModal extends Modal {
   private changesEl!: HTMLElement;
   private applyButton?: ButtonComponent;
 
-  constructor(app: App, plugin: VivlioPlugin, editor: Editor) {
+  constructor(app: App, plugin: VivlioPlugin, editor: Editor, sourcePath?: string) {
     super(app);
     this.plugin = plugin;
+    this.sourcePath = sourcePath;
     this.editor = editor;
     this.present = readFrontmatterProperties(editor.getValue());
     this.reset();
@@ -259,7 +261,7 @@ export class FrontmatterModal extends Modal {
   private valueControl(setting: Setting, choice: FrontmatterKeyChoice): void {
     const key = choice.key;
     const value = this.values.get(key) ?? "";
-    const control = keyControl(this.app, key, value);
+    const control = keyControl(this.app, key, value, this.sourcePath);
     const commit = (next: string) => {
       this.values.set(key, next.trim());
       this.chosen.add(key);

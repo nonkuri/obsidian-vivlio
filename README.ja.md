@@ -258,10 +258,10 @@ linesPerPage: 17   # 1 段の行数
 
 ## テーマを自作する
 
-`theme:` には Vault 内のスタイルシートのパスも書けます。そのスタイルシートは、同梱テーマを出発点にできます。
+`theme:` には Vault 内のスタイルシートのパスも書けます。0.17.4以降では `./`・`../` で始めると指定元の YAML（frontmatter ならノート）のフォルダ基準です。本と CSS をまとめて移動・配布する場合はこちらを推奨します。それ以外のパスと全体設定は従来どおり Vault ルート基準です。そのスタイルシートは、同梱テーマを出発点にできます。
 
 ```css
-/* 装丁/私の本.css */
+/* vivlio.yaml と同じフォルダ内の 装丁/私の本.css */
 @import url("vivlio:novel");
 
 :root {
@@ -274,7 +274,7 @@ linesPerPage: 17   # 1 段の行数
 
 ```yaml
 # vivlio.yaml
-theme: 装丁/私の本.css
+theme: ./装丁/私の本.css
 ```
 
 0.17.3以降では `novel`・`novel-2col`・`essay`・`haiku`・`tanka`・`bunko` の読み込み元の既定グリッドを引き継ぎ、判型に応じて文字サイズを自動計算します。`charsPerLine`・`linesPerPage`・`columns` は省略できます。字数・行数・段数を変える場合は本設定で指定してください。`baseFontSize` を明示した場合はその値が優先されます。[章扉サンプルCSS](sample/novel-title-page.css) を使うと、各章タイトルとその本文開始を、それぞれ独立した左ページにできます。

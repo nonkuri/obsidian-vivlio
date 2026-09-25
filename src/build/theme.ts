@@ -14,6 +14,7 @@ import {
   joinPosix,
   mimeType,
   sha1,
+  relativeVaultPath,
 } from "../util/paths";
 import { log } from "../util/log";
 import { t, type StringKey } from "../i18n";
@@ -52,6 +53,9 @@ const BUNDLED_SCHEME = /^vivlio:(.+)$/;
 export function vaultThemeFile(context: BuildContext): TFile | null {
   const theme = context.config.theme || "";
   if (!theme || bundledThemePath(theme)) return null;
+  // Never let a path escaping the vault reach an adapter or link resolver.
+  const path = joinPosix(theme.replace(/\\/g, "/"));
+  if (path === ".." || path.startsWith("../")) return null;
   return context.app.vault.getFileByPath(normalizePath(theme));
 }
 
@@ -246,7 +250,7 @@ export interface ThemeChoice {
  * longer lists - is visible rather than silently replaced by whatever the
  * list happens to start with.
  */
-export function themeChoices(app: App, current = ""): ThemeChoice[] {
+export function themeChoices(app: App, current = "", sourcePath?: string): ThemeChoice[] {
   // A bundled theme is named for the kind of book it sets, which is what a
   // picker has to say: "novel" alone does not tell anyone it is the vertical
   // one. A vault stylesheet is shown by its path, which already says it.
@@ -260,7 +264,10 @@ export function themeChoices(app: App, current = ""): ThemeChoice[] {
     .filter((file) => file.extension === "css")
     .map((file) => file.path)
     .sort((a, b) => a.localeCompare(b));
-  for (const path of vault) choices.push({ value: path, label: path });
+  for (const path of vault) {
+    const value = sourcePath === undefined ? path : relativeVaultPath(sourcePath, path);
+    choices.push({ value, label: value });
+  }
 
   if (current && !choices.some((choice) => choice.value === current)) {
     choices.push({ value: current, label: current });

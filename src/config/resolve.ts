@@ -10,6 +10,7 @@ import type {
 } from "./types";
 import { SECTION_SLOTS } from "./types";
 import { mergeBookLabelOverrides } from "./labels";
+import { dirname, joinPosix } from "../util/paths";
 
 /** `writingMode` -> `vivlio-writing-mode` */
 export function camelToKebab(key: string): string {
@@ -244,8 +245,12 @@ export interface ResolveLayers {
   settings: VivlioSettings;
   /** Layer 2: parsed `vivlio.yaml`. */
   yaml?: Record<string, unknown> | null;
+  /** Vault path of the YAML that supplied layer 2. */
+  yamlPath?: string;
   /** Layer 3: the `vivlio-*` keys of a note's frontmatter. */
   frontmatter?: Record<string, unknown> | null;
+  /** Vault path of the note that supplied layer 3. */
+  frontmatterPath?: string;
 }
 
 export interface ResolvedConfig {
@@ -272,10 +277,12 @@ export function resolveConfig(layers: ResolveLayers): ResolvedConfig {
   if (layers.yaml) {
     issues.push(...validateConfig(layers.yaml, "vivlio.yaml"));
     applyLayer(config, layers.yaml);
+    resolveLayerTheme(config, layers.yaml, layers.yamlPath);
   }
   if (layers.frontmatter) {
     issues.push(...validateConfig(layers.frontmatter, "frontmatter"));
     applyLayer(config, layers.frontmatter);
+    resolveLayerTheme(config, layers.frontmatter, layers.frontmatterPath);
   }
 
   config.autoTcy = config.syntax.autoTcy && config.autoTcy;
@@ -300,4 +307,14 @@ export function resolveConfig(layers: ResolveLayers): ResolvedConfig {
     }
   }
   return { config, issues };
+}
+
+/** Resolve only an explicitly relative theme, against the layer that owns it.
+ * Saved YAML is left untouched; bare paths retain their vault-root meaning.
+ */
+function resolveLayerTheme(config: BookConfig, raw: Record<string, unknown>, sourcePath?: string): void {
+  if (typeof raw.theme !== "string") return;
+  const theme = raw.theme.replace(/\\/g, "/");
+  if (!/^\.\.?\//.test(theme)) return;
+  config.theme = joinPosix(dirname((sourcePath ?? "").replace(/\\/g, "/")), theme);
 }

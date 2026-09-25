@@ -121,7 +121,11 @@ export async function buildBook(request: BuildRequest): Promise<BuildResult> {
       )
     : null;
 
-  const { config, issues } = resolveConfig({ settings, yaml, frontmatter });
+  const { config, issues } = resolveConfig({
+    settings, yaml, frontmatter,
+    yamlPath: target.kind === "config" ? target.file.path : joinPosix(bookRoot, CONFIG_FILE),
+    frontmatterPath: primary?.path,
+  });
   Object.assign(config, request.overrides ?? {});
 
   const workspace = request.workspace ?? new Workspace();

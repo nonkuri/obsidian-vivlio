@@ -55,7 +55,7 @@ colophonExtra:
   対応バージョン: 0.17.0
 
 # --- 組版 ---
-# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（横組みの論文・レポート）| Vault 内の .css ファイルのパス
+# テーマ: novel（縦組みの小説）| novel-2col（縦組み二段組）| english-novel（英語小説）| manual（横組みのマニュアル・技術書）| paper（横組みの論文・レポート）| Vault 内の .css パス（./・../ は YAML 基準、それ以外は Vault ルート基準）
 theme: manual
 # vertical-rl（縦組み）| horizontal-tb（横組み）
 writingMode: horizontal-tb

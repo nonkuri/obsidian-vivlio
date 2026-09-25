@@ -233,8 +233,8 @@ export default class VivlioPlugin extends Plugin {
     this.addCommand({
       id: "insert-frontmatter",
       name: t("command.insertFrontmatter"),
-      editorCallback: (editor: Editor) => {
-        new FrontmatterModal(this.app, this, editor).open();
+      editorCallback: (editor: Editor, view) => {
+        new FrontmatterModal(this.app, this, editor, view.file?.path).open();
       },
     });
 
