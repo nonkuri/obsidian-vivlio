@@ -1,0 +1,6 @@
+# Generated videos, audio, and review images (source/ remains tracked).
+/*.mp4
+/*.wav
+/*.png
+/*.jpg
+__pycache__/
