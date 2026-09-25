@@ -6,6 +6,12 @@
 
 Obsidian のノートを [Vivliostyle](https://vivliostyle.org/) で組版します。CSS 組版（paged media）による縦書き、ルビ、傍点に対応し、プレビューを見ながら PDF と EPUB に書き出せます。
 
+### 30秒で見るVivlio
+
+日本語・欧文の小説、短歌、図表のある論文、マニュアル、縦書き・横書きの雑誌まで。さまざまな紙面と、トンボ入り原稿の作例を30秒で紹介します（音声なし）。
+
+https://github.com/user-attachments/assets/164de8f8-75cb-405d-9647-388da9f9522d
+
 デスクトップ専用です（`isDesktopOnly: true`）。初回起動時に何もダウンロードしません。組版エンジンはプラグインに同梱されていて、PDF は Obsidian がすでに動かしている Chromium が刷ります。
 
 仕様は [docs/SPEC.md](docs/SPEC.md) にあります。設定タブから `vivlio.yaml`、原稿の書き方、テーマの自作、トラブルシューティングまでを扱った詳細マニュアルを [manual/](manual/00_vivlio_plugin_manual.md) にまとめています。
