@@ -60,7 +60,13 @@ export class PreviewServer {
   async start(options: ServerOptions): Promise<void> {
     if (this.server) return;
     this.options = options;
-    this.vaultRoot = normalizeAbsolute(options.vaultRoot);
+    let realVaultRoot = normalizeAbsolute(options.vaultRoot);
+    try {
+      realVaultRoot = normalizeAbsolute(await fs.promises.realpath(options.vaultRoot));
+    } catch {
+      // keep fallback
+    }
+    this.vaultRoot = realVaultRoot;
     this.token = randomBytes(16).toString("hex");
 
     const server = http.createServer((req, res) => {
@@ -321,7 +327,16 @@ export class PreviewServer {
       return;
     }
 
-    const roots = [this.vaultRoot, ...(workspace?.extraRoots ?? [])];
+    const extraRootsResolved = await Promise.all(
+      Array.from(workspace?.extraRoots ?? []).map(async (root) => {
+        try {
+          return normalizeAbsolute(await fs.promises.realpath(root));
+        } catch {
+          return normalizeAbsolute(root);
+        }
+      }),
+    );
+    const roots = [this.vaultRoot, ...extraRootsResolved];
     if (!roots.some((root) => isInside(root, real))) {
       notFound(res);
       return;

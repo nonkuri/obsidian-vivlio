@@ -54,7 +54,13 @@ export function electron(): ElectronModule | null {
 }
 
 export function remote(): ElectronRemote | null {
-  return electron()?.remote ?? null;
+  const el = electron();
+  if (el?.remote) return el.remote;
+  try {
+    return (window.require?.("@electron/remote") as ElectronRemote | undefined) ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function showSaveDialog(options: {
