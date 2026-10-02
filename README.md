@@ -343,6 +343,9 @@ Multi-paragraph footnotes retain their paragraphs, lists and code blocks in
 `gcpm`, `dpub` and `pandoc` modes. See [the writing guide](manual/05-writing-and-structure.md)
 for the Markdown syntax.
 
+With `english-novel` and `footnote: dpub`, printed notes show the same numbers
+as their references, starting at 1 in each chapter.
+
 Vivlio warns when a multi-column body contains a table. A narrow column can
 force extreme wrapping inside cells or push a table beyond the page. The
 warning does not stop export: check the preview and use one column for that

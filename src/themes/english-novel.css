@@ -257,6 +257,19 @@ figcaption {
   margin-inline: 0;
 }
 
+/* DPUB already supplies its number in the backlink. theme-base hides that
+   link in print and adds a generated footnote marker that resolves to 0.
+   Keep the source number; GCPM spans still use their generated markers. */
+aside[role='doc-footnote']::footnote-marker {
+  content: none;
+}
+
+aside[role='doc-footnote'] [role='doc-backlink'] {
+  display: inline-block;
+  margin-inline-end: 0.5em;
+  text-indent: 0;
+}
+
 /* Title and half-title pages -------------------------------------------- */
 
 .titlepage,

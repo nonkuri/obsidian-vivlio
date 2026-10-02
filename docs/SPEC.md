@@ -2241,6 +2241,12 @@ Phase 0〜2 の全項目と、Phase 3 のうち PDF の栞・メタデータ・�
 1ページ / 複数ページの章を組み合わせた **48ケース**で、表紙と表紙裏の除外、通常の白丁の加算、
 0以下のノンブル非表示、PDFページラベルとの一致、日本語の奥付が最終ページ側に来ることを検証する。
 
+`test/footnotes.check.ts` は `english-novel` の横組みで `dpub` / `gcpm` / `pandoc` を実ブラウザで組版する。
+`dpub` は生成マーカーを抑止し、脚注本文にある番号付きバックリンクを印刷時も表示する。
+短い注・複数段落と箇条書き・インライン注・同じ注への再参照・章ごとの番号リセットを確認する。
+実行は `node test/run.mjs test/footnotes.check.ts`。`VIVLIO_PLAYWRIGHT` でインストール済みのパッケージ、
+`VIVLIO_BROWSER` でブラウザ（既定 `chrome`）を指定できる。
+
 **実機（Obsidian 上）でしか確認できないもの:**
 プレビューの iframe 表示、`printToPDF`、EPUB の XHTML 化（`DOMParser` / `XMLSerializer` 依存）、
 `MarkdownRenderer` 連携、`queryLocalFonts()`、CDP アタッチによる print メディア切り替え。
