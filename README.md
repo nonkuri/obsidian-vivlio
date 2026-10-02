@@ -339,6 +339,10 @@ The cover, title page, copyright page, contents and colophon stay in one column
 — a colophon split across two bands is not a colophon. Footnotes (`gcpm`) sit
 at the foot of the page, spanning both.
 
+Multi-paragraph footnotes retain their paragraphs, lists and code blocks in
+`gcpm`, `dpub` and `pandoc` modes. See [the writing guide](manual/05-writing-and-structure.md)
+for the Markdown syntax.
+
 Vivlio warns when a multi-column body contains a table. A narrow column can
 force extreme wrapping inside cells or push a table beyond the page. The
 warning does not stop export: check the preview and use one column for that

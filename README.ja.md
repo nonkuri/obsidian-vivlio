@@ -264,6 +264,8 @@ linesPerPage: 17   # 1 段の行数
 
 扉・copyright page・目次・奥付・表紙は段組にしません。段に割れた奥付は奥付ではないからです。脚注（`gcpm`）はページの地、両方の段にまたがって置かれます。
 
+複数段落の脚注は、`gcpm`・`dpub`・`pandoc` の各モードで段落・箇条書き・コードブロックを保持します。Markdownの書き方は[原稿の書式](manual/05-writing-and-structure.md)を参照してください。
+
 段組の本文に表がある場合は警告が出ます。狭い段ではセル内の文字が極端に折り返されたり、表が紙面からはみ出したりするためです。警告は書き出しを止めないので、プレビューで確認し、収まらなければその原稿を一段組にしてください。EPUB は段組を解除するため、この警告を出しません。
 
 ## テーマを自作する
@@ -326,11 +328,13 @@ npm test
 
 ## リリース
 
-`npm version patch`（または `minor` / `major`）が、新しい番号を `package.json`、`manifest.json`、`versions.json` に一度に書き込みます。そこで作られたタグを push すれば、それがリリースのすべてです。ワークフローがバンドルをビルドし、タグとマニフェストが一致することを確かめ、3 つのファイルを個別のアセットとしてアップロードします。これが Obsidian のインストーラが期待する形です。
+[リリース手順](docs/RELEASING.md)に従ってください。説明書とリリースノートを更新し、タグを作らずにバージョン情報を更新して、テストと本番ビルドを実行します。コミットを `main` へ push し、CI成功後に同じコミットへmanifestのversionと同じタグ（`v` 接頭辞なし）を付けて push します。Releaseワークフローがビルド・証明・公開を行います。公開後はバージョンと `main.js`・`manifest.json`・`styles.css` の3資産を確認してください。
 
 ```bash
-npm version patch
-git push --follow-tags
+npm version <version> --no-git-tag-version --ignore-scripts
+node version-bump.mjs
+npm test
+npm run build
 ```
 
 ## しくみ
