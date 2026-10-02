@@ -86,7 +86,8 @@ export function notationRules(config: BookConfig): TextRule[] {
     });
   }
 
-  // #13 %%comments%% are editorial notes and never belong in a book.
+  // #13 Markdown comments are consumed by commentsPlugin before parsing their
+  // contents. Keep this fallback for text supplied by rendered HTML as well.
   if (syntax.stripComments) {
     rules.push({
       test: /%%[\s\S]*?%%/g,
@@ -94,15 +95,8 @@ export function notationRules(config: BookConfig): TextRule[] {
     });
   }
 
-  // #15 A paragraph indented with an ideographic space: the character stands
-  // in for the indent, which the stylesheet does properly.
-  if (syntax.stripLeadingSpace) {
-    rules.push({
-      test: /(^|\n)[　 ]+/g,
-      replace: (match) => (match[1] ? [text(match[1])] : []),
-      skipElement: node => hasClass(node, "vivlio-verse"),
-    });
-  }
+  // #15 is handled by stripParagraphIndentPlugin: only the paragraph start
+  // is replaced by CSS indentation. Spaces after <br> must remain literal.
 
   // #17 A forced page break, in either of the two ways a Japanese manuscript
   // writes one: Aozora Bunko's note, and Den-Den Markdown's rule of three or

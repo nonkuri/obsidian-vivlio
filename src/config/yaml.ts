@@ -262,8 +262,8 @@ const KEY_DOCS: Partial<Record<NoteKey, KeyDoc>> = {
   vfm: {
     group: "output",
     yamlOnly: true,
-    ja: "VFM にそのまま渡すオプション。mathRenderer だけは効かず、数式は常に MathML で組む",
-    en: "Options handed straight to VFM, except mathRenderer: math is always set as MathML",
+    ja: "VFM オプション。hardLineBreaks は日本語で既定 true、他言語で false。明示指定を優先。mathRenderer は効かず数式は常に MathML",
+    en: "VFM options. hardLineBreaks defaults to true for Japanese, false otherwise; explicit values win. mathRenderer is ignored: math always uses MathML",
   },
 };
 

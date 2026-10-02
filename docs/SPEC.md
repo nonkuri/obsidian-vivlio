@@ -47,6 +47,8 @@ Obsidian の Markdown を Vivliostyle で日本語・英語組版し、プレビ
 - 脚注: `pandoc` / `dpub` / `gcpm` の3モード（`gcpm` = CSS Generated Content for Paged Media の傍注）
 - Frontmatter: `id` `lang` `dir` `class` `title` `html` `body` `base` `meta` `link` `script` `vfm`
 - `vfm` サブキー: `math` `mathRenderer` `partial` `hardLineBreaks` `theme` `footnote`
+
+`hardLineBreaks` の未指定時は、本の `lang` が `ja` または `ja-*` なら `true`、それ以外は `false` とする。明示した真偽値を優先する。通常改行は同じ段落内の `<br>`、空行は段落区切りとして扱う。改行直後の全角空白は保持し、CSS の字下げに置き換える空白は段落先頭だけとする。
   `imgFigcaptionOrder` `captionlessImagePolicy` `parseFigcaptionAsInline` `rewriteRelativeHrefExtensions` `table`
 - 見出しの自動セクション化（`<section>` 生成）、図表キャプション、Temml による数式
 
@@ -366,9 +368,9 @@ ignore は上記に `code` `pre` `kbd` `samp` `var` `textarea` `head` `rt` `rp` 
 | 10 | H | `> [!note] タイトル`（callout） | `<aside class="callout callout-note"><p class="callout-title">…</p>…</aside>` + テーマ CSS | ON |
 | 11 | H | `- [ ]` / `- [x]`（チェックボックス） | `<ul class="task-list"><li class="task-list-item" data-checked="false">`。CSS で `☐` / `☑` を出す（`list-style: none` だとマーカーボックスが生成されず `::marker` が効かないため、実装では `::before` を使う）。`<input type="checkbox">` は除去し、PDF にフォーム部品を残さない | ON |
 | 12 | H | `#タグ` | 削除（設定で `<span class="tag">` 保持） | 削除 |
-| 13 | R | `%%コメント%%` | 削除 | 削除 |
+| 13 | M + R | `%%コメント%%` | Markdown のインライントークナイザで消費し、複数行の内容が改行や装飾ノードへ分割される前に削除する。生成 HTML のテキストには R 層の削除も適用 | 削除 |
 | 14 | R | `^ブロックID` | 削除 | 削除 |
-| 15 | R | **行頭の全角スペース**（原稿が字下げに使ったもの） | 削除する。字下げは #16 と CSS が行う（下記） | ON |
+| 15 | H（R の後） | **段落先頭の全角スペース**（原稿が字下げに使ったもの） | 削除する。字下げは #16 と CSS が行う。段落内の改行後と句・歌の空白は保持する | ON |
 | 16 | H | **字下げしない段落**（原稿が全角スペースを置かなかった段落、または始め括弧で始まる段落） | `<p class="vivlio-no-indent">` を付け、CSS で `text-indent: 0` にする → 下記 | ON |
 | 17 | R | **強制改ページ**。`［＃改ページ］`（青空文庫式）と `===`（でんでんマークダウン式・イコール 3 つ以上だけの行） | 記号を消し、**次のブロックに `.vivlio-page-break` を付ける**（下記） | ON |
 | 18 | H | **連続する空行** | 3 行で 1 行アキ。次のブロックに `.vivlio-blank-lines` と空ける行数を付ける（下記） | ON |

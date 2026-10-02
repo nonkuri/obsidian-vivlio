@@ -1,6 +1,6 @@
 # Vivlio
 
-New in 0.18.0: paragraph-level synchronization between the editor and preview in both directions. Click preview text to jump to its source; notes that are not already open use a new tab without splitting the editor.
+New in 0.18.3: Japanese books preserve ordinary line breaks by default. Multiline comments, extra breaks at the start of callouts, and Japanese indentation after line breaks are also fixed. [Release notes and migration](docs/releases/0.18.3.md)
 
 **English** | [日本語](README.ja.md)
 
@@ -256,6 +256,17 @@ out. `Vivlio: Add configuration to this note` offers both.
 
 ## Notation
 
+Since 0.18.3, books with `lang: ja` (the default) or a Japanese language tag such as `ja-JP` preserve ordinary line breaks as `<br>` within the same paragraph. Blank lines separate paragraphs. This depends on the book language, independently of the UI language or writing mode. Other languages, including English, still treat ordinary line breaks as soft wrapping.
+
+For Japanese manuscripts wrapped for editing, or to preserve the previous layout, set this in `vivlio.yaml`:
+
+```yaml
+vfm:
+  hardLineBreaks: false
+```
+
+For a single note, use `vivlio-vfm: { hardLineBreaks: false }` in its frontmatter. Explicit `true` or `false` overrides the language default; `true` preserves ordinary line breaks in any language. Two trailing spaces or `<br>` still create an explicit break with either setting. Existing Japanese books may have different line and page counts after updating.
+
 | You write | You get |
 |---|---|
 | `《《テキスト》》` | emphasis dots (Kakuyomu style); choose sesame dots, circles, triangles, or type any mark |
@@ -267,7 +278,7 @@ out. `Vivlio: Add configuration to this note` offers both.
 | `==highlight==` | emphasis dots, bold, `<mark>` or plain text — your choice |
 | `［＃改ページ］`, or a line of `===` | a forced page break, written either the way Aozora Bunko writes one or the way Den-Den Markdown does. Leave a blank line above the equals signs, or Markdown reads them as a heading underline |
 | three or more blank lines | space on the page: `n` blank lines give `n - 2` blank lines of it |
-| an ideographic space starting a line | that paragraph is indented, and the character itself goes |
+| an ideographic space starting a paragraph | that paragraph is indented, and the character itself goes; spaces after line breaks and inside verse works are preserved |
 | `> [!anything]` | a framed callout. Any type; it survives as `callout-<type>` for a theme to style |
 | `![[fig.png\|300]]` | a picture at a stated width — `300`, `300x200`, `60%`, `80mm`, `300px` |
 | `![caption](fig.png)` | a captioned `<figure>` when placed in its own paragraph. `![caption\|50mm](fig.png)` also sets the width; the size hint is omitted from the caption. [Image sizing (Japanese)](manual/05-writing-and-structure.md#画像) |
@@ -279,8 +290,8 @@ out. `Vivlio: Add configuration to this note` offers both.
 | `#tag`, `%%comment%%`, `^block-id` | removed |
 
 Every stage can be switched off in the settings tab, and none of them can reach
-inside a code block: the conversions run over the document tree, not over the
-Markdown source.
+inside a code block: conversions use parser extensions and document-tree
+transforms. Ordinary line breaks are configured with the book's `vfm.hardLineBreaks` option.
 
 ![A spread from the sample book at full size: ruby over 遠雷, emphasis dots beside 「その手袋は、もう戻らない」, 10 and 42 turned upright, the gap a run of blank lines opens, running heads and folios.](docs/images/spread.png)
 

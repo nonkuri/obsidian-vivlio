@@ -1817,6 +1817,69 @@ async function main(): Promise<void> {
   checks.push(check("footnote correction honors frontmatter mode and body properties",
     /<aside[^>]*class="custom-note"[^>]*>[\s\S]*一段落目[\s\S]*二段落目[\s\S]*<\/aside>/.test(yamlNoteHtml), yamlNoteHtml));
 
+  // Japanese books preserve authored lines; explicit VFM options still win.
+  for (const mode of ["preview", "pdf", "epub"] as const) {
+    const render = async (source: string, lang = "ja", vfm: Record<string, unknown> = {}, stripComments = true) => {
+      const ctx = makeContext({ mode });
+      ctx.config.lang = lang;
+      ctx.config.vfm = vfm;
+      ctx.config.syntax.stripComments = stripComments;
+      const result = await convertChapter(ctx, ctx.chapters[0], chapterOne, source);
+      checks.push(check(`${mode}: line-break fixture converts without warnings`, ctx.warnings.length === 0, JSON.stringify(ctx.warnings)));
+      return result.match(/<body[^>]*>([\s\S]*)<\/body>/)?.[1] ?? result;
+    };
+    for (const lang of ["ja", "ja-JP", "JA-jp", "en", "en-US", "zh"]) {
+      const result = await render("一行目。\n二行目。", lang);
+      checks.push(check(`${mode}: ${lang} uses the language default`,
+        result.includes("<br>") === /^ja(?:-|$)/i.test(lang), result));
+    }
+    for (const hardLineBreaks of [false, true]) {
+      for (const lang of ["ja", "en"]) {
+        const result = await render("一行目。\n二行目。", lang, { hardLineBreaks });
+        checks.push(check(`${mode}: explicit ${hardLineBreaks} overrides ${lang}`,
+          result.includes("<br>") === hardLineBreaks, result));
+        const metadataResult = await render(`---\nvfm:\n  hardLineBreaks: ${hardLineBreaks}\n---\n一行目。\n二行目。`, lang,
+          { hardLineBreaks: !hardLineBreaks });
+        checks.push(check(`${mode}: VFM frontmatter ${hardLineBreaks} overrides book options in ${lang}`,
+          metadataResult.includes("<br>") === hardLineBreaks, metadataResult));
+      }
+      const paragraphs = await render("一段落。\n\n二段落。", "ja", { hardLineBreaks });
+      checks.push(check(`${mode}: blank lines still separate paragraphs (${hardLineBreaks})`,
+        (paragraphs.match(/<p\b/g) ?? []).length === 2 && !paragraphs.includes("<br>"), paragraphs));
+      const explicit = await render("一行目。  \n　二行目。<br>　三行目。", "ja", { hardLineBreaks });
+      checks.push(check(`${mode}: explicit breaks retain indentation (${hardLineBreaks})`,
+        (explicit.match(/<br>/g) ?? []).length === 2 && /<br>\s*\u3000二行目/.test(explicit) && /<br>\s*\u3000三行目/.test(explicit), explicit));
+      const comments = await render("本文。%%非公開**強調**\n非公開続き%%続き。\n\n次の段落。", "ja", { hardLineBreaks });
+      checks.push(check(`${mode}: multiline comments cannot leak through breaks or markup (${hardLineBreaks})`,
+        !comments.includes("非公開") && !comments.includes("強調") && !comments.includes("%%") &&
+        /本文。\s*続き。/.test(comments) && comments.includes("次の段落。"), comments));
+    }
+    const indentation = await render("　地の文。\n　次の行。\n「台詞」");
+    checks.push(check(`${mode}: only the paragraph's initial indentation is replaced by CSS`,
+      /<p\b[^>]*>地の文。<br>\s*\u3000次の行。<br>\s*「台詞」<\/p>/.test(indentation), indentation));
+    for (const disableFormatHtml of [false, true]) {
+      for (const kind of ["note", "haiku", "tanka"]) {
+        const result = await render(`> [!${kind}] 題\n> \u3000一行目\n> \u3000二行目`, "ja", { disableFormatHtml });
+        const body = kind === "note" ? result.slice(result.indexOf("</p>") + 4) : result.slice(result.indexOf('class="vivlio-verse-text"'));
+        checks.push(check(`${mode}: ${kind} removes only the marker break (format=${!disableFormatHtml})`,
+          !/<p\b[^>]*>\s*<br>/.test(body) && (body.match(/<br>/g) ?? []).length === 1 &&
+          /<br>\s*\u3000二行目/.test(body), result));
+        if (kind !== "note") checks.push(check(`${mode}: ${kind} retains first-line space`,
+          /<p\b[^>]*>\s*\u3000一行目/.test(body), result));
+      }
+    }
+    const code = await render("~~~text\n%%コード\nコメント%%\n~~~\n\n`%%インライン%%`");
+    checks.push(check(`${mode}: code retains literal comments and newlines`,
+      code.includes("%%コード\nコメント%%") && code.includes("%%インライン%%") && !code.includes("<br>"), code));
+    const visibleComments = await render("前。%%残す\nコメント%%後。", "ja", {}, false);
+    checks.push(check(`${mode}: disabling comment removal still works`,
+      visibleComments.includes("%%残す<br>") && visibleComments.includes("コメント%%後。"), visibleComments));
+    const structures = await render("> 引用前半\n> 引用後半\n\n- 項目前半\n  項目後半\n- 次の項目\n\n| 列 |\n| --- |\n| 内容 |\n\n｜漢字《かんじ》\n《《強調》》");
+    checks.push(check(`${mode}: quotes, lists and ruby retain authored breaks without breaking tables`,
+      /引用前半<br>\s*引用後半/.test(structures) && /項目前半<br>\s*項目後半/.test(structures) &&
+      (structures.match(/<br>/g) ?? []).length === 3 && /<table\b/.test(structures) && structures.includes("<ruby>"), structures));
+  }
+
   let failed = 0;
   for (const result of checks) {
     if (!result.ok) failed += 1;

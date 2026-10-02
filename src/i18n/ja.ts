@@ -327,9 +327,9 @@ export const ja: Partial<Record<keyof typeof en, string>> = {
   "syntax.keepTags": "タグを残す",
   "syntax.stripComments": "%%コメント%% を削除する",
   "syntax.stripBlockIds": "ブロック ID を削除する",
-  "syntax.stripLeadingSpace": "行頭の全角スペースを削除する",
+  "syntax.stripLeadingSpace": "段落先頭の全角スペースを削除する",
   "syntax.stripLeadingSpace.desc":
-    "組版では行頭の空白は詰められるため、原稿の全角スペースは紙面では字下げになりません（EPUB でも端末次第）。削除して、上の「段落の字下げ」で下げます。オフにすると全角スペースが残り、字下げの指定があると二重になります。",
+    "段落先頭の全角スペースを取り除き、上の「段落の字下げ」で下げます。同じ段落内の改行後と句・歌の全角スペースは保持します。オフにすると段落先頭の全角スペースも残り、字下げの指定があると二重になります。",
   "syntax.pageBreak": "［＃改ページ］と === で強制改ページ",
   "syntax.pageBreak.desc":
     "青空文庫の注記、またはでんでんマークダウン式の「イコール 3 つ以上だけの行」で改ページします。イコールの行の上には空行を空けてください —— 段落のすぐ下に書くと、それは Markdown 本来の見出しの下線と読まれ、ここへ届く前に食べられてしまいます。",

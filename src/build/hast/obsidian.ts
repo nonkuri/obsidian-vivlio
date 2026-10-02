@@ -65,7 +65,15 @@ function convertCallouts(tree: UNode): void {
     // Drop the marker line, keeping whatever followed it in the paragraph.
     const rest = newline === -1 ? "" : marker.slice(newline + 1);
     if (rest.trim()) first.value = rest.replace(/^\n+/, "");
-    else paragraph.children.splice(paragraph.children.indexOf(first), 1);
+    else {
+      const markerIndex = paragraph.children.indexOf(first);
+      paragraph.children.splice(markerIndex, 1);
+      // With hard line breaks, the marker's line ending is a separate <br>.
+      // It separates metadata from the body, not two lines of body text.
+      if (newline === -1 && isElement(paragraph.children[markerIndex], "br")) {
+        paragraph.children.splice(markerIndex, 1);
+      }
+    }
 
     const body = (node.children ?? []).filter(
       (child) => child !== paragraph || paragraph.children.length > 0,

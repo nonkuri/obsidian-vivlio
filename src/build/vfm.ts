@@ -10,9 +10,11 @@ import { writingModeClass } from "./document";
 import { vivlioFrontmatterKeys } from "../config/resolve";
 import { embedPlugin } from "./mdast/embed";
 import { dynamicRenderPlugin } from "./mdast/render";
+import { commentsPlugin } from "./mdast/comments";
+import { preserveBreakIndentPlugin } from "./mdast/lineBreaks";
 import { notationRules, PAGE_BREAK_CLASS } from "./replace/rules";
 import { assetsPlugin, imageSizePlugin } from "./hast/assets";
-import { applyIndentPlugin, readManuscriptIndentPlugin } from "./hast/indent";
+import { applyIndentPlugin, readManuscriptIndentPlugin, stripParagraphIndentPlugin } from "./hast/indent";
 import { linksPlugin } from "./hast/links";
 import { sanitizePlugin } from "./hast/sanitize";
 import { blankLinesPlugin } from "./hast/spacing";
@@ -77,6 +79,9 @@ export async function convertChapter(
       title: chapter.title,
       language: context.config.lang,
       footnote: context.config.footnote,
+      // Resolve from the book language, not the UI language or writing mode.
+      // Explicit book options (and VFM frontmatter) still take precedence.
+      hardLineBreaks: /^ja(?:-|$)/i.test(context.config.lang),
       ...(context.config.vfm as Record<string, never>),
       // Math is typeset while the book is built, never in the reader
       // (SPEC 2.2, 5.12).
@@ -99,6 +104,7 @@ export async function convertChapter(
       editPlugins: (plugins) =>
         ({
         mdastPlugins: [
+          ...(context.config.syntax.stripComments ? [commentsPlugin] : []),
           ...(context.mode === "preview" ? [sourcePlugin(file.path)] : []),
           // Head: stages that need to read other files (SPEC 5.3 #1, #2).
           ...(context.config.syntax.embed ? [embedPlugin(context, file.path)] : []),
@@ -107,6 +113,7 @@ export async function convertChapter(
             : []),
           imageSizePlugin,
           ...plugins.mdastPlugins,
+          preserveBreakIndentPlugin,
           ...(context.mode === "preview" ? [sourcePropertiesPlugin] : []),
         ],
         mdastToHastHandlers: preserveFootnoteBlocks(plugins.mdastToHastHandlers),
@@ -127,10 +134,11 @@ export async function convertChapter(
           assetsPlugin(context, file.path),
           linksPlugin(context, file.path),
           obsidianPlugin(context),
-          // Before the notations, which strip the ideographic space that says
-          // the manuscript indented this paragraph itself (SPEC 5.3 #15, #16).
+          // Read authored indentation before the paragraph-start space is
+          // replaced by CSS indentation (SPEC 5.3 #15, #16).
           readManuscriptIndentPlugin(),
           notationPlugin(rules),
+          ...(context.config.syntax.stripLeadingSpace ? [stripParagraphIndentPlugin()] : []),
           // And after them, so a paragraph opening `《《傍点》》` is not mistaken
           // for one opening with a bracket.
           applyIndentPlugin(context.config.paragraphIndentMode),

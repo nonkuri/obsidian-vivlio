@@ -333,7 +333,7 @@ export const en = {
   "syntax.stripBlockIds": "Strip ^block-ids",
   "syntax.stripLeadingSpace": "Remove the ideographic space that indents a paragraph",
   "syntax.stripLeadingSpace.desc":
-    "A typesetter trims a space at the start of a line, so the manuscript's own space gives no indent in print and an inconsistent one in EPUB. Removing it leaves the indent above to do the work; keeping it indents twice wherever that indent is also set.",
+    "Remove the ideographic space at the start of a paragraph and use the paragraph indent above. Spaces after line breaks and inside verse works are preserved. Turning this off also keeps the paragraph's initial space, which can double the indent when CSS indentation is set.",
   "syntax.pageBreak": "Break the page at ［＃改ページ］ or a line of ===",
   "syntax.pageBreak.desc":
     "Aozora Bunko's note, or Den-Den Markdown's three or more equals signs on a line of their own. Leave a blank line above the equals: directly under a paragraph they are Markdown's own underline for a heading, and are read as one before this ever sees them.",

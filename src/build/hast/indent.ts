@@ -2,6 +2,8 @@ import type { IndentMode } from "../../config/types";
 import {
   addClass,
   isElement,
+  isText,
+  DEFAULT_IGNORED_TAGS,
   hasClass,
   SKIP,
   textContent,
@@ -59,6 +61,33 @@ export function readManuscriptIndentPlugin() {
         if (!isElement(node, "p")) return;
         if (!textContent(node).startsWith(IDEOGRAPHIC_SPACE)) return;
         (node).properties[MANUSCRIPT_INDENT] = "";
+      });
+    };
+  };
+}
+
+/** CSS text-indent replaces only the paragraph's initial space, never the
+ * authored indentation after a line break or inside a verse work.
+ */
+export function stripParagraphIndentPlugin() {
+  return function attach() {
+    return (tree: UNode): void => {
+      visit(tree, (node) => {
+        if (isElement(node) && hasClass(node, "vivlio-verse")) return SKIP;
+        if (!isElement(node, "p")) return;
+        let atStart = true;
+        visit(node, (child) => {
+          if (!atStart) return SKIP;
+          if (isElement(child) && (child.tagName === "br" || DEFAULT_IGNORED_TAGS.includes(child.tagName))) {
+            atStart = false;
+            return SKIP;
+          }
+          if (!isText(child)) return;
+          // Ignore whitespace added by VFM's HTML formatter.
+          if (/^[\t\r\n ]*$/.test(child.value)) return;
+          child.value = child.value.replace(/^([\t\r\n ]*)[\u3000\u00a0]+/, "$1");
+          atStart = false;
+        });
       });
     };
   };

@@ -167,4 +167,6 @@ sections:
 #   pageBreak: true
 #   blankLines: true
 # VFM にそのまま渡すオプション
+# 日本語では通常改行を保持。従来の折り返し扱いに戻すには:
+# vfm: { hardLineBreaks: false }
 # vfm: {}
