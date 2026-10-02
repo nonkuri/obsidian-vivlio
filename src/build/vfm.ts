@@ -34,6 +34,7 @@ import { DOCUMENT_ANCHOR, isBookTitleHeading } from "./toc";
 import { t } from "../i18n";
 import { log } from "../util/log";
 import { sourcePlugin, sourcePropertiesPlugin } from "./sourceMap";
+import { preserveFootnoteBlocks } from "./footnotes";
 
 /** Stylesheet every generated document links to. */
 export const BOOK_STYLESHEET = "vivlio.css";
@@ -108,7 +109,7 @@ export async function convertChapter(
           ...plugins.mdastPlugins,
           ...(context.mode === "preview" ? [sourcePropertiesPlugin] : []),
         ],
-        mdastToHastHandlers: plugins.mdastToHastHandlers,
+        mdastToHastHandlers: preserveFootnoteBlocks(plugins.mdastToHastHandlers),
         hastPlugins: [
           ...plugins.hastPlugins,
           // Tail: the tree rewrites of SPEC 5.3.

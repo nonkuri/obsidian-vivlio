@@ -492,6 +492,34 @@ ruby.boten > rt {
   font-family: var(--vs--tcy-font-family, inherit);
 }
 
+/* GCPM notes remain phrasing HTML, including their block content, so parsing
+   the exported HTML cannot move a later paragraph out of its footnote. */
+.vivlio-footnote-block {
+  text-indent: 0;
+}
+.vivlio-footnote-block + .vivlio-footnote-block {
+  margin-block-start: 0.5em;
+}
+.vivlio-footnote-block[data-vivlio-footnote-block="p"]:first-child {
+  display: inline !important;
+}
+.vivlio-footnote-block[data-vivlio-footnote-block="pre"] {
+  white-space: pre-wrap;
+  font-family: monospace;
+}
+.vivlio-footnote-block[data-vivlio-footnote-block="ul"],
+.vivlio-footnote-block[data-vivlio-footnote-block="ol"],
+.vivlio-footnote-block[data-vivlio-footnote-block="blockquote"],
+.vivlio-footnote-block[data-vivlio-footnote-block="dd"] {
+  padding-inline-start: 1.5em;
+}
+.vivlio-footnote-block[data-vivlio-footnote-block="ul"] {
+  list-style-type: disc;
+}
+.vivlio-footnote-block[data-vivlio-footnote-block="ol"] {
+  list-style-type: decimal;
+}
+
 /* Blank lines the manuscript left, as whole lines of the grid so the text below
    still sits on it (see blankLinesPlugin).
 

@@ -32,6 +32,7 @@ import { Workspace } from "../src/build/workspace";
 import { baseBookConfig, DEFAULT_SETTINGS } from "../src/config/defaults";
 import { SECTION_SLOTS } from "../src/config/types";
 import { setLanguage } from "../src/i18n";
+import { VFM } from "@vivliostyle/vfm";
 
 function makeFile(path: string): TFile {
   const file = new TFile();
@@ -1753,6 +1754,68 @@ async function main(): Promise<void> {
   );
   const syncExport = await convertChapter({ ...syncContext, mode: "epub" }, syncContext.chapters[0], chapterOne, "# Heading\n\nParagraph.");
   checks.push(check("exports omit source synchronization metadata", !syncExport.includes("data-vivlio-source")));
+
+  // Reparse the generated HTML as a browser/EPUB exporter does. Checking
+  // for text alone misses block elements escaping an inline GCPM footnote.
+  const multiBlockFootnote = [
+    "本文前[^long]本文後。再参照[^long]。短い注[^short]。",
+    "",
+    "[^long]: 第一段落の**強調**。",
+    "",
+    "    第二段落の[リンク](https://example.com)。",
+    "",
+    "    - 箇条書きの一項目",
+    "    - 箇条書きの二項目",
+    "",
+    "    ```text",
+    "    const value = 12345;",
+    "    ```",
+    "",
+    "    最終段落。",
+    "",
+    "[^short]: 短い脚注。",
+  ].join("\n");
+  for (const mode of ["gcpm", "dpub", "pandoc"] as const) {
+    const noteContext = makeContext({ mode: "epub" });
+    noteContext.config.footnote = mode;
+    const noteHtml = await convertChapter(noteContext, noteContext.chapters[0], chapterOne, multiBlockFootnote);
+    const reparsed = String(VFM({ partial: true, math: false }).processSync(noteHtml));
+    const note = mode === "gcpm"
+      ? reparsed.match(/<p\b[^>]*>本文前((?:(?!<\/p>)[\s\S])*?)本文後/)?.[1] ?? ""
+      : mode === "dpub"
+        ? reparsed.match(/<aside\b[^>]*id="fn1"[^>]*>([\s\S]*?)<\/aside>/)?.[1] ?? ""
+        : reparsed.match(/<li\b[^>]*id="fn1"[^>]*>([\s\S]*?)<\/li>\s*<li\b[^>]*id="fn2"/)?.[1] ?? "";
+    checks.push(
+      check(`${mode}: complete multi-block footnote survives HTML parsing`,
+        ["第一段落", "第二段落", "箇条書きの一項目", "箇条書きの二項目", "const value = 12345;", "最終段落"].every(value => note.includes(value)), noteHtml),
+      check(`${mode}: inline markup in later footnote paragraphs survives`,
+        note.includes("<strong>強調</strong>") && /<a href="https:\/\/example\.com\/?">リンク<\/a>/.test(note)),
+      check(`${mode}: a repeated reference does not duplicate the note body`, (reparsed.match(/最終段落/g) ?? []).length === 1),
+      check(`${mode}: following footnote is retained`, reparsed.includes("短い脚注。")),
+      check(`${mode}: body after the call is retained`, reparsed.includes("本文後。再参照")),
+    );
+    if (mode === "gcpm") {
+      checks.push(
+        check("gcpm: paragraphs retain separate block boundaries", (note.match(/data-vivlio-footnote-block="p"/g) ?? []).length === 3),
+        check("gcpm: duplicate call targets the original note", reparsed.includes('href="#fn-long" class="footnote-duplicated-call"')),
+        check("gcpm: list semantics are retained", note.includes('role="list"') && note.includes('role="listitem"')),
+        check("gcpm: short note keeps its original inline representation", reparsed.includes('<span class="footnote" id="fn-short" role="doc-footnote">短い脚注。</span>')),
+      );
+    } else if (mode === "dpub") {
+      checks.push(
+        check("dpub: paragraphs retain native block boundaries", (note.match(/<p\b/g) ?? []).length === 3),
+        check("dpub: duplicate call and backlink keep their targets", reparsed.includes('id="fnref1-1" href="#fn1"') && note.includes('href="#fnref1"')),
+      );
+    }
+    const inlineHtml = await convertChapter(noteContext, noteContext.chapters[0], chapterOne, "本文^[インライン注]。");
+    checks.push(check(`${mode}: inline footnotes still retain their content`, inlineHtml.includes("インライン注")));
+  }
+  // The effective VFM mode can come from frontmatter instead of BookConfig.
+  const yamlNoteContext = makeContext({ mode: "epub" });
+  const yamlNoteHtml = await convertChapter(yamlNoteContext, yamlNoteContext.chapters[0], chapterOne,
+    "---\nvfm:\n  footnote:\n    mode: dpub\n    body:\n      class: custom-note\n---\n\n本文[^1]。\n\n[^1]: 一段落目。\n\n    二段落目。");
+  checks.push(check("footnote correction honors frontmatter mode and body properties",
+    /<aside[^>]*class="custom-note"[^>]*>[\s\S]*一段落目[\s\S]*二段落目[\s\S]*<\/aside>/.test(yamlNoteHtml), yamlNoteHtml));
 
   let failed = 0;
   for (const result of checks) {
