@@ -62,11 +62,8 @@ export async function renderPdf(
   // `electron.remote` is unavailable, and it is set before the first load,
   // which is the only time web preferences are read.
   webview.setAttribute("webpreferences", "backgroundThrottling=false");
-  webview.src = "about:blank";
+  webview.src = viewerUrl;
 
-  // The listener goes on before the element is attached, because attaching is
-  // what starts the load: registering afterwards can miss `dom-ready`.
-  const firstReady = once(webview, "dom-ready", context.settings.printTimeoutMs, signal);
   const failures: string[] = [];
   webview.addEventListener("did-fail-load", (event) => {
     const detail = event as unknown as { errorCode?: number; errorDescription?: string };
@@ -74,6 +71,9 @@ export async function renderPdf(
     if (detail.errorCode === -3) return;
     failures.push(`${detail.errorDescription ?? "load failed"} (${detail.errorCode})`);
   });
+
+  options.onProgress?.("loading");
+  const ready = once(webview, "dom-ready", context.settings.printTimeoutMs, signal);
   document.body.appendChild(webview);
 
   const abortListener = () => {
@@ -81,20 +81,15 @@ export async function renderPdf(
   };
   signal?.addEventListener("abort", abortListener, { once: true });
 
+  let debuggerHandle: RemoteWebContentsInstance | null = null;
   try {
-    await firstReady;
-    throwIfAborted(signal);
-    log.debug("print webview ready");
-
-    // Vivliostyle evaluates media queries while laying out, so the media type
-    // has to be `print` before the document loads (SPEC 3.5).
-    const debuggerHandle = await emulatePrintMedia(context, webview);
-
-    options.onProgress?.("loading");
-    const ready = once(webview, "dom-ready", context.settings.printTimeoutMs, signal);
-    await webview.loadURL(viewerUrl);
     await ready;
+    throwIfAborted(signal);
     log.debug("viewer loaded");
+
+    // Vivliostyle evaluates media queries while laying out, so switch the
+    // media type to `print` once the document is attached and ready.
+    debuggerHandle = await emulatePrintMedia(context, webview);
 
     options.onProgress?.("typesetting");
     await waitForViewer(webview, context.settings.printTimeoutMs, signal, failures);
