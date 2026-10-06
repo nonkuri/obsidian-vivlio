@@ -402,6 +402,26 @@ register. `vivlio:base`, `vivlio:bunko`, `vivlio:techbook` and `vivlio:academic`
 of the picker: they have not been gone over against this plugin's folios and
 headings yet.
 
+**The bundled themes are Vivliostyle Themes v2** (theme-base 2.1.1, the
+official themes 2.0.2), and every theme built for this plugin stands on that
+same theme-base. Vivliostyle released Themes v3 in September 2026 and its
+documentation now describes the v3 way of writing a theme, which does not work
+here. Nothing fails loudly; the rules are simply ignored. Two things in
+particular:
+
+- Import a bundled theme as `vivlio:novel` and so on. The v3 package imports,
+  such as `@import '@vivliostyle/theme-base/page';`, do not resolve.
+- Use the v2 variable names. v3 renamed many of them (`--vs--html-font-size`
+  became `--vs-font-size`, `--vs-page--mbox-content-top-left` became
+  `--vs-page--mbox-top-left-content`, and so on), and a v2 theme does not read
+  the new names. To adapt a v3 stylesheet, read the table in the
+  [v3 migration guide](https://docs.vivliostyle.org/themes/migration-v3/)
+  backwards.
+
+The [manual](manual/06-custom-theme.md#vivliostyle-themes-v3-の書き方は使えません)
+lists the names people reach for most often. Moving the bundled themes to v3 will
+be announced in the release notes.
+
 For papers and reports, choose **Paper / report (A4, horizontal)** in the setup wizard (Vivlio 0.14.0 or later). The `paper` theme joins the manuscript notes into a continuous flow and automatically numbers chapters, sections, figures and tables across notes. The contents and ID-based references use those numbers. Set the note property `vivlio-paper-role` to `abstract`, `references`, `appendix` or `unnumbered` where appropriate; the default is `body`. Appendices use A, A.1, etc.
 
 Figures float with their captions to page tops, allowing subsequent prose to fill the remaining space. Long tables span pages with repeated captions and column headers. See the [sample manuscript](sample/paper/index.md) and [configuration](sample/paper/vivlio.yaml): no manually entered numbers or additional CSS are needed. Selecting a theme alone does not change the paper size or writing direction. Use `theme: paper` to enable the manuscript processing; importing its CSS alone does not enable automatic numbering across notes.

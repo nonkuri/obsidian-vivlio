@@ -33,7 +33,36 @@
 | `vivlio:techbook` | Vivliostyle theme-techbook |
 | `vivlio:academic` | Vivliostyle theme-academic |
 
+`vivlio:base`・`vivlio:bunko`・`vivlio:techbook`・`vivlio:academic` は **Vivliostyle Themes v2**（theme-base 2.1.1、各公式テーマ 2.0.2）です。`novel` などの Vivlio 独自テーマも v2 の theme-base を土台にしています。次の「Vivliostyle Themes v3 の書き方は使えません」も参照してください。
+
 テーマ選択欄に標準表示される同梱テーマは、プラグインの構造と突き合わせて確認済みの `novel`（縦組み）、`novel-2col`（縦組み二段組）、`essay`（縦組みの一般書・エッセイ）、`haiku`（句集）、`tanka`（歌集）、`english-novel`（英語小説の横組み）、`manual`（横組み）、`paper`（論文・レポート）です。ほかのテーマは `vivlio:` import から利用できますが、扉・目次・奥付・柱・ノンブル・縦横組みを必ず確認してください。
+
+## Vivliostyle Themes v3 の書き方は使えません
+
+Vivliostyle は 2026年9月に **Vivliostyle Themes v3**（theme-base 3.0.0）を公開し、テーマの書き方を大きく変えました。現在の [Vivliostyle 公式ドキュメント](https://docs.vivliostyle.org/ja/themes/usage/)は v3 の書き方で説明しています。**Vivlio に同梱しているテーマは v2 のままです。** 公式ドキュメントや生成 AI が示す v3 の書き方をそのまま使うと、エラーは出ずに、指定が黙って無視されます。
+
+特に次の点に注意してください。
+
+- **パッケージ名による import は使えません。** `@import '@vivliostyle/theme-base';` や `@import '@vivliostyle/theme-base/page';` のような v3 形式の import は解決されません。同梱テーマは `@import url("vivlio:novel");` のように `vivlio:` で読み込みます。
+- **CSS 変数の名前が違います。** v3 で改名された名前を書いても、v2 のテーマはその変数を読みません。よく使うものを次に挙げます。
+
+| 用途 | Vivlio で使う名前（v2） | 使えない名前（v3） |
+|---|---|---|
+| 本文の文字サイズ | `--vs--html-font-size` | `--vs-font-size` |
+| 文字色・背景色 | `--vs-color-body` / `--vs-color-bg` | `--vs-color-foreground` / `--vs-color-background` |
+| 罫線の色 | `--vs-border-color` | `--vs-color-border` |
+| 柱・ノンブルの内容 | `--vs-page--mbox-content-top-left` など | `--vs-page--mbox-top-left-content` など |
+| 柱・ノンブルの色 | `--vs-page--mbox-color-body` | `--vs-page--mbox-text-color` |
+| のど・小口の余白 | `--vs-page--margin-inner` / `-outer` | `--vs-page--margin-inside` / `-outside` |
+| リンクの色 | `--vs--anchor-color` | `--vs--anchor-text-color` |
+| コードの色 | `--vs-prism--color-<token>` | `--vs-prism--<token>-text-color` |
+| 図表番号の表示 | `--vs-crossref--*` | `--vs-figure--*` / `--vs-table--*` など |
+| 公式テーマ固有の変数 | `--vs-theme--*` | `--vs-theme-<テーマ名>--*` |
+| 印刷時だけの値 | `--vs-font-size-on-print` など `-on-print` 付きの変数 | `@media print { :root { ... } }` で再定義 |
+
+v3 向けに書かれた CSS を Vivlio で使う場合は、[Vivliostyle Themes v3 への移行ガイド](https://docs.vivliostyle.org/ja/themes/migration-v3/)の改名表を逆向きに引いて、v2 の名前に戻してください。v2 の変数の一覧は、[theme-base 2.1.1 の README](https://www.npmjs.com/package/@vivliostyle/theme-base/v/2.1.1) で確認できます。
+
+Vivlio を v3 に移行するときは、リリースノートとこのマニュアルでお知らせします。
 
 ## マニュアル・操作ガイドを組む
 
@@ -147,7 +176,7 @@ theme: 装丁/遠雷.css
 - それ以外の相対パスは、import 元 CSS の場所を基準に Vault から読みます。
 - 各ファイルは一度だけ展開されるため、循環 import で無限ループしません。
 - `https:` などのリモート CSS は import のまま残ります。オフライン EPUB や配布の再現性を考えると、必要な CSS は Vault 内に置く方が安全です。
-- npm パッケージ名の解決は行いません。CLI 向けの `@import url(../@vivliostyle/...)` をそのまま書いても、Vault に対応ファイルがなければ読めません。Vivlio では `vivlio:` を使います。
+- npm パッケージ名の解決は行いません。CLI 向けの `@import url(../@vivliostyle/...)` や、Themes v3 形式の `@import '@vivliostyle/theme-base/page';` をそのまま書いても、Vault に対応ファイルがなければ読めません。Vivlio では `vivlio:` を使います。
 
 展開後の同じ CSS がプレビューと EPUB に使われます。
 
@@ -227,7 +256,7 @@ CSS 自体は本全体へ読み込まれますが、上の規則は `class: abou
 
 ## `novel` テーマの主な変数
 
-`novel` は [Vivliostyle theme-base](https://docs.vivliostyle.org/ja/themes/usage/#theme-baseを直接使う) の全モジュールを土台にしています。
+`novel` は [Vivliostyle theme-base 2.1.1](https://www.npmjs.com/package/@vivliostyle/theme-base/v/2.1.1)（Themes v2）の全モジュールを土台にしています。変数名は v2 のものです（[v3 の書き方は使えません](#vivliostyle-themes-v3-の書き方は使えません)）。
 
 | 変数 | 初期値 | 用途 |
 |---|---:|---|
@@ -354,6 +383,7 @@ CSS を一から設計するのが難しい場合は、ChatGPT にリポジト�
 > このリポジトリの README と `manual/06-custom-theme.md` を確認し、Vivlio の Vault 内テーマとして使える英語小説用 CSS を作ってください。
 >
 > - `vivlio:english-novel` を土台にする
+> - CSS 変数は Vivliostyle Themes v2（theme-base 2.1.1）の名前を使い、v3 の名前やパッケージ名の `@import` は使わない
 > - CSS ファイルの配置例と `vivlio.yaml` の `theme` の記述も示す
 > - 外部 URL や npm パッケージには依存しない
 > - 本文、見出し、柱、ノンブル、扉、目次を整える
@@ -369,6 +399,8 @@ ChatGPT がリンク先を参照できない場合は、この章、現在使っ
 ## Vivliostyle 公式ドキュメントへの案内
 
 Vivlio 固有なのは、Vault 内 CSS の選択、`vivlio:` import、適用順、上記クラスです。CSS 組版そのものは Vivliostyle の公式資料を参照してください。
+
+> テーマに関する公式資料は Vivliostyle Themes v3 の書き方に更新されています。Vivlio の同梱テーマは v2 なので、CSS 変数の名前と import の書き方は[v3 の書き方は使えません](#vivliostyle-themes-v3-の書き方は使えません)の表で読み替えてください。`@page`、縦組み、段組などの CSS 組版そのものの説明はそのまま使えます。
 
 - [テーマの使い方 — CSS 変数と公式テーマ](https://docs.vivliostyle.org/ja/themes/usage/)
 - [Theme の開発](https://docs.vivliostyle.org/ja/themes/development/)

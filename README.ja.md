@@ -306,6 +306,13 @@ theme: ./装丁/私の本.css
 
 テーマの選択欄には、このプラグインのために作られた 8 つのテーマ —— `novel`（小説を縦組みで）、`essay`（一般書・エッセイを縦組みで）、`haiku`（句集）、`tanka`（歌集）、`novel-2col`（小説を縦組み二段組で）、`english-novel`（英語小説を欧米のペーパーバック風に）、`manual`（マニュアル・技術書を横組みで）、`paper`（論文・レポートを横組みで）—— に続いて、**Vault 内のすべての `.css` ファイルがそのパスで並びます**。Vault のどこかにスタイルシートを置けばそれだけで候補に出るので、登録の手続きはありません。CC0 の Vivliostyle テーマである `vivlio:base`、`vivlio:bunko`、`vivlio:techbook`、`vivlio:academic` も、本が名指せば解決されますが、選択欄には出しません。このプラグインのノンブルや見出しと突き合わせた確認がまだ済んでいないためです。
 
+**同梱テーマは Vivliostyle Themes v2 です**（theme-base 2.1.1、公式テーマ 2.0.2）。このプラグイン独自のテーマも、同じ v2 の theme-base を土台にしています。Vivliostyle は 2026年9月に Themes v3 を公開し、公式ドキュメントも v3 の書き方に変わりましたが、**v3 の書き方はこのプラグインでは使えません**。エラーは出ず、指定が黙って無視されます。特に次の 2 点に注意してください。
+
+- 同梱テーマは `vivlio:novel` などで読み込みます。`@import '@vivliostyle/theme-base/page';` のような v3 のパッケージ名による import は解決されません。
+- CSS 変数は v2 の名前を使います。v3 では多くの変数が改名されました（`--vs--html-font-size` → `--vs-font-size`、`--vs-page--mbox-content-top-left` → `--vs-page--mbox-top-left-content` など）。v2 のテーマは新しい名前を読みません。v3 向けの CSS を使う場合は、[v3 への移行ガイド](https://docs.vivliostyle.org/ja/themes/migration-v3/)の改名表を逆向きに引いて名前を戻してください。
+
+よく使う変数の対照表は[マニュアル](manual/06-custom-theme.md#vivliostyle-themes-v3-の書き方は使えません)にあります。同梱テーマを v3 に移行するときは、リリースノートでお知らせします。
+
 ### 論文・レポート
 
 Vivlio 0.14.0以降のウィザードで **論文・レポート（A4・横組み）** を選ぶと、`academic` を調整した `paper` テーマを使います。複数原稿を自然につなぎ、章・節・図表を論文全体で自動採番して、目次とID参照へ反映します。要旨・参考文献・付録などはノートの `vivlio-paper-role` で指定し、付録はA、A.1形式にします。
